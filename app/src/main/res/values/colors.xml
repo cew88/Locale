@@ -7,4 +7,12 @@
     <color name="teal_700">#FF018786</color>
     <color name="black">#FF000000</color>
     <color name="white">#FFFFFFFF</color>
+
+    <color name="dusty_red">#D58B73</color>
+    <color name="dusty_blue_dark">#7E94A1</color>
+    <color name="dusty_blue_light">#93BCC8</color>
+    <color name="dusty_green_dark">#84AC7C</color>
+    <color name="dusty_green_light">#ADCF9F</color>
+    <color name="dusty_purple">#D8CCD6</color>
+    <color name="dusty_beige">#DDCDC2</color>
 </resources>
