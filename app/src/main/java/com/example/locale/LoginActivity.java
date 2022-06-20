@@ -1,3 +1,8 @@
+/*
+Login activity allows users to log in to their account or navigate to a create account activity if
+they do not already have an account. Successful log in allows users to access the main activity.
+ */
+
 package com.example.locale;
 
 import androidx.appcompat.app.ActionBar;
@@ -33,9 +38,15 @@ public class LoginActivity extends AppCompatActivity {
         ActionBar actionBar = getSupportActionBar();
         actionBar.hide();
 
+        // If the user is already logged in, skip the log in screen and navigate to the main activity
+        if (ParseUser.getCurrentUser() != null){
+            navigateToMainActivity();
+        }
+
         mUsername = findViewById(R.id.etUsernameLogin);
         mPassword = findViewById(R.id.etPasswordLogin);
 
+        // Handle what happens when the text prompting users to create an account is clicked
         mCreateAccount = findViewById(R.id.tvNoAccount);
         mCreateAccount.setOnClickListener(new View.OnClickListener() {
             @Override

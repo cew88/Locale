@@ -1,24 +1,33 @@
+/*
+Main activity is accessible once users log in or create a new account. Main activity accesses the user's
+location from the Parse database and queries the Places API to generate a list of local landmarks.
+ */
+
 package com.example.locale;
 
-import androidx.annotation.NonNull;
 import androidx.appcompat.app.ActionBar;
 import androidx.appcompat.app.AppCompatActivity;
-import androidx.core.app.ActivityCompat;
-import androidx.core.content.ContextCompat;
 
-import android.Manifest;
-import android.content.Context;
-import android.content.pm.PackageManager;
-import android.location.Location;
-import android.location.LocationListener;
-import android.location.LocationManager;
 import android.os.Bundle;
 import android.util.Log;
 import android.widget.Toast;
 
+import com.codepath.asynchttpclient.AsyncHttpClient;
+import com.codepath.asynchttpclient.callback.JsonHttpResponseHandler;
+import com.google.android.libraries.places.api.Places;
+import com.google.android.libraries.places.api.net.PlacesClient;
+import com.parse.ParseGeoPoint;
+import com.parse.ParseUser;
+
+import org.json.JSONArray;
+import org.json.JSONException;
+import org.json.JSONObject;
+
+import okhttp3.Headers;
+
 public class MainActivity extends AppCompatActivity {
-    private Double longitude;
-    private Double latitude;
+    public static final String TAG = "MainActivity";
+
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -29,26 +38,34 @@ public class MainActivity extends AppCompatActivity {
         ActionBar actionBar = getSupportActionBar();
         actionBar.hide();
 
-        LocationManager locationManager = (LocationManager) getSystemService(Context.LOCATION_SERVICE);
-        LocationListener locationListener = new LocationListener() {
+        // Initialize the SDK
+        Places.initialize(getApplicationContext(), BuildConfig.MAPS_API_KEY);
+
+        ParseUser currentUser = ParseUser.getCurrentUser();
+        ParseGeoPoint geoPoint = (ParseGeoPoint) currentUser.get("location");
+        double latitude = geoPoint.getLatitude();
+        double longitude = geoPoint.getLongitude();
+
+        String url = "https://maps.googleapis.com/maps/api/place/nearbysearch/json?location=" + latitude +  "%2C" + longitude + "&radius=30000&type=restaurant&key=" + BuildConfig.MAPS_API_KEY;
+        AsyncHttpClient client = new AsyncHttpClient();
+        client.get(url, new JsonHttpResponseHandler() {
             @Override
-            public void onLocationChanged(@NonNull Location location) {
-                longitude = location.getLongitude();
-                latitude = location.getLatitude();
-
-                Toast.makeText(MainActivity.this, "Longitude: " + longitude + ", Latitude: " + latitude, Toast.LENGTH_SHORT).show();
+            public void onSuccess(int statusCode, Headers headers, JSON json) {
+                JSONObject jsonObject = json.jsonObject;
+                try {
+                    JSONArray jsonArray = jsonObject.getJSONArray("results");
+                    // Log.d(TAG, latitude + "," + longitude);
+                    Log.d(TAG, jsonArray.toString());
+                } catch (JSONException e) {
+                    e.printStackTrace();
+                }
             }
-        };
 
-        if (ActivityCompat.checkSelfPermission(this, Manifest.permission.ACCESS_FINE_LOCATION) != PackageManager.PERMISSION_GRANTED && ActivityCompat.checkSelfPermission(this, Manifest.permission.ACCESS_COARSE_LOCATION) != PackageManager.PERMISSION_GRANTED) {
-            if (ContextCompat.checkSelfPermission(this, Manifest.permission.ACCESS_FINE_LOCATION) != PackageManager.PERMISSION_GRANTED ||
-                    ContextCompat.checkSelfPermission(this, Manifest.permission.ACCESS_COARSE_LOCATION) != PackageManager.PERMISSION_GRANTED){
-                ActivityCompat.requestPermissions(this, new String[]{Manifest.permission.ACCESS_FINE_LOCATION,Manifest.permission.ACCESS_COARSE_LOCATION},
-                        123);
+            @Override
+            public void onFailure(int statusCode, Headers headers, String response, Throwable throwable) {
+                Log.d(TAG, "onFailure");
             }
-            return;
-        }
+        });
 
-        locationManager.requestLocationUpdates(LocationManager.GPS_PROVIDER, 5000, 10, locationListener);
     }
 }
