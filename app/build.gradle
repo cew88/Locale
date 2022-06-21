@@ -51,4 +51,6 @@ dependencies {
     // AsyncHttpClient
     implementation 'com.codepath.libraries:asynchttpclient:2.2.0'
 
+    // Google material library dependency
+    implementation 'com.google.android.material:material:1.0.0'
 }
