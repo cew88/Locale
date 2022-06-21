@@ -34,6 +34,7 @@ import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
 
+import java.util.ArrayList;
 import java.util.List;
 
 import okhttp3.Headers;
@@ -73,10 +74,19 @@ public class MainActivity extends AppCompatActivity {
                     JSONObject jsonObject = json.jsonObject;
                     try {
                         JSONArray jsonArray = jsonObject.getJSONArray("results");
+                        JSONArray landmarks = new JSONArray();
+
                         for (int i=0; i<jsonArray.length(); i++){
                             JSONObject locationObject = jsonArray.getJSONObject(i);
+
+                            JSONObject locationToAdd = new JSONObject();
+                            locationToAdd.put(locationObject.getString("place_id"), "not visited");
+                            landmarks.put(locationToAdd);
                             saveLocation(locationObject);
                         }
+                        Log.d(TAG, String.valueOf(landmarks));
+                        currentUser.put("landmarks", landmarks);
+                        currentUser.saveInBackground();
                         // Log.d(TAG, latitude + "," + longitude);
                         // Log.d(TAG, jsonArray.toString());
                     } catch (JSONException e) {
@@ -121,6 +131,8 @@ public class MainActivity extends AppCompatActivity {
         });
     }
 
+    // Save the queried locations to the Location class in the Parse Database
+    // Check for duplicate place_id's before adding
     private void saveLocation(JSONObject locationObject) throws JSONException {
         Location newLocation = new Location();
         newLocation.setName(locationObject.getString("name"));
@@ -160,7 +172,5 @@ public class MainActivity extends AppCompatActivity {
                 }
             }
         });
-
-
     }
 }
