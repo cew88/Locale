@@ -11,7 +11,6 @@ import androidx.appcompat.app.AppCompatActivity;
 import androidx.fragment.app.Fragment;
 import androidx.fragment.app.FragmentManager;
 
-import android.content.Intent;
 import android.os.Bundle;
 import android.util.Log;
 import android.view.MenuItem;
@@ -20,14 +19,22 @@ import android.widget.Toast;
 import com.codepath.asynchttpclient.AsyncHttpClient;
 import com.codepath.asynchttpclient.callback.JsonHttpResponseHandler;
 import com.google.android.libraries.places.api.Places;
-import com.google.android.libraries.places.api.net.PlacesClient;
 import com.google.android.material.bottomnavigation.BottomNavigationView;
+import com.parse.FindCallback;
+import com.parse.GetCallback;
+import com.parse.Parse;
+import com.parse.ParseException;
 import com.parse.ParseGeoPoint;
+import com.parse.ParseObject;
+import com.parse.ParseQuery;
 import com.parse.ParseUser;
+import com.parse.SaveCallback;
 
 import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
+
+import java.util.List;
 
 import okhttp3.Headers;
 
@@ -39,6 +46,8 @@ public class MainActivity extends AppCompatActivity {
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
+
+        ParseObject.registerSubclass(Location.class);
 
         // Hide the action bar on the login screen
         ActionBar actionBar = getSupportActionBar();
@@ -55,8 +64,8 @@ public class MainActivity extends AppCompatActivity {
         if (geoPoint != null){
             double latitude = geoPoint.getLatitude();
             double longitude = geoPoint.getLongitude();
-
-            String url = "https://maps.googleapis.com/maps/api/place/nearbysearch/json?location=" + latitude +  "%2C" + longitude + "&radius=30000&type=restaurant&key=" + BuildConfig.MAPS_API_KEY;
+            // &type=restaurant
+            String url = "https://maps.googleapis.com/maps/api/place/nearbysearch/json?location=" + latitude +  "%2C" + longitude + "&radius=30000&key=" + BuildConfig.MAPS_API_KEY;
             AsyncHttpClient client = new AsyncHttpClient();
             client.get(url, new JsonHttpResponseHandler() {
                 @Override
@@ -64,8 +73,12 @@ public class MainActivity extends AppCompatActivity {
                     JSONObject jsonObject = json.jsonObject;
                     try {
                         JSONArray jsonArray = jsonObject.getJSONArray("results");
+                        for (int i=0; i<jsonArray.length(); i++){
+                            JSONObject locationObject = jsonArray.getJSONObject(i);
+                            saveLocation(locationObject);
+                        }
                         // Log.d(TAG, latitude + "," + longitude);
-                        Log.d(TAG, jsonArray.toString());
+                        // Log.d(TAG, jsonArray.toString());
                     } catch (JSONException e) {
                         e.printStackTrace();
                     }
@@ -77,6 +90,9 @@ public class MainActivity extends AppCompatActivity {
                 }
             });
         }
+        else {
+            // Get the user's location
+        }
 
 
         BottomNavigationView bottomNavigationView = findViewById(R.id.bottom_navigation);
@@ -84,7 +100,7 @@ public class MainActivity extends AppCompatActivity {
         bottomNavigationView.setOnItemSelectedListener(new BottomNavigationView.OnNavigationItemSelectedListener() {
             @Override
             public boolean onNavigationItemSelected(@NonNull MenuItem item) {
-                Fragment fragment = null;
+                Fragment fragment;
                 switch (item.getItemId()) {
                     case R.id.action_home:
                         fragment = new HomeFragment();
@@ -94,8 +110,6 @@ public class MainActivity extends AppCompatActivity {
                         break;
                     case R.id.action_profile:
                         fragment = new ProfileFragment();
-                        // Intent intent = new Intent(MainActivity.this, ProfileActivity.class);
-                        // startActivity(intent);
                         break;
                     default:
                         throw new IllegalStateException("Unexpected value: " + item.getItemId());
@@ -105,5 +119,48 @@ public class MainActivity extends AppCompatActivity {
             }
 
         });
+    }
+
+    private void saveLocation(JSONObject locationObject) throws JSONException {
+        Location newLocation = new Location();
+        newLocation.setName(locationObject.getString("name"));
+        newLocation.setPlaceId(locationObject.getString("place_id"));
+        newLocation.setTypes(locationObject.getJSONArray("types"));
+        newLocation.setVicinity(locationObject.getString("vicinity"));
+
+        JSONObject coordinates = locationObject.getJSONObject("geometry").getJSONObject("location");
+        double lat = coordinates.getDouble("lat");
+        double lng = coordinates.getDouble("lng");
+        newLocation.setCoordinates(new ParseGeoPoint(lat, lng));
+
+        ParseQuery<ParseObject> query = ParseQuery.getQuery("Location");
+        query.whereEqualTo("place_id", locationObject.getString("place_id"));
+        query.getFirstInBackground(new GetCallback<ParseObject>() {
+            public void done(ParseObject object, ParseException e) {
+                if(e == null) {
+                    Log.d(TAG,"Object exists!");
+                }
+                else {
+                    if(e.getCode() == ParseException.OBJECT_NOT_FOUND) {
+                        Log.d(TAG, "Object does not exist");
+                        newLocation.saveInBackground(new SaveCallback() {
+                            @Override
+                            public void done(ParseException e) {
+                                if (e != null) {
+                                    Log.e(TAG, "Error while saving!", e);
+                                    Toast.makeText(MainActivity.this, "Error while saving!", Toast.LENGTH_SHORT).show();
+                                }
+                                Log.i(TAG, "Location save was successful!");
+                            }
+                        });
+                    }
+                    else {
+                        Log.d(TAG, "Error!");
+                    }
+                }
+            }
+        });
+
+
     }
 }
