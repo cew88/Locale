@@ -69,54 +69,53 @@ public class MainActivity extends AppCompatActivity {
             // TO DO: Add limitations to when the API call is made
 
             // &type=restaurant
-//            String url = "https://maps.googleapis.com/maps/api/place/nearbysearch/json?location=" + latitude +  "%2C" + longitude + "&radius=30000&key=" + BuildConfig.MAPS_API_KEY;
-//            AsyncHttpClient client = new AsyncHttpClient();
-//            client.get(url, new JsonHttpResponseHandler() {
-//                @Override
-//                public void onSuccess(int statusCode, Headers headers, JSON json) {
-//                    JSONObject jsonObject = json.jsonObject;
-//                    try {
-//                        JSONArray jsonArray = jsonObject.getJSONArray("results");
-//                        JSONArray allLandmarks = new JSONArray();
-//
-//                        for (int i=0; i<jsonArray.length(); i++){
-//                            JSONObject locationObject = jsonArray.getJSONObject(i);
-//
-//                            Location newLocation = new Location();
-//                            newLocation.setName(locationObject.getString("name"));
-//                            newLocation.setPlaceId(locationObject.getString("place_id"));
-//                            newLocation.setTypes(locationObject.getJSONArray("types"));
-//                            newLocation.setVicinity(locationObject.getString("vicinity"));
-//
-//                            JSONObject coordinates = locationObject.getJSONObject("geometry").getJSONObject("location");
-//                            double lat = coordinates.getDouble("lat");
-//                            double lng = coordinates.getDouble("lng");
-//                            newLocation.setCoordinates(new ParseGeoPoint(lat, lng));
-//                            allLandmarks.put(newLocation);
-//
-//                            saveLocation(newLocation, locationObject.getString("place_id"));
-//                        }
-//                        // Log.d(TAG, String.valueOf(landmarks));
-//                        currentUser.put("all_landmarks", allLandmarks);
-//                        currentUser.put("not_visited_landmarks", allLandmarks);
-//                        currentUser.saveInBackground();
-//                        // Log.d(TAG, latitude + "," + longitude);
-//                        // Log.d(TAG, jsonArray.toString());
-//                    } catch (JSONException e) {
-//                        e.printStackTrace();
-//                    }
-//                }
-//
-//                @Override
-//                public void onFailure(int statusCode, Headers headers, String response, Throwable throwable) {
-//                    Log.d(TAG, "onFailure");
-//                }
-//            });
-//        }
-//        else {
-//            // Get the user's location
-//        }
+            String url = "https://maps.googleapis.com/maps/api/place/nearbysearch/json?location=" + latitude +  "%2C" + longitude + "&radius=30000&key=" + BuildConfig.MAPS_API_KEY;
+            AsyncHttpClient client = new AsyncHttpClient();
+            client.get(url, new JsonHttpResponseHandler() {
+                @Override
+                public void onSuccess(int statusCode, Headers headers, JSON json) {
+                    JSONObject jsonObject = json.jsonObject;
+                    try {
+                        JSONArray jsonArray = jsonObject.getJSONArray("results");
+                        JSONArray allLandmarks = new JSONArray();
 
+                        for (int i=0; i<jsonArray.length(); i++){
+                            JSONObject locationObject = jsonArray.getJSONObject(i);
+
+                            Location newLocation = new Location();
+                            newLocation.setName(locationObject.getString("name"));
+                            newLocation.setPlaceId(locationObject.getString("place_id"));
+                            newLocation.setTypes(locationObject.getJSONArray("types"));
+                            newLocation.setVicinity(locationObject.getString("vicinity"));
+
+                            JSONObject coordinates = locationObject.getJSONObject("geometry").getJSONObject("location");
+                            double lat = coordinates.getDouble("lat");
+                            double lng = coordinates.getDouble("lng");
+                            newLocation.setCoordinates(new ParseGeoPoint(lat, lng));
+                            allLandmarks.put(newLocation);
+
+                            saveLocation(newLocation, locationObject.getString("place_id"));
+                        }
+                        // Log.d(TAG, String.valueOf(landmarks));
+                        currentUser.put("all_landmarks", allLandmarks);
+                        currentUser.put("not_visited_landmarks", allLandmarks);
+                        currentUser.saveInBackground();
+                        // Log.d(TAG, latitude + "," + longitude);
+                        // Log.d(TAG, jsonArray.toString());
+                    } catch (JSONException e) {
+                        e.printStackTrace();
+                    }
+                }
+
+                @Override
+                public void onFailure(int statusCode, Headers headers, String response, Throwable throwable) {
+                    Log.d(TAG, "onFailure");
+                }
+            });
+        }
+        else {
+            // Get the user's location
+        }
 
         BottomNavigationView bottomNavigationView = findViewById(R.id.bottom_navigation);
         bottomNavigationView.setSelectedItemId(R.id.action_home);
@@ -146,33 +145,33 @@ public class MainActivity extends AppCompatActivity {
 
     // Save the queried locations to the Location class in the Parse Database
     // Check for duplicate place_id's before adding
-//    private void saveLocation(Location location, String place_id) throws JSONException {
-//        ParseQuery<ParseObject> query = ParseQuery.getQuery("Location");
-//        query.whereEqualTo("place_id", place_id);
-//        query.getFirstInBackground(new GetCallback<ParseObject>() {
-//            public void done(ParseObject object, ParseException e) {
-//                if(e == null) {
-//                    Log.d(TAG,"Object exists!");
-//                }
-//                else {
-//                    if(e.getCode() == ParseException.OBJECT_NOT_FOUND) {
-//                        Log.d(TAG, "Object does not exist");
-//                        location.saveInBackground(new SaveCallback() {
-//                            @Override
-//                            public void done(ParseException e) {
-//                                if (e != null) {
-//                                    Log.e(TAG, "Error while saving!", e);
-//                                    Toast.makeText(MainActivity.this, "Error while saving!", Toast.LENGTH_SHORT).show();
-//                                }
-//                                Log.i(TAG, "Location save was successful!");
-//                            }
-//                        });
-//                    }
-//                    else {
-//                        Log.d(TAG, "Error!");
-//                    }
-//                }
-//            }
-//        });
+    private void saveLocation(Location location, String place_id) throws JSONException {
+        ParseQuery<ParseObject> query = ParseQuery.getQuery("Location");
+        query.whereEqualTo("place_id", place_id);
+        query.getFirstInBackground(new GetCallback<ParseObject>() {
+            public void done(ParseObject object, ParseException e) {
+                if(e == null) {
+                    Log.d(TAG,"Object exists!");
+                }
+                else {
+                    if(e.getCode() == ParseException.OBJECT_NOT_FOUND) {
+                        Log.d(TAG, "Object does not exist");
+                        location.saveInBackground(new SaveCallback() {
+                            @Override
+                            public void done(ParseException e) {
+                                if (e != null) {
+                                    Log.e(TAG, "Error while saving!", e);
+                                    Toast.makeText(MainActivity.this, "Error while saving!", Toast.LENGTH_SHORT).show();
+                                }
+                                Log.i(TAG, "Location save was successful!");
+                            }
+                        });
+                    }
+                    else {
+                        Log.d(TAG, "Error!");
+                    }
+                }
+            }
+        });
     }
 }

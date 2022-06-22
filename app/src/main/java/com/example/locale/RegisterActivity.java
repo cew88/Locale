@@ -155,6 +155,7 @@ public class RegisterActivity extends AppCompatActivity {
 
     // Create user account without location
     private void createUser(String firstName, String lastName, String username, String email, String password) throws ParseException {
+
         ParseUser newUser = new ParseUser();
         newUser.put("first_name", firstName);
         newUser.put("last_name", lastName);
