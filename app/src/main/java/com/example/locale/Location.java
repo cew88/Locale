@@ -9,7 +9,7 @@ import org.json.JSONArray;
 @ParseClassName("Location")
 public class Location extends ParseObject {
     public static final String KEY_COORDINATES= "coordinates";
-    public static final String KEY_NAME = "name";
+    public static final String KEY_NAME = "place_name";
     public static final String KEY_PLACE_ID = "place_id";
     public static final String KEY_TYPES = "types";
     public static final String KEY_VICINITY = "vicinity";
