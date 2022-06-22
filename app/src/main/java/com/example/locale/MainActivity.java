@@ -65,6 +65,9 @@ public class MainActivity extends AppCompatActivity {
         if (geoPoint != null){
             double latitude = geoPoint.getLatitude();
             double longitude = geoPoint.getLongitude();
+
+            // TO DO: Add limitations to when the API call is made
+
             // &type=restaurant
             String url = "https://maps.googleapis.com/maps/api/place/nearbysearch/json?location=" + latitude +  "%2C" + longitude + "&radius=30000&key=" + BuildConfig.MAPS_API_KEY;
             AsyncHttpClient client = new AsyncHttpClient();
@@ -74,18 +77,28 @@ public class MainActivity extends AppCompatActivity {
                     JSONObject jsonObject = json.jsonObject;
                     try {
                         JSONArray jsonArray = jsonObject.getJSONArray("results");
-                        JSONArray landmarks = new JSONArray();
+                        JSONArray allLandmarks = new JSONArray();
 
                         for (int i=0; i<jsonArray.length(); i++){
                             JSONObject locationObject = jsonArray.getJSONObject(i);
 
-                            JSONObject locationToAdd = new JSONObject();
-                            locationToAdd.put(locationObject.getString("place_id"), "not visited");
-                            landmarks.put(locationToAdd);
-                            saveLocation(locationObject);
+                            Location newLocation = new Location();
+                            newLocation.setName(locationObject.getString("name"));
+                            newLocation.setPlaceId(locationObject.getString("place_id"));
+                            newLocation.setTypes(locationObject.getJSONArray("types"));
+                            newLocation.setVicinity(locationObject.getString("vicinity"));
+
+                            JSONObject coordinates = locationObject.getJSONObject("geometry").getJSONObject("location");
+                            double lat = coordinates.getDouble("lat");
+                            double lng = coordinates.getDouble("lng");
+                            newLocation.setCoordinates(new ParseGeoPoint(lat, lng));
+                            allLandmarks.put(newLocation);
+
+                            saveLocation(newLocation, locationObject.getString("place_id"));
                         }
-                        Log.d(TAG, String.valueOf(landmarks));
-                        currentUser.put("landmarks", landmarks);
+                        // Log.d(TAG, String.valueOf(landmarks));
+                        currentUser.put("all_landmarks", allLandmarks);
+                        currentUser.put("not_visited_landmarks", allLandmarks);
                         currentUser.saveInBackground();
                         // Log.d(TAG, latitude + "," + longitude);
                         // Log.d(TAG, jsonArray.toString());
@@ -133,20 +146,9 @@ public class MainActivity extends AppCompatActivity {
 
     // Save the queried locations to the Location class in the Parse Database
     // Check for duplicate place_id's before adding
-    private void saveLocation(JSONObject locationObject) throws JSONException {
-        Location newLocation = new Location();
-        newLocation.setName(locationObject.getString("name"));
-        newLocation.setPlaceId(locationObject.getString("place_id"));
-        newLocation.setTypes(locationObject.getJSONArray("types"));
-        newLocation.setVicinity(locationObject.getString("vicinity"));
-
-        JSONObject coordinates = locationObject.getJSONObject("geometry").getJSONObject("location");
-        double lat = coordinates.getDouble("lat");
-        double lng = coordinates.getDouble("lng");
-        newLocation.setCoordinates(new ParseGeoPoint(lat, lng));
-
+    private void saveLocation(Location location, String place_id) throws JSONException {
         ParseQuery<ParseObject> query = ParseQuery.getQuery("Location");
-        query.whereEqualTo("place_id", locationObject.getString("place_id"));
+        query.whereEqualTo("place_id", place_id);
         query.getFirstInBackground(new GetCallback<ParseObject>() {
             public void done(ParseObject object, ParseException e) {
                 if(e == null) {
@@ -155,7 +157,7 @@ public class MainActivity extends AppCompatActivity {
                 else {
                     if(e.getCode() == ParseException.OBJECT_NOT_FOUND) {
                         Log.d(TAG, "Object does not exist");
-                        newLocation.saveInBackground(new SaveCallback() {
+                        location.saveInBackground(new SaveCallback() {
                             @Override
                             public void done(ParseException e) {
                                 if (e != null) {
