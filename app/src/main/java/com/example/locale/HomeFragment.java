@@ -79,8 +79,9 @@ public class HomeFragment extends Fragment {
                        if (e == null) {
                            Log.d(TAG, "Object exists!");
                            landmarks.add((Location) object);
+
+                           // TO DO: MORE EFFICIENT WAY OF UPDATING DATASET?
                            adapter.notifyDataSetChanged();
-                           Log.d("HERE", String.valueOf(object.get("place_name")));
                        } else {
                            Log.d(TAG, "Error!");
                        }
@@ -90,9 +91,5 @@ public class HomeFragment extends Fragment {
                 e.printStackTrace();
             }
         }
-
-        //landmarks.addAll();
-
-
     }
 }

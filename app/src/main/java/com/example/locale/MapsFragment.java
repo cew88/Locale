@@ -5,6 +5,10 @@ import static com.example.locale.MainActivity.TAG;
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.fragment.app.Fragment;
+import androidx.recyclerview.widget.LinearLayoutManager;
+import androidx.recyclerview.widget.LinearSnapHelper;
+import androidx.recyclerview.widget.RecyclerView;
+import androidx.recyclerview.widget.SnapHelper;
 
 import android.os.Bundle;
 import android.util.Log;
@@ -31,9 +35,17 @@ import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
 
+import java.util.ArrayList;
+import java.util.List;
+
 public class MapsFragment extends Fragment {
     ParseUser currentUser = ParseUser.getCurrentUser();
     ParseGeoPoint geoPoint = (ParseGeoPoint) currentUser.get("location");
+
+    // TESTING
+    RecyclerView rvLandmarks;
+    List<Location> landmarks;
+    LandmarksAdapter adapter;
 
     private OnMapReadyCallback callback = new OnMapReadyCallback() {
 
@@ -89,6 +101,47 @@ public class MapsFragment extends Fragment {
                 (SupportMapFragment) getChildFragmentManager().findFragmentById(R.id.map);
         if (mapFragment != null) {
             mapFragment.getMapAsync(callback);
+        }
+
+        rvLandmarks = view.findViewById(R.id.rvLandmarks_Maps);
+        LinearLayoutManager linearLayoutManager = new LinearLayoutManager(getContext(), LinearLayoutManager.HORIZONTAL, false);
+
+        SnapHelper helper = new LinearSnapHelper();
+        helper.attachToRecyclerView(rvLandmarks);
+
+        // Initialize the list of landmarks and adapter
+        landmarks = new ArrayList<>();
+        adapter = new LandmarksAdapter(getContext(), landmarks);
+        // Recycler view setup: layout manager and the adapter
+        rvLandmarks.setLayoutManager(linearLayoutManager);
+        rvLandmarks.setAdapter(adapter);
+
+
+        JSONArray notVisitedLandmarks = currentUser.getJSONArray("not_visited_landmarks");
+        for (int i=0; i<notVisitedLandmarks.length(); i++){
+            try {
+                Location l = new Location();
+                JSONObject jsonObject = (JSONObject) notVisitedLandmarks.get(i);
+                String objectId = jsonObject.getString("objectId");
+
+                ParseQuery<ParseObject> query = ParseQuery.getQuery("Location");
+                query.whereEqualTo("objectId", objectId);
+                query.getFirstInBackground(new GetCallback<ParseObject>() {
+                    public void done(ParseObject object, ParseException e) {
+                        if (e == null) {
+                            Log.d(TAG, "Object exists!");
+                            landmarks.add((Location) object);
+
+                            // TO DO: MORE EFFICIENT WAY OF UPDATING DATASET?
+                            adapter.notifyDataSetChanged();
+                        } else {
+                            Log.d(TAG, "Error!");
+                        }
+                    }
+                });
+            } catch (JSONException e) {
+                e.printStackTrace();
+            }
         }
     }
 }
