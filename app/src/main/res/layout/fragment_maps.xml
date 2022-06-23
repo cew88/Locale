@@ -15,6 +15,10 @@
     <androidx.recyclerview.widget.RecyclerView
         android:id="@+id/rvLandmarks_Maps"
         android:layout_width="match_parent"
-        android:layout_height="300dp"/>
+        android:layout_height="wrap_content"
+        android:layout_marginBottom="80dp"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintBottom_toBottomOf="parent"/>
 
 </androidx.constraintlayout.widget.ConstraintLayout>
