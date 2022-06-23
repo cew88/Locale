@@ -11,11 +11,16 @@ import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.ImageView;
+import android.widget.TextView;
 
 import com.parse.ParseUser;
 
 public class ProfileFragment extends Fragment {
+    private ImageView ivProfileImage;
     private ImageView ivLogout;
+    private TextView tvName;
+    private TextView tvUsername;
+    ParseUser currentUser = ParseUser.getCurrentUser();
 
     public ProfileFragment() {
         // Required empty public constructor
@@ -36,6 +41,13 @@ public class ProfileFragment extends Fragment {
     @Override
     public void onViewCreated(@NonNull View view, @Nullable Bundle savedInstanceState) {
         super.onViewCreated(view, savedInstanceState);
+
+        ivProfileImage = view.findViewById(R.id.ivProfileImage);
+        tvName = view.findViewById(R.id.tvName);
+        tvUsername = view.findViewById(R.id.tvUsername);
+
+        tvName.setText(currentUser.getString("first_name") + " " + currentUser.getString("last_name"));
+        tvUsername.setText(currentUser.getUsername());
 
         ivLogout = view.findViewById(R.id.ivLogoutIcon);
         ivLogout.setOnClickListener(new View.OnClickListener() {
