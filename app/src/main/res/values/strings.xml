@@ -1,5 +1,11 @@
 <resources>
     <string name="app_name">Locale</string>
-    <!-- TODO: Remove or change this placeholder text -->
-    <string name="hello_blank_fragment">Hello blank fragment</string>
+
+    <string name="back4app_server_url">https://parseapi.back4app.com/</string>
+    <string name="back4app_app_id">Ss38JykrVNIoYajjGxhdUk3hoepYUkyKGMPh5Hay</string>
+    <string name="back4app_client_key">yYixYDKhOFLCd8doHkjxnsCDAABQPze4xHl2dfsT
+</string>
+
+
+
 </resources>
