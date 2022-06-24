@@ -1,23 +1,21 @@
+/*
+Interests activity allows users to select categories of locations that they are interested in
+visiting. Selected items change color on click (color toggles base don whether or not the category
+is selected). Submitting these categories saves their interests to the Parse database. These
+categories are then used in the query to the Places API to filter nearby locations by user interest.
+ */
+
 package com.example.locale;
 
-import androidx.annotation.LongDef;
 import androidx.appcompat.app.AppCompatActivity;
 
-import android.location.Location;
 import android.os.Bundle;
-import android.util.Log;
 import android.view.View;
-import android.view.ViewGroup;
 import android.widget.Button;
 import android.widget.ImageView;
 import android.widget.LinearLayout;
 import android.widget.TextView;
 import com.google.android.flexbox.FlexboxLayout;
-import com.parse.ParseException;
-import com.parse.ParseGeoPoint;
-import com.parse.ParseUser;
-
-import java.lang.reflect.Array;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
