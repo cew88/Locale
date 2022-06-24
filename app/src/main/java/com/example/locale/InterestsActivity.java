@@ -7,19 +7,45 @@ categories are then used in the query to the Places API to filter nearby locatio
 
 package com.example.locale;
 
+import androidx.annotation.LongDef;
 import androidx.appcompat.app.AppCompatActivity;
 
+import android.content.Intent;
+import android.location.Location;
 import android.os.Bundle;
+import android.util.Log;
 import android.view.View;
 import android.widget.Button;
 import android.widget.ImageView;
 import android.widget.LinearLayout;
 import android.widget.TextView;
+import android.widget.Toast;
+
+import com.codepath.asynchttpclient.AsyncHttpClient;
+import com.codepath.asynchttpclient.callback.JsonHttpResponseHandler;
 import com.google.android.flexbox.FlexboxLayout;
+import com.google.android.gms.location.FusedLocationProviderClient;
+import com.google.android.gms.location.LocationServices;
+import com.google.android.gms.tasks.OnSuccessListener;
+import com.google.android.libraries.places.api.Places;
+import com.parse.GetCallback;
+import com.parse.ParseException;
+import com.parse.ParseGeoPoint;
+import com.parse.ParseObject;
+import com.parse.ParseQuery;
+import com.parse.ParseUser;
+import com.parse.SaveCallback;
+
+import org.json.JSONArray;
+import org.json.JSONException;
+import org.json.JSONObject;
+
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+
+import okhttp3.Headers;
 
 public class InterestsActivity extends AppCompatActivity implements View.OnClickListener{
     public static final String TAG = "InterestsActivity";
@@ -56,7 +82,12 @@ public class InterestsActivity extends AppCompatActivity implements View.OnClick
         }
     };
     private Button submitBtn;
+    private int userPace = 0;
+    private View relaxed;
+    private View moderate;
+    private View intense;
     private ArrayList<String> userInterests = new ArrayList<String>();
+    private ParseUser currentUser = ParseUser.getCurrentUser();
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -65,6 +96,8 @@ public class InterestsActivity extends AppCompatActivity implements View.OnClick
 
         FlexboxLayout flexboxLayout = findViewById(R.id.interestsView);
 
+        // TO DO: SET THE BACKGROUND TINT FOR ALREADY SELECTED INTERESTS IF THIS ACTIVITY IS REUSED
+        // ON THE PROFILE PAGE TO ALLOW USERS TO EDIT THEIR INTERESTS
         for (String name : interests.keySet()){
             // Get the name of the landmark and capitalize letters
             String interestName = name.replaceAll("_", " ");
@@ -113,40 +146,89 @@ public class InterestsActivity extends AppCompatActivity implements View.OnClick
             flexboxLayout.addView(interestLayout);
         }
 
-//        submitBtn = findViewById(R.id.btnSubmit);
-//        submitBtn.setOnClickListener(new View.OnClickListener(){
-//            @Override
-//            public void onClick(View v) {
-//                try {
-//                    saveInterests(userInterests);
-//                } catch (ParseException e) {
-//                    e.printStackTrace();
-//                }
-//            }
-//        });
-    }
+        submitBtn = findViewById(R.id.btnSubmit);
+        submitBtn.setOnClickListener(new View.OnClickListener(){
+            @Override
+            public void onClick(View v) {
+                currentUser.put("interests", userInterests);
+                currentUser.put("pace", userPace);
+                currentUser.saveInBackground();
+                //navigateToMainActivity();
+            }
+        });
 
+        relaxed = findViewById(R.id.relaxedView);
+        relaxed.setOnClickListener(this);
+
+        moderate = findViewById(R.id.moderateView);
+        moderate.setOnClickListener(this);
+
+        intense = findViewById(R.id.intenseView);
+        intense.setOnClickListener(this);
+    }
 
     @Override
+    // Handle clicks on user interests
     public void onClick(View v) {
-        View interest = findViewById(v.getId());
-        TextView apiType = interest.findViewById(R.id.tvHiddenText);
-        if (!interest.isSelected()){
-            interest.setSelected(true);
+        View viewId = findViewById(v.getId());
+        // When a user clicks on a pace type
+        switch (v.getId()){
+            case R.id.relaxedView:
+                if (userPace == 5){
+                    userPace = 0;
+                    viewId.setBackgroundTintList(getColorStateList(R.color.light_gray));
+                }
+                else {
+                    userPace = 5;
+                    viewId.setBackgroundTintList(getColorStateList(R.color.dusty_green_light));
+                    findViewById(R.id.moderateView).setBackgroundTintList(getColorStateList(R.color.light_gray));
+                    findViewById(R.id.intenseView).setBackgroundTintList(getColorStateList(R.color.light_gray));
+                }
+                return;
+            case R.id.moderateView:
+                if (userPace == 10){
+                    userPace = 0;
+                    viewId.setBackgroundTintList(getColorStateList(R.color.light_gray));
+                }
+                else {
+                    userPace = 10;
+                    viewId.setBackgroundTintList(getColorStateList(R.color.pale_yellow));
+                    findViewById(R.id.relaxedView).setBackgroundTintList(getColorStateList(R.color.light_gray));
+                    findViewById(R.id.intenseView).setBackgroundTintList(getColorStateList(R.color.light_gray));
+                }
+                return;
+            case R.id.intenseView:
+                if (userPace == 20){
+                    userPace = 0;
+                    viewId.setBackgroundTintList(getColorStateList(R.color.light_gray));
+                }
+                else {
+                    userPace = 20;
+                    viewId.setBackgroundTintList(getColorStateList(R.color.dusty_red));
+                    findViewById(R.id.relaxedView).setBackgroundTintList(getColorStateList(R.color.light_gray));
+                    findViewById(R.id.moderateView).setBackgroundTintList(getColorStateList(R.color.light_gray));
+                }
+                return;
+        }
+
+        // When the user clicks on an interest
+        TextView apiType = viewId.findViewById(R.id.tvHiddenText);
+        if (!viewId.isSelected()){
+            viewId.setSelected(true);
             userInterests.add((String) apiType.getText());
-            interest.setBackground(getDrawable(R.drawable.selected_rounded_background));
+            viewId.setBackgroundTintList(getColorStateList(R.color.dusty_green_light));
         }
         else {
-            interest.setSelected(false);
+            viewId.setSelected(false);
             userInterests.remove(apiType.getText());
-            interest.setBackground(getDrawable(R.drawable.rounded_background));
+            viewId.setBackgroundTintList(getColorStateList(R.color.light_gray));
         }
     }
 
-    // Save user interests
-//    private void saveInterests(ArrayList<String> arrayList) throws ParseException {
-//        ParseUser currentUser = ParseUser.getCurrentUser();
-//        currentUser.put("interests", arrayList);
-//        currentUser.saveInBackground();
-//    }
+    // Start new intent to navigate to the main activity
+    private void navigateToMainActivity() {
+        Intent intent = new Intent(InterestsActivity.this, MainActivity.class);
+        startActivity(intent);
+        finish();
+    }
 }

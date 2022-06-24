@@ -1,5 +1,5 @@
 /*
-Register activity allows users to create a new account  or navigate to the login account activity if
+Register activity allows users to create a new account or navigate to the login account activity if
 they already have an account. Creating an a new account also accesses the user's current location and
 stores it in the Parse database. Successful registration log the user in and allows users to access
 the main activity.
@@ -81,6 +81,12 @@ public class RegisterActivity extends AppCompatActivity {
                 String password = mPassword.getText().toString();
                 String passwordConfirm = mPasswordConfirm.getText().toString();
 
+                if (firstName.equals("") || lastName.equals("") || username.equals("") ||
+                        email.equals("") || password.equals("") || passwordConfirm.equals("")){
+                    Toast.makeText(RegisterActivity.this, "Please fill out all fields!", Toast.LENGTH_SHORT).show();
+                    return;
+                }
+
                 // Check if the two password fields match
                 if (password.equals(passwordConfirm)){
                     LocationManager locationManager = (LocationManager) getSystemService(Context.LOCATION_SERVICE);
@@ -122,7 +128,7 @@ public class RegisterActivity extends AppCompatActivity {
                                         } catch (ParseException e) {
                                             e.printStackTrace();
                                         }
-                                        navigateToMainActivity();
+                                        navigateToInterestsActivity();
                                     }
                                     else {
                                         try {
@@ -130,7 +136,7 @@ public class RegisterActivity extends AppCompatActivity {
                                         } catch (ParseException e) {
                                             e.printStackTrace();
                                         }
-                                        navigateToMainActivity();
+                                        navigateToInterestsActivity();
                                     }
                                 }
                             });
@@ -145,8 +151,6 @@ public class RegisterActivity extends AppCompatActivity {
         mLogin.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-
-                // TO DO: NAVIGATE TO PAGE OF INTERESTS FOR USERS TO SELECT
                 Intent intent = new Intent(RegisterActivity.this, LoginActivity.class);
                 startActivity(intent);
             }
@@ -155,7 +159,6 @@ public class RegisterActivity extends AppCompatActivity {
 
     // Create user account without location
     private void createUser(String firstName, String lastName, String username, String email, String password) throws ParseException {
-
         ParseUser newUser = new ParseUser();
         newUser.put("first_name", firstName);
         newUser.put("last_name", lastName);
@@ -179,9 +182,9 @@ public class RegisterActivity extends AppCompatActivity {
         newUser.signUp();
     }
 
-    // Start new intent to navigate to the main activity
-    private void navigateToMainActivity() {
-        Intent intent = new Intent(RegisterActivity.this, MainActivity.class);
+    // Start new intent to navigate to the interests activity
+    private void navigateToInterestsActivity(){
+        Intent intent = new Intent(RegisterActivity.this, InterestsActivity.class);
         startActivity(intent);
         finish();
     }
