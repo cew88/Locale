@@ -1,0 +1,18 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <item name="amusement_park" type="id"/>
+    <item name="aquarium" type="id"/>
+    <item name="art_gallery" type="id"/>
+    <item name="bakery" type="id"/>
+    <item name="cafe" type="id"/>
+    <item name="movie_theater" type="id"/>
+    <item name="museum" type="id"/>
+    <item name="night_club" type="id"/>
+    <item name="park" type="id"/>
+    <item name="restaurant" type="id"/>
+    <item name="shopping_mall" type="id"/>
+    <item name="spa" type="id"/>
+    <item name="stadium" type="id"/>
+    <item name="tourist_attraction" type="id"/>
+    <item name="tvHiddenText" type="id"/>
+</resources>

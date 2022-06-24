@@ -3,10 +3,21 @@
   <component name="DesignSurface">
     <option name="filePathToZoomLevelMap">
       <map>
+        <entry key="app/src/main/res/drawable-v24/bank.xml" value="0.251" />
+        <entry key="app/src/main/res/drawable-v24/basketball.xml" value="0.33" />
+        <entry key="app/src/main/res/drawable-v24/fish.xml" value="0.258" />
+        <entry key="app/src/main/res/drawable-v24/food.xml" value="0.33" />
+        <entry key="app/src/main/res/drawable-v24/logout.xml" value="0.258" />
+        <entry key="app/src/main/res/drawable-v24/makeup_brush.xml" value="0.33" />
+        <entry key="app/src/main/res/drawable-v24/map.xml" value="0.258" />
+        <entry key="app/src/main/res/drawable-v24/mug.xml" value="0.33" />
+        <entry key="app/src/main/res/drawable-v24/palette.xml" value="0.251" />
         <entry key="app/src/main/res/drawable/border.xml" value="0.1" />
         <entry key="app/src/main/res/drawable/bottom_navigation_background.xml" value="0.138" />
         <entry key="app/src/main/res/drawable/bottom_navigation_color_selector.xml" value="0.138" />
-        <entry key="app/src/main/res/layout/activity_interests.xml" value="0.19579533941236069" />
+        <entry key="app/src/main/res/drawable/rounded_background.xml" value="0.1655" />
+        <entry key="app/src/main/res/drawable/selected_rounded_background.xml" value="0.1655" />
+        <entry key="app/src/main/res/layout/activity_interests.xml" value="0.1" />
         <entry key="app/src/main/res/layout/activity_login.xml" value="0.17552083333333332" />
         <entry key="app/src/main/res/layout/activity_main.xml" value="0.17552083333333332" />
         <entry key="app/src/main/res/layout/activity_profile.xml" value="0.11458333333333333" />
@@ -25,5 +36,12 @@
   </component>
   <component name="ProjectType">
     <option name="id" value="Android" />
+  </component>
+  <component name="VisualizationToolProject">
+    <option name="state">
+      <ProjectState>
+        <option name="scale" value="0.18854166666666666" />
+      </ProjectState>
+    </option>
   </component>
 </project>
