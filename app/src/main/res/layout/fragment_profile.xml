@@ -14,7 +14,7 @@
         android:layout_height="25dp"
         android:layout_margin="20dp"
         tools:srcCompat="@tools:sample/avatars"
-        android:src="@drawable/icon_logout"
+        android:src="@drawable/logout"
         app:layout_constraintTop_toTopOf="parent"
         app:layout_constraintEnd_toEndOf="parent"
         app:tint="#2573FA" />

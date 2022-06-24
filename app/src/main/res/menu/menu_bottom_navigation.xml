@@ -4,19 +4,19 @@
 
     <item
         android:id="@+id/action_home"
-        android:icon="@drawable/icon_home"
+        android:icon="@drawable/home"
         android:title="Home"
         app:showAsAction="always" />
 
     <item
         android:id="@+id/action_map"
-        android:icon="@drawable/icon_map"
+        android:icon="@drawable/map"
         android:title="Map"
         app:showAsAction="always" />
 
     <item
         android:id="@+id/action_profile"
-        android:icon="@drawable/icon_profile"
+        android:icon="@drawable/user"
         android:title="Profile"
         app:showAsAction="always" />
 
