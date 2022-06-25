@@ -5,6 +5,8 @@ import com.parse.ParseGeoPoint;
 import com.parse.ParseObject;
 
 import org.json.JSONArray;
+import org.json.JSONException;
+import org.json.JSONObject;
 
 @ParseClassName("Location")
 public class Location extends ParseObject {
