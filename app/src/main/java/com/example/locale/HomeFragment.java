@@ -32,13 +32,12 @@ import java.util.List;
 
 public class HomeFragment extends Fragment {
     RecyclerView rvLandmarks;
-    List<Location> landmarks;
+    ArrayList<Location> landmarks;
     LandmarksAdapter adapter;
-    ParseUser currentUser = ParseUser.getCurrentUser();
+    User user;
 
-    public HomeFragment() {
-        // Required empty public constructor
-    }
+    // Required empty public constructor
+    public HomeFragment() {}
 
     @Override
     public void onCreate(Bundle savedInstanceState) {
@@ -48,6 +47,9 @@ public class HomeFragment extends Fragment {
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container,
                              Bundle savedInstanceState) {
+        // Get data passed from bundle
+        user = this.getArguments().getParcelable("User");
+
         // Inflate the layout for this fragment
         return inflater.inflate(R.layout.fragment_home, container, false);
     }
@@ -59,37 +61,14 @@ public class HomeFragment extends Fragment {
         rvLandmarks = view.findViewById(R.id.rvLandmarks);
         LinearLayoutManager linearLayoutManager = new LinearLayoutManager(getContext());
         // Initialize the list of tweets and adapter
-        landmarks = new ArrayList<>();
+        landmarks = new ArrayList<Location>();
         adapter = new LandmarksAdapter(getContext(), landmarks);
         // Recycler view setup: layout manager and the adapter
         rvLandmarks.setLayoutManager(linearLayoutManager);
         rvLandmarks.setAdapter(adapter);
 
-        JSONArray notVisitedLandmarks = currentUser.getJSONArray("not_visited_landmarks");
-        for (int i=0; i<notVisitedLandmarks.length(); i++){
-            try {
-                Location l = new Location();
-                JSONObject jsonObject = (JSONObject) notVisitedLandmarks.get(i);
-                String objectId = jsonObject.getString("objectId");
 
-                ParseQuery<ParseObject> query = ParseQuery.getQuery("Location");
-                query.whereEqualTo("objectId", objectId);
-                query.getFirstInBackground(new GetCallback<ParseObject>() {
-                   public void done(ParseObject object, ParseException e) {
-                       if (e == null) {
-                           Log.d(TAG, "Object exists!");
-                           landmarks.add((Location) object);
-
-                           // TO DO: MORE EFFICIENT WAY OF UPDATING DATASET?
-                           adapter.notifyDataSetChanged();
-                       } else {
-                           Log.d(TAG, "Error!");
-                       }
-                   }
-                });
-            } catch (JSONException e) {
-                e.printStackTrace();
-            }
-        }
+        ArrayList<Location> notVisitedLandmarks = user.getNotVisitedLandmarks();
+        landmarks.addAll(notVisitedLandmarks);
     }
 }

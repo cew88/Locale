@@ -42,9 +42,10 @@ public class MapsFragment extends Fragment {
     ParseUser currentUser = ParseUser.getCurrentUser();
     ParseGeoPoint geoPoint = (ParseGeoPoint) currentUser.get("location");
 
-    // TESTING
+    User user;
+    ArrayList<Location> notVisitedLandmarks;
     RecyclerView rvLandmarks;
-    List<Location> landmarks;
+    ArrayList<Location> landmarks;
     LandmarksAdapter adapter;
 
     private OnMapReadyCallback callback = new OnMapReadyCallback() {
@@ -57,45 +58,25 @@ public class MapsFragment extends Fragment {
                 googleMap.moveCamera(CameraUpdateFactory.newLatLngZoom(currentLocation, 12.0f));
             }
 
-            JSONArray notVisitedLandmarks = currentUser.getJSONArray("not_visited_landmarks");
-
-            for (int i=0; i<notVisitedLandmarks.length(); i++){
-                try {
-                    JSONObject jsonObject = (JSONObject) notVisitedLandmarks.get(i);
-                    String objectId = jsonObject.getString("objectId");
-
-                    ParseQuery<ParseObject> query = ParseQuery.getQuery("Location");
-                    query.whereEqualTo("objectId", objectId);
-                    query.getFirstInBackground(new GetCallback<ParseObject>() {
-                        public void done(ParseObject object, ParseException e) {
-                            if (e == null) {
-                                ParseGeoPoint objGeoPoint = (ParseGeoPoint) object.getParseGeoPoint("coordinates");
-                                LatLng newMarkerLocation = new LatLng(objGeoPoint.getLatitude(), objGeoPoint.getLongitude());
-                                googleMap.addMarker(new MarkerOptions().position(newMarkerLocation).title(object.getString("place_name")).icon(BitmapDescriptorFactory.defaultMarker(96)));
-                                Log.d(TAG, "Add landmark markers!");
-                            } else {
-                                Log.d(TAG, "Error!");
-                            }
-                        }
-                    });
-
-                } catch (JSONException e) {
-                    e.printStackTrace();
-                }
+            for (int i=0; i<notVisitedLandmarks.size(); i++){
+                Location loc = notVisitedLandmarks.get(i);
+                LatLng newMarkerLocation = new LatLng(loc.getCoordinates().getLatitude(), loc.getCoordinates().getLongitude());
+                googleMap.addMarker(new MarkerOptions().position(newMarkerLocation).title(loc.getString("place_name")).icon(BitmapDescriptorFactory.defaultMarker(96)));
             }
         }
     };
 
-    @Nullable
     @Override
-    public View onCreateView(@NonNull LayoutInflater inflater,
-                             @Nullable ViewGroup container,
-                             @Nullable Bundle savedInstanceState) {
+    public View onCreateView(LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
+        // Get data passed from bundle
+        user = this.getArguments().getParcelable("User");
+        notVisitedLandmarks = user.getNotVisitedLandmarks();
+
         return inflater.inflate(R.layout.fragment_maps, container, false);
     }
 
     @Override
-    public void onViewCreated(@NonNull View view, @Nullable Bundle savedInstanceState) {
+    public void onViewCreated(View view, Bundle savedInstanceState) {
         super.onViewCreated(view, savedInstanceState);
         SupportMapFragment mapFragment =
                 (SupportMapFragment) getChildFragmentManager().findFragmentById(R.id.map);
@@ -116,32 +97,6 @@ public class MapsFragment extends Fragment {
         rvLandmarks.setLayoutManager(linearLayoutManager);
         rvLandmarks.setAdapter(adapter);
 
-
-        JSONArray notVisitedLandmarks = currentUser.getJSONArray("not_visited_landmarks");
-        for (int i=0; i<notVisitedLandmarks.length(); i++){
-            try {
-                Location l = new Location();
-                JSONObject jsonObject = (JSONObject) notVisitedLandmarks.get(i);
-                String objectId = jsonObject.getString("objectId");
-
-                ParseQuery<ParseObject> query = ParseQuery.getQuery("Location");
-                query.whereEqualTo("objectId", objectId);
-                query.getFirstInBackground(new GetCallback<ParseObject>() {
-                    public void done(ParseObject object, ParseException e) {
-                        if (e == null) {
-                            Log.d(TAG, "Object exists!");
-                            landmarks.add((Location) object);
-
-                            // TO DO: MORE EFFICIENT WAY OF UPDATING DATASET?
-                            adapter.notifyDataSetChanged();
-                        } else {
-                            Log.d(TAG, "Error!");
-                        }
-                    }
-                });
-            } catch (JSONException e) {
-                e.printStackTrace();
-            }
-        }
+        landmarks.addAll(notVisitedLandmarks);
     }
 }

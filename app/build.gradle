@@ -34,7 +34,7 @@ android {
 }
 
 dependencies {
-
+    // Default dependencies
     implementation 'androidx.appcompat:appcompat:1.4.2'
     implementation 'com.google.android.material:material:1.6.1'
     implementation 'androidx.constraintlayout:constraintlayout:2.1.4'
@@ -55,6 +55,10 @@ dependencies {
     // Google material library dependency
     implementation 'com.google.android.material:material:1.0.0'
 
-    // Flexbox Dependency
+    // Flexbox dependency
     implementation 'com.google.android.flexbox:flexbox:3.0.0'
+
+    // Parcelable dependency
+    implementation 'org.parceler:parceler-api:1.1.12'
+    annotationProcessor 'org.parceler:parceler:1.1.12'
 }

@@ -1,12 +1,14 @@
 package com.example.locale;
 
 import android.content.Intent;
+import android.icu.util.LocaleData;
 import android.os.Bundle;
 
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.fragment.app.Fragment;
 
+import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -20,7 +22,7 @@ public class ProfileFragment extends Fragment {
     private ImageView ivLogout;
     private TextView tvName;
     private TextView tvUsername;
-    ParseUser currentUser = ParseUser.getCurrentUser();
+    User user;
 
     public ProfileFragment() {
         // Required empty public constructor
@@ -32,8 +34,9 @@ public class ProfileFragment extends Fragment {
     }
 
     @Override
-    public View onCreateView(LayoutInflater inflater, ViewGroup container,
-                             Bundle savedInstanceState) {
+    public View onCreateView(LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
+        // Get data passed from bundle
+        user = this.getArguments().getParcelable("User");
         // Inflate the layout for this fragment
         return inflater.inflate(R.layout.fragment_profile, container, false);
     }
@@ -46,8 +49,8 @@ public class ProfileFragment extends Fragment {
         tvName = view.findViewById(R.id.tvName);
         tvUsername = view.findViewById(R.id.tvUsername);
 
-        tvName.setText(currentUser.getString("first_name") + " " + currentUser.getString("last_name"));
-        tvUsername.setText(currentUser.getUsername());
+        tvName.setText(user.getFirstName() + " " + user.getLastName());
+        tvUsername.setText(user.getUserName());
 
         ivLogout = view.findViewById(R.id.ivLogoutIcon);
         ivLogout.setOnClickListener(new View.OnClickListener() {

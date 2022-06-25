@@ -11,8 +11,6 @@ import androidx.appcompat.app.AppCompatActivity;
 import androidx.fragment.app.Fragment;
 import androidx.fragment.app.FragmentManager;
 
-import android.location.Address;
-import android.location.Geocoder;
 import android.os.Bundle;
 import android.util.Log;
 import android.view.MenuItem;
@@ -49,7 +47,7 @@ import okhttp3.Headers;
 public class MainActivity extends AppCompatActivity {
     public static final String TAG = "MainActivity";
     final FragmentManager fragmentManager = getSupportFragmentManager();
-    private ParseUser currentUser = ParseUser.getCurrentUser();
+    User user;
     private double latitude;
     private double longitude;
 
@@ -58,14 +56,27 @@ public class MainActivity extends AppCompatActivity {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
 
-        ParseObject.registerSubclass(Location.class);
-
         // Hide the action bar on the login screen
         ActionBar actionBar = getSupportActionBar();
         actionBar.hide();
 
+        ParseObject.registerSubclass(Location.class);
+
+        // Call the Parse database once when the Main activity is opened and pass the data to the
+        // Fragments via Bundle
+        ParseUser currentUser = ParseUser.getCurrentUser();
+        Bundle bundle = new Bundle();
+        try {
+            user = new User(currentUser);
+            bundle.putParcelable("User", user);
+        } catch (JSONException e) {
+            e.printStackTrace();
+        }
+
         // Set the default fragment as HomeFragment
-        fragmentManager.beginTransaction().replace(R.id.flContainer, new HomeFragment()).commit();
+        Fragment defaultFragment = new HomeFragment();
+        defaultFragment.setArguments(bundle);
+        fragmentManager.beginTransaction().replace(R.id.flContainer, defaultFragment).commit();
 
         // Initialize the SDK
         Places.initialize(getApplicationContext(), BuildConfig.MAPS_API_KEY);
@@ -106,12 +117,15 @@ public class MainActivity extends AppCompatActivity {
                 switch (item.getItemId()) {
                     case R.id.action_home:
                         fragment = new HomeFragment();
+                        fragment.setArguments(bundle);
                         break;
                     case R.id.action_map:
-                        fragment = new MapFragment();
+                        fragment = new MapsFragment();
+                        fragment.setArguments(bundle);
                         break;
                     case R.id.action_profile:
                         fragment = new ProfileFragment();
+                        fragment.setArguments(bundle);
                         break;
                     default:
                         throw new IllegalStateException("Unexpected value: " + item.getItemId());
