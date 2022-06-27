@@ -109,7 +109,7 @@
         android:id="@+id/tvInterestsDescription"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:text="Select locations that you'd like to visit."
+        android:text="Select up to five locations that you'd like to visit."
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintTop_toBottomOf="@id/tvEditInterests"/>

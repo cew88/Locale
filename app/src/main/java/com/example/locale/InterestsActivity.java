@@ -180,7 +180,9 @@ public class InterestsActivity extends AppCompatActivity implements View.OnClick
 
         // When the user clicks on an interest
         TextView apiType = viewId.findViewById(R.id.tvHiddenText);
-        if (!viewId.isSelected()){
+
+        // If the view is not already selected and there are less than 5 interests already selected
+        if (!viewId.isSelected() && userInterests.size() < 5){
             viewId.setSelected(true);
             userInterests.add((String) apiType.getText());
             viewId.setBackgroundTintList(getColorStateList(R.color.dusty_green_light));
@@ -190,6 +192,8 @@ public class InterestsActivity extends AppCompatActivity implements View.OnClick
             userInterests.remove(apiType.getText());
             viewId.setBackgroundTintList(getColorStateList(R.color.light_gray));
         }
+
+
     }
 
     // Add new interest to the screen
@@ -293,53 +297,55 @@ public class InterestsActivity extends AppCompatActivity implements View.OnClick
 
     // Query the Places API
     private void queryAPI(double latitude, double longitude){
-        // TO DO: Add limitations to when the API call is made
 
-        // &type=restaurant
-        String url = "https://maps.googleapis.com/maps/api/place/nearbysearch/json?location=" + latitude +  "%2C" + longitude + "&radius=30000&key=" + BuildConfig.MAPS_API_KEY;
-        AsyncHttpClient client = new AsyncHttpClient();
-        client.get(url, new JsonHttpResponseHandler() {
-            @Override
-            public void onSuccess(int statusCode, Headers headers, JSON json) {
-                JSONObject jsonObject = json.jsonObject;
-                try {
-                    JSONArray jsonArray = jsonObject.getJSONArray("results");
+        // Make a new query for each user interest
+        for (int i=0; i<userInterests.size(); i++){
+            // Filters landmarks based on the user's selected interests
+            String url = "https://maps.googleapis.com/maps/api/place/nearbysearch/json?location=" + latitude +  "%2C" + longitude + "&radius=30000&type=" + userInterests.get(i) + "&key=" + BuildConfig.MAPS_API_KEY;
+            AsyncHttpClient client = new AsyncHttpClient();
+            client.get(url, new JsonHttpResponseHandler() {
+                @Override
+                public void onSuccess(int statusCode, Headers headers, JSON json) {
+                    JSONObject jsonObject = json.jsonObject;
+                    try {
+                        JSONArray jsonArray = jsonObject.getJSONArray("results");
 
-                    // Add landmarks based on the user's pace
-                    // Add 5 landmarks if the user selects "relaxed", add 10 landmarks if the user
-                    // selects "moderate", add 20 landmarks if the user selects "intense"; if the
-                    // user does not select an intensity, the app default adds 10 landmarks for the
-                    // user
-                    for (int i=0; i<userPace; i++){
+                        // Add landmarks based on the user's pace
+                        // Add 5 landmarks if the user selects "relaxed", add 10 landmarks if the user
+                        // selects "moderate", add 20 landmarks if the user selects "intense"; if the
+                        // user does not select an intensity, the app default adds 10 landmarks for the
+                        // user
+                        for (int j=0; j<userPace/userInterests.size(); j++){
 
-                        JSONObject locationObject = jsonArray.getJSONObject(i);
+                            JSONObject locationObject = jsonArray.getJSONObject(j);
 
-                        // Create a new location object
-                        Location newLocation = new Location();
-                        newLocation.setName(locationObject.getString("name"));
-                        newLocation.setPlaceId(locationObject.getString("place_id"));
-                        newLocation.setTypes(locationObject.getJSONArray("types"));
-                        newLocation.setVicinity(locationObject.getString("vicinity"));
+                            // Create a new location object
+                            Location newLocation = new Location();
+                            newLocation.setName(locationObject.getString("name"));
+                            newLocation.setPlaceId(locationObject.getString("place_id"));
+                            newLocation.setTypes(locationObject.getJSONArray("types"));
+                            newLocation.setVicinity(locationObject.getString("vicinity"));
 
-                        JSONObject coordinates = locationObject.getJSONObject("geometry").getJSONObject("location");
-                        double lat = coordinates.getDouble("lat");
-                        double lng = coordinates.getDouble("lng");
-                        newLocation.setCoordinates(new ParseGeoPoint(lat, lng));
+                            JSONObject coordinates = locationObject.getJSONObject("geometry").getJSONObject("location");
+                            double lat = coordinates.getDouble("lat");
+                            double lng = coordinates.getDouble("lng");
+                            newLocation.setCoordinates(new ParseGeoPoint(lat, lng));
 
-                        //Update the Parse database with the user's nearby landmarks
-                        saveLocation(newLocation, locationObject.getString("place_id"));
+                            //Update the Parse database with the user's nearby landmarks
+                            saveLocation(newLocation, locationObject.getString("place_id"));
+                        }
+
+                    } catch (JSONException e) {
+                        e.printStackTrace();
                     }
-
-                } catch (JSONException e) {
-                    e.printStackTrace();
                 }
-            }
 
-            @Override
-            public void onFailure(int statusCode, Headers headers, String response, Throwable throwable) {
-                Log.d(TAG, "onFailure: " + response);
-            }
-        });
+                @Override
+                public void onFailure(int statusCode, Headers headers, String response, Throwable throwable) {
+                    Log.d(TAG, "onFailure: " + response);
+                }
+            });
+        }
     }
 
     // Start new intent to navigate to the main activity
