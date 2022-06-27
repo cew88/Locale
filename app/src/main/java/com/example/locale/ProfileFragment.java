@@ -1,3 +1,8 @@
+/*
+Creates a profile fragment that displays the user's first name, last name, username, and a provides
+a button for users to log out of the app.
+ */
+
 package com.example.locale;
 
 import android.content.Intent;

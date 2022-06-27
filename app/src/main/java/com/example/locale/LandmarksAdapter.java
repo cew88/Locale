@@ -1,3 +1,8 @@
+/*
+Creates the item views for each landmark listed as "unvisited" for each user. Handles marking the
+locations as visited.
+ */
+
 package com.example.locale;
 
 import android.content.Context;
@@ -41,7 +46,7 @@ public class LandmarksAdapter extends RecyclerView.Adapter<LandmarksAdapter.View
     Context context;
     ArrayList<Location> landmarks;
 
-    // Pass in the context and the list of tweets
+    // Pass in the context and the list of landmarks
     public LandmarksAdapter(Context context, ArrayList<Location> landmarks) {
         this.context = context;
         this.landmarks = landmarks;

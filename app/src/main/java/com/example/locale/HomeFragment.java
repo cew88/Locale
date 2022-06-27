@@ -1,3 +1,8 @@
+/*
+Creates a fragment for the home screen which displays the list of landmarks that the user has not
+visited yet.
+ */
+
 package com.example.locale;
 
 import android.os.Bundle;
@@ -43,13 +48,14 @@ public class HomeFragment extends Fragment {
 
         rvLandmarks = view.findViewById(R.id.rvLandmarks);
         LinearLayoutManager linearLayoutManager = new LinearLayoutManager(getContext());
-        // Initialize the list of tweets and adapter
+
+        // Initialize the list of landmarks and adapter
         landmarks = new ArrayList<Location>();
         adapter = new LandmarksAdapter(getContext(), landmarks);
+
         // Recycler view setup: layout manager and the adapter
         rvLandmarks.setLayoutManager(linearLayoutManager);
         rvLandmarks.setAdapter(adapter);
-
 
         ArrayList<Location> notVisitedLandmarks = user.getNotVisitedLandmarks();
         landmarks.addAll(notVisitedLandmarks);

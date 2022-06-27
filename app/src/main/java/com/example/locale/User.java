@@ -1,4 +1,10 @@
+/*
+Class represents the Parse User. Saving the Parse User's information in a Java Object reduces the
+number of queries made to the Parse database.
+*/
+
 package com.example.locale;
+
 import android.os.Parcelable;
 
 import com.parse.GetCallback;
@@ -12,6 +18,7 @@ import org.json.JSONException;
 import org.json.JSONObject;
 import org.parceler.Parcel;
 import java.util.ArrayList;
+import java.util.List;
 
 @Parcel
 public class User implements Parcelable{
@@ -76,6 +83,7 @@ public class User implements Parcelable{
                 }
             });
         }
+
         this.userPace = user.getInt("pace");
     }
 
