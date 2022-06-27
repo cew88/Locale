@@ -9,31 +9,40 @@ import android.view.View;
 import android.view.ViewGroup;
 import android.widget.ImageView;
 import android.widget.TextView;
+import android.widget.Toast;
 
+import androidx.annotation.LongDef;
 import androidx.annotation.NonNull;
 import androidx.fragment.app.FragmentActivity;
 import androidx.fragment.app.FragmentManager;
 import androidx.recyclerview.widget.RecyclerView;
 
 import com.codepath.asynchttpclient.callback.JsonHttpResponseHandler;
+import com.parse.FindCallback;
+import com.parse.GetCallback;
+import com.parse.ParseException;
+import com.parse.ParseObject;
+import com.parse.ParseQuery;
+import com.parse.ParseUser;
+import com.parse.SaveCallback;
 
 import org.json.JSONException;
 import org.json.JSONObject;
 
-import java.text.ParseException;
 import java.text.SimpleDateFormat;
+import java.util.ArrayList;
 import java.util.List;
 import java.util.Locale;
 
 import okhttp3.Headers;
 
 
-public class LandmarksAdapter extends RecyclerView.Adapter<LandmarksAdapter.ViewHolder>{
+public class LandmarksAdapter extends RecyclerView.Adapter<LandmarksAdapter.ViewHolder> {
     Context context;
-    List<Location> landmarks;
+    ArrayList<Location> landmarks;
 
     // Pass in the context and the list of tweets
-    public LandmarksAdapter(Context context, List<Location> landmarks) {
+    public LandmarksAdapter(Context context, ArrayList<Location> landmarks) {
         this.context = context;
         this.landmarks = landmarks;
     }
@@ -60,16 +69,6 @@ public class LandmarksAdapter extends RecyclerView.Adapter<LandmarksAdapter.View
         }
     }
 
-    public void clear(){
-        landmarks.clear();
-        notifyDataSetChanged();
-    }
-
-    public void addAll(List<Location> locationList){
-        landmarks.addAll(locationList);
-        notifyDataSetChanged();
-    }
-
     // Define a viewholder
     @Override
     public int getItemCount() {
@@ -92,6 +91,42 @@ public class LandmarksAdapter extends RecyclerView.Adapter<LandmarksAdapter.View
         public void bind(Location landmark) throws JSONException {
             tvLandmarkName.setText(landmark.getName());
             tvVicinity.setText(landmark.getVicinity());
+
+            itemView.setOnLongClickListener(new View.OnLongClickListener() {
+                @Override
+                public boolean onLongClick(View v) {
+                    Toast.makeText(v.getContext(), "Location long clicked!", Toast.LENGTH_SHORT).show();
+                    removeFromNotVisited(landmark);
+                    return true;
+                }
+            });
         }
     }
+
+    // If a user long clicks on a list item, it marks the location as visited in the Parse database
+    // by remove the location from the array of not visited landmarks
+    public void removeFromNotVisited(Location location) {
+        ParseUser currentUser = ParseUser.getCurrentUser();
+        ArrayList<Location> notVisited = landmarks;
+        notVisited.remove(location);
+
+        // Overwrite what is currently saved under the user's not visited landmarks
+        currentUser.put("not_visited_landmarks", notVisited);
+        currentUser.saveInBackground();
+
+        this.landmarks = notVisited;
+        notifyDataSetChanged();
+
+    }
+
+    public void clear() {
+        landmarks.clear();
+        notifyDataSetChanged();
+    }
+
+    public void addAll(List<Location> locationList) {
+        landmarks.addAll(locationList);
+        notifyDataSetChanged();
+    }
 }
+
