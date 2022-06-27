@@ -174,6 +174,8 @@ public class InterestsActivity extends AppCompatActivity implements View.OnClick
                     findViewById(R.id.moderateView).setBackgroundTintList(getColorStateList(R.color.light_gray));
                 }
                 return;
+            default:
+                userPace = 10;
         }
 
         // When the user clicks on an interest
@@ -276,7 +278,6 @@ public class InterestsActivity extends AppCompatActivity implements View.OnClick
                                 if (e != null) {
                                     Log.e(TAG, "Error while saving!", e);
                                     Toast.makeText(InterestsActivity.this, "Error while saving!", Toast.LENGTH_SHORT).show();
-                                    Toast.makeText(InterestsActivity.this, "Error while saving!", Toast.LENGTH_SHORT).show();
                                 }
                                 Log.i(TAG, "Location save was successful!");
                             }
@@ -304,10 +305,16 @@ public class InterestsActivity extends AppCompatActivity implements View.OnClick
                 try {
                     JSONArray jsonArray = jsonObject.getJSONArray("results");
 
-                    for (int i=0; i<jsonArray.length(); i++){
+                    // Add landmarks based on the user's pace
+                    // Add 5 landmarks if the user selects "relaxed", add 10 landmarks if the user
+                    // selects "moderate", add 20 landmarks if the user selects "intense"; if the
+                    // user does not select an intensity, the app default adds 10 landmarks for the
+                    // user
+                    for (int i=0; i<userPace; i++){
 
                         JSONObject locationObject = jsonArray.getJSONObject(i);
 
+                        // Create a new location object
                         Location newLocation = new Location();
                         newLocation.setName(locationObject.getString("name"));
                         newLocation.setPlaceId(locationObject.getString("place_id"));
@@ -319,6 +326,7 @@ public class InterestsActivity extends AppCompatActivity implements View.OnClick
                         double lng = coordinates.getDouble("lng");
                         newLocation.setCoordinates(new ParseGeoPoint(lat, lng));
 
+                        //Update the Parse database with the user's nearby landmarks
                         saveLocation(newLocation, locationObject.getString("place_id"));
                     }
 
