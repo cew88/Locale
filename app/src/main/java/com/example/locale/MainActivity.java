@@ -52,10 +52,10 @@ public class MainActivity extends AppCompatActivity implements LandmarksAdapter.
         BottomNavigationView bottomNavigationView = findViewById(R.id.bottom_navigation);
 
         // Set the default fragment as HomeFragment
-        Fragment defaultFragment = new MapsFragment();
+        Fragment defaultFragment = new HomeFragment();
         defaultFragment.setArguments(mBundle);
         mFragmentManager.beginTransaction().replace(R.id.flContainer, defaultFragment).commit();
-        bottomNavigationView.setSelectedItemId(R.id.action_map);
+        bottomNavigationView.setSelectedItemId(R.id.action_home);
 
         // Handle clicks on the bottom navigation bar
         bottomNavigationView.setOnItemSelectedListener(new BottomNavigationView.OnNavigationItemSelectedListener() {
