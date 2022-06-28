@@ -6,6 +6,7 @@ location from the Parse database and queries the Places API to generate a list o
 package com.example.locale;
 
 import android.os.Bundle;
+import android.util.Log;
 import android.view.MenuItem;
 
 import androidx.annotation.NonNull;
@@ -20,12 +21,11 @@ import com.parse.ParseUser;
 
 import org.json.JSONException;
 
-public class MainActivity extends AppCompatActivity {
+public class MainActivity extends AppCompatActivity implements LandmarksAdapter.OnLocationVisitedListener {
     public static final String TAG = "MainActivity";
     final FragmentManager fragmentManager = getSupportFragmentManager();
     User user;
-    private double latitude;
-    private double longitude;
+    Bundle bundle;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -41,7 +41,7 @@ public class MainActivity extends AppCompatActivity {
         // Call the Parse database once when the Main activity is opened and pass the data to the
         // Fragments via Bundle
         ParseUser currentUser = ParseUser.getCurrentUser();
-        Bundle bundle = new Bundle();
+        bundle = new Bundle();
         try {
             user = new User(currentUser);
             bundle.putParcelable("User", user);
@@ -62,6 +62,7 @@ public class MainActivity extends AppCompatActivity {
                 Fragment fragment;
                 switch (item.getItemId()) {
                     case R.id.action_home:
+                        Log.d(TAG, String.valueOf(user.getNotVisitedLandmarks().size()));
                         fragment = new HomeFragment();
                         fragment.setArguments(bundle);
                         break;
@@ -79,7 +80,18 @@ public class MainActivity extends AppCompatActivity {
                 fragmentManager.beginTransaction().replace(R.id.flContainer, fragment).commit();
                 return true;
             }
-
         });
+    }
+
+    @Override
+    public void updateLandmarks() {
+        Log.d(TAG, "updateLandmarks: Location marked as visited!");
+        ParseUser currentUser = ParseUser.getCurrentUser();
+        try {
+            user = new User(currentUser);
+            bundle.putParcelable("User", user);
+        } catch (JSONException e) {
+            e.printStackTrace();
+        }
     }
 }

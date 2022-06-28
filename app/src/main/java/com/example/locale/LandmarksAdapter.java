@@ -6,45 +6,33 @@ locations as visited.
 package com.example.locale;
 
 import android.content.Context;
-import android.content.Intent;
-import android.os.Bundle;
-import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.ImageView;
 import android.widget.TextView;
-import android.widget.Toast;
 
-import androidx.annotation.LongDef;
 import androidx.annotation.NonNull;
-import androidx.fragment.app.FragmentActivity;
-import androidx.fragment.app.FragmentManager;
 import androidx.recyclerview.widget.RecyclerView;
 
-import com.codepath.asynchttpclient.callback.JsonHttpResponseHandler;
-import com.parse.FindCallback;
-import com.parse.GetCallback;
-import com.parse.ParseException;
-import com.parse.ParseObject;
-import com.parse.ParseQuery;
 import com.parse.ParseUser;
-import com.parse.SaveCallback;
 
 import org.json.JSONException;
-import org.json.JSONObject;
 
-import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.List;
-import java.util.Locale;
-
-import okhttp3.Headers;
 
 
 public class LandmarksAdapter extends RecyclerView.Adapter<LandmarksAdapter.ViewHolder> {
     Context context;
     ArrayList<Location> landmarks;
+
+    OnLocationVisitedListener locationVisitedListener;
+
+    public interface OnLocationVisitedListener {
+        public void updateLandmarks();
+    }
+
 
     // Pass in the context and the list of landmarks
     public LandmarksAdapter(Context context, ArrayList<Location> landmarks) {
@@ -100,8 +88,17 @@ public class LandmarksAdapter extends RecyclerView.Adapter<LandmarksAdapter.View
             itemView.setOnLongClickListener(new View.OnLongClickListener() {
                 @Override
                 public boolean onLongClick(View v) {
-                    Toast.makeText(v.getContext(), "Location long clicked!", Toast.LENGTH_SHORT).show();
+                    // Toast.makeText(v.getContext(), "Location long clicked!", Toast.LENGTH_SHORT).show();
                     removeFromNotVisited(landmark);
+
+                    if (context instanceof OnLocationVisitedListener) {
+                        locationVisitedListener = (OnLocationVisitedListener) context;
+                        locationVisitedListener.updateLandmarks();
+                    }
+                    else {
+                        throw new ClassCastException(context.toString());
+                    }
+
                     return true;
                 }
             });
@@ -121,7 +118,6 @@ public class LandmarksAdapter extends RecyclerView.Adapter<LandmarksAdapter.View
 
         this.landmarks = notVisited;
         notifyDataSetChanged();
-
     }
 
     public void clear() {
