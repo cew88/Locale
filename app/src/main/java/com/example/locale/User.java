@@ -5,7 +5,10 @@ number of queries made to the Parse database.
 
 package com.example.locale;
 
+import static com.example.locale.MainActivity.TAG;
+
 import android.os.Parcelable;
+import android.util.Log;
 
 import com.parse.GetCallback;
 import com.parse.ParseException;
@@ -17,8 +20,12 @@ import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
 import org.parceler.Parcel;
+
+import java.text.SimpleDateFormat;
 import java.util.ArrayList;
-import java.util.List;
+import java.util.Date;
+import java.util.HashMap;
+import java.util.Map;
 
 @Parcel
 public class User implements Parcelable{
@@ -30,6 +37,7 @@ public class User implements Parcelable{
     private double mLongitude;
     private ArrayList<String> mInterests = new ArrayList<String>();
     private ArrayList<Location> mNotVisited = new ArrayList<Location>();
+    private Map<Location, Date> mVisited= new HashMap<Location, Date>(){};
     private ArrayList<Location> mAll = new ArrayList<Location>();
     private int mUserPace;
 
@@ -54,9 +62,8 @@ public class User implements Parcelable{
 
         // Iterate through the JSON Array of not visited landmarks returned by Parse and add to an ArrayList
         JSONArray notVisitedLandmarks = user.getJSONArray("not_visited_landmarks");
-        for (int i=0; i<notVisitedLandmarks.length(); i++){
-            Location l = new Location();
-            JSONObject jsonObject = (JSONObject) notVisitedLandmarks.get(i);
+        for (int j=0; j<notVisitedLandmarks.length(); j++){
+            JSONObject jsonObject = (JSONObject) notVisitedLandmarks.get(j);
             String objectId = jsonObject.getString("objectId");
 
             ParseQuery<ParseObject> query = ParseQuery.getQuery("Location");
@@ -70,11 +77,37 @@ public class User implements Parcelable{
             });
         }
 
+        // Iterate through JSON Array of visited landmarks returned by Parse and add to HashMap
+        JSONArray visitedLandmarks = user.getJSONArray("visited_landmarks");
+        for (int k=0; k<visitedLandmarks.length(); k++){
+            JSONObject jsonObject = new JSONObject((String) visitedLandmarks.get(k));
+            String objectId = jsonObject.getString("objectId");
+
+            // Create a new date format in the correct pattern
+            SimpleDateFormat dateFormat = new SimpleDateFormat("EEE MMM dd HH:mm:ss Z yyyy");
+            try {
+                // Convert the date from a String to a Date object
+                Date dateVisited = dateFormat.parse(jsonObject.getString("date_visited"));
+
+                // Query Parse to the get Location object from the stored objectId
+                ParseQuery<ParseObject> query = ParseQuery.getQuery("Location");
+                query.whereEqualTo("objectId", objectId);
+                query.getFirstInBackground(new GetCallback<ParseObject>() {
+                    public void done(ParseObject object, ParseException e) {
+                        if (e == null) {
+                            mVisited.put((Location) object, dateVisited);
+                        }
+                    }
+                });
+            } catch (java.text.ParseException e) {
+                e.printStackTrace();
+            }
+        }
+
         // Iterate through the JSON Array of all landmarks returned by Parse and add to an ArrayList
         JSONArray allLandmarks = user.getJSONArray("not_visited_landmarks");
-        for (int j=0; j<allLandmarks.length(); j++){
-            Location l = new Location();
-            JSONObject jsonObject = (JSONObject) notVisitedLandmarks.get(j);
+        for (int l=0; l<allLandmarks.length(); l++){
+            JSONObject jsonObject = (JSONObject) notVisitedLandmarks.get(l);
             String objectId = jsonObject.getString("objectId");
 
             ParseQuery<ParseObject> query = ParseQuery.getQuery("Location");
@@ -141,6 +174,8 @@ public class User implements Parcelable{
     public ArrayList<Location> getNotVisitedLandmarks(){
         return mNotVisited;
     }
+
+    public HashMap<Location, Date> getVisitedLandmarks(){ return (HashMap<Location, Date>) mVisited;}
 
     public ArrayList<Location> getAllLandmarks() {
         return mAll;

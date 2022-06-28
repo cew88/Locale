@@ -138,7 +138,8 @@ public class LandmarksAdapter extends RecyclerView.Adapter<LandmarksAdapter.View
     public void addToVisited(Location location) throws JSONException {
         Date currentTime = Calendar.getInstance().getTime();
         JSONObject jsonObject = new JSONObject();
-        jsonObject.put(location.getObjectId(), currentTime);
+        jsonObject.put("objectId", location.getObjectId());
+        jsonObject.put("date_visited", currentTime);
 
         mCurrentUser.add(KEY_VISITED_LANDMARKS, String.valueOf(jsonObject));
         mCurrentUser.saveInBackground();
