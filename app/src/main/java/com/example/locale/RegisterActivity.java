@@ -81,6 +81,7 @@ public class RegisterActivity extends AppCompatActivity {
                 String password = mPassword.getText().toString();
                 String passwordConfirm = mPasswordConfirm.getText().toString();
 
+                // Check to make sure no fields are empty
                 if (firstName.equals("") || lastName.equals("") || username.equals("") ||
                         email.equals("") || password.equals("") || passwordConfirm.equals("")){
                     Toast.makeText(RegisterActivity.this, "Please fill out all fields!", Toast.LENGTH_SHORT).show();

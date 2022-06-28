@@ -24,27 +24,28 @@ import java.util.List;
 
 
 public class LandmarksAdapter extends RecyclerView.Adapter<LandmarksAdapter.ViewHolder> {
-    Context context;
-    ArrayList<Location> landmarks;
+    Context mContext;
+    ArrayList<Location> mLandmarks;
 
-    OnLocationVisitedListener locationVisitedListener;
+    OnLocationVisitedListener mLocationVisitedListener;
 
+    // Define an interface to notify the Main Activity that an update to the user information in the
+    // Parse database has been made
     public interface OnLocationVisitedListener {
         public void updateLandmarks();
     }
 
-
     // Pass in the context and the list of landmarks
     public LandmarksAdapter(Context context, ArrayList<Location> landmarks) {
-        this.context = context;
-        this.landmarks = landmarks;
+        this.mContext = context;
+        this.mLandmarks = landmarks;
     }
 
     // For each row, inflate the layout
     @NonNull
     @Override
     public ViewHolder onCreateViewHolder(@NonNull ViewGroup parent, int viewType) {
-        View view = LayoutInflater.from(context).inflate(R.layout.item_landmark, parent, false);
+        View view = LayoutInflater.from(mContext).inflate(R.layout.item_landmark, parent, false);
         return new ViewHolder(view);
     }
 
@@ -52,7 +53,7 @@ public class LandmarksAdapter extends RecyclerView.Adapter<LandmarksAdapter.View
     @Override
     public void onBindViewHolder(@NonNull ViewHolder holder, int position) {
         // Get the data at position
-        Location landmark = landmarks.get(position);
+        Location landmark = mLandmarks.get(position);
 
         // Bind the landmark with the view holder
         try {
@@ -65,7 +66,7 @@ public class LandmarksAdapter extends RecyclerView.Adapter<LandmarksAdapter.View
     // Define a viewholder
     @Override
     public int getItemCount() {
-        return landmarks.size();
+        return mLandmarks.size();
     }
 
     public class ViewHolder extends RecyclerView.ViewHolder {
@@ -91,12 +92,12 @@ public class LandmarksAdapter extends RecyclerView.Adapter<LandmarksAdapter.View
                     // Toast.makeText(v.getContext(), "Location long clicked!", Toast.LENGTH_SHORT).show();
                     removeFromNotVisited(landmark);
 
-                    if (context instanceof OnLocationVisitedListener) {
-                        locationVisitedListener = (OnLocationVisitedListener) context;
-                        locationVisitedListener.updateLandmarks();
+                    if (mContext instanceof OnLocationVisitedListener) {
+                        mLocationVisitedListener = (OnLocationVisitedListener) mContext;
+                        mLocationVisitedListener.updateLandmarks();
                     }
                     else {
-                        throw new ClassCastException(context.toString());
+                        throw new ClassCastException(mContext.toString());
                     }
 
                     return true;
@@ -109,24 +110,24 @@ public class LandmarksAdapter extends RecyclerView.Adapter<LandmarksAdapter.View
     // by remove the location from the array of not visited landmarks
     public void removeFromNotVisited(Location location) {
         ParseUser currentUser = ParseUser.getCurrentUser();
-        ArrayList<Location> notVisited = landmarks;
+        ArrayList<Location> notVisited = mLandmarks;
         notVisited.remove(location);
 
         // Overwrite what is currently saved under the user's not visited landmarks
         currentUser.put("not_visited_landmarks", notVisited);
         currentUser.saveInBackground();
 
-        this.landmarks = notVisited;
+        this.mLandmarks = notVisited;
         notifyDataSetChanged();
     }
 
     public void clear() {
-        landmarks.clear();
+        mLandmarks.clear();
         notifyDataSetChanged();
     }
 
     public void addAll(List<Location> locationList) {
-        landmarks.addAll(locationList);
+        mLandmarks.addAll(locationList);
         notifyDataSetChanged();
     }
 }

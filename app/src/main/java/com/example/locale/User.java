@@ -22,34 +22,37 @@ import java.util.List;
 
 @Parcel
 public class User implements Parcelable{
-    private String firstName;
-    private String lastName;
-    private String userName;
-    private String email;
-    private double latitude;
-    private double longitude;
-    private ArrayList<String> interests = new ArrayList<String>();
-    private ArrayList<Location> notVisited = new ArrayList<Location>();
-    private ArrayList<Location> all = new ArrayList<Location>();
-    private int userPace;
+    private String mFirstName;
+    private String mLastName;
+    private String mUserName;
+    private String mEmail;
+    private double mLatitude;
+    private double mLongitude;
+    private ArrayList<String> mInterests = new ArrayList<String>();
+    private ArrayList<Location> mNotVisited = new ArrayList<Location>();
+    private ArrayList<Location> mAll = new ArrayList<Location>();
+    private int mUserPace;
 
     public User(){}
 
     public User(ParseUser user) throws JSONException {
-        this.firstName = user.getString("first_name");
-        this.lastName = user.getString("last_name");
-        this.userName = user.getString("username");
-        this.email = user.getEmail();
+        // Initialize class variables
+        this.mFirstName = user.getString("first_name");
+        this.mLastName = user.getString("last_name");
+        this.mUserName = user.getString("username");
+        this.mEmail = user.getEmail();
 
         ParseGeoPoint location = user.getParseGeoPoint("location");
-        this.latitude = location.getLatitude();
-        this.longitude = location.getLongitude();
+        this.mLatitude = location.getLatitude();
+        this.mLongitude = location.getLongitude();
 
+        // Iterate through the JSON Array of user interests returned by Parse and add to an ArrayList
         JSONArray userInterests = user.getJSONArray("interests");
         for (int i=0; i<userInterests.length(); i++){
-            this.interests.add((String) userInterests.get(i));
+            this.mInterests.add((String) userInterests.get(i));
         }
 
+        // Iterate through the JSON Array of not visited landmarks returned by Parse and add to an ArrayList
         JSONArray notVisitedLandmarks = user.getJSONArray("not_visited_landmarks");
         for (int i=0; i<notVisitedLandmarks.length(); i++){
             Location l = new Location();
@@ -61,12 +64,13 @@ public class User implements Parcelable{
             query.getFirstInBackground(new GetCallback<ParseObject>() {
                 public void done(ParseObject object, ParseException e) {
                     if (e == null) {
-                        notVisited.add((Location) object);
+                        mNotVisited.add((Location) object);
                     }
                 }
             });
         }
 
+        // Iterate through the JSON Array of all landmarks returned by Parse and add to an ArrayList
         JSONArray allLandmarks = user.getJSONArray("not_visited_landmarks");
         for (int j=0; j<allLandmarks.length(); j++){
             Location l = new Location();
@@ -78,13 +82,13 @@ public class User implements Parcelable{
             query.getFirstInBackground(new GetCallback<ParseObject>() {
                 public void done(ParseObject object, ParseException e) {
                     if (e == null) {
-                        all.add((Location) object);
+                        mAll.add((Location) object);
                     }
                 }
             });
         }
 
-        this.userPace = user.getInt("pace");
+        this.mUserPace = user.getInt("pace");
     }
 
     @Override
@@ -94,55 +98,55 @@ public class User implements Parcelable{
 
     @Override
     public void writeToParcel(android.os.Parcel dest, int flags) {
-        dest.writeString(firstName);
-        dest.writeString(lastName);
-        dest.writeString(userName);
-        dest.writeString(email);
-        dest.writeDouble(latitude);
-        dest.writeDouble(longitude);
-        dest.writeStringList(interests);
-        dest.writeTypedList(notVisited);
-        dest.writeTypedList(all);
-        dest.writeInt(userPace);
+        dest.writeString(mFirstName);
+        dest.writeString(mLastName);
+        dest.writeString(mUserName);
+        dest.writeString(mEmail);
+        dest.writeDouble(mLatitude);
+        dest.writeDouble(mLongitude);
+        dest.writeStringList(mInterests);
+        dest.writeTypedList(mNotVisited);
+        dest.writeTypedList(mAll);
+        dest.writeInt(mUserPace);
     }
 
     public String getFirstName() {
-        return firstName;
+        return mFirstName;
     }
 
     public String getLastName(){
-        return lastName;
+        return mLastName;
     }
 
     public String getUserName(){
-        return userName;
+        return mUserName;
     }
 
     public String getEmail(){
-        return email;
+        return mEmail;
     }
 
     public double getLatitude(){
-        return latitude;
+        return mLatitude;
     }
 
     public double getLongitude(){
-        return longitude;
+        return mLongitude;
     }
 
     public ArrayList<String> getInterests() {
-        return interests;
+        return mInterests;
     }
 
     public ArrayList<Location> getNotVisitedLandmarks(){
-        return notVisited;
+        return mNotVisited;
     }
 
     public ArrayList<Location> getAllLandmarks() {
-        return all;
+        return mAll;
     }
 
     public int getUserPace() {
-        return userPace;
+        return mUserPace;
     }
 }

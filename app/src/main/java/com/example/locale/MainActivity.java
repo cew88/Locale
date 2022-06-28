@@ -23,9 +23,9 @@ import org.json.JSONException;
 
 public class MainActivity extends AppCompatActivity implements LandmarksAdapter.OnLocationVisitedListener {
     public static final String TAG = "MainActivity";
-    final FragmentManager fragmentManager = getSupportFragmentManager();
-    User user;
-    Bundle bundle;
+    final FragmentManager mFragmentManager = getSupportFragmentManager();
+    User mUser;
+    Bundle mBundle;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -41,55 +41,56 @@ public class MainActivity extends AppCompatActivity implements LandmarksAdapter.
         // Call the Parse database once when the Main activity is opened and pass the data to the
         // Fragments via Bundle
         ParseUser currentUser = ParseUser.getCurrentUser();
-        bundle = new Bundle();
+        mBundle = new Bundle();
         try {
-            user = new User(currentUser);
-            bundle.putParcelable("User", user);
+            mUser = new User(currentUser);
+            mBundle.putParcelable("User", mUser);
         } catch (JSONException e) {
             e.printStackTrace();
         }
 
-        // Set the default fragment as HomeFragment
-        Fragment defaultFragment = new HomeFragment();
-        defaultFragment.setArguments(bundle);
-        fragmentManager.beginTransaction().replace(R.id.flContainer, defaultFragment).commit();
-
         BottomNavigationView bottomNavigationView = findViewById(R.id.bottom_navigation);
-        bottomNavigationView.setSelectedItemId(R.id.action_home);
+
+        // Set the default fragment as HomeFragment
+        Fragment defaultFragment = new MapsFragment();
+        defaultFragment.setArguments(mBundle);
+        mFragmentManager.beginTransaction().replace(R.id.flContainer, defaultFragment).commit();
+        bottomNavigationView.setSelectedItemId(R.id.action_map);
+
+        // Handle clicks on the bottom navigation bar
         bottomNavigationView.setOnItemSelectedListener(new BottomNavigationView.OnNavigationItemSelectedListener() {
             @Override
             public boolean onNavigationItemSelected(@NonNull MenuItem item) {
                 Fragment fragment;
                 switch (item.getItemId()) {
                     case R.id.action_home:
-                        Log.d(TAG, String.valueOf(user.getNotVisitedLandmarks().size()));
                         fragment = new HomeFragment();
-                        fragment.setArguments(bundle);
+                        fragment.setArguments(mBundle);
                         break;
                     case R.id.action_map:
                         fragment = new MapsFragment();
-                        fragment.setArguments(bundle);
+                        fragment.setArguments(mBundle);
                         break;
                     case R.id.action_profile:
                         fragment = new ProfileFragment();
-                        fragment.setArguments(bundle);
+                        fragment.setArguments(mBundle);
                         break;
                     default:
                         throw new IllegalStateException("Unexpected value: " + item.getItemId());
                 }
-                fragmentManager.beginTransaction().replace(R.id.flContainer, fragment).commit();
+                mFragmentManager.beginTransaction().replace(R.id.flContainer, fragment).commit();
                 return true;
             }
         });
     }
 
+    // Query Parse for updated user data in response to marking a location visited in the Landmark adapter
     @Override
     public void updateLandmarks() {
-        Log.d(TAG, "updateLandmarks: Location marked as visited!");
         ParseUser currentUser = ParseUser.getCurrentUser();
         try {
-            user = new User(currentUser);
-            bundle.putParcelable("User", user);
+            mUser = new User(currentUser);
+            mBundle.putParcelable("User", mUser);
         } catch (JSONException e) {
             e.printStackTrace();
         }

@@ -24,33 +24,27 @@ import com.google.android.gms.maps.SupportMapFragment;
 import com.google.android.gms.maps.model.BitmapDescriptorFactory;
 import com.google.android.gms.maps.model.LatLng;
 import com.google.android.gms.maps.model.MarkerOptions;
-import com.parse.ParseGeoPoint;
-import com.parse.ParseUser;
 
 import java.util.ArrayList;
 
 public class MapsFragment extends Fragment {
-    ParseUser currentUser = ParseUser.getCurrentUser();
-    ParseGeoPoint geoPoint = (ParseGeoPoint) currentUser.get("location");
-
-    User user;
-    ArrayList<Location> notVisitedLandmarks;
-    RecyclerView rvLandmarks;
-    ArrayList<Location> landmarks;
-    LandmarksAdapter adapter;
+    User mUser;
+    ArrayList<Location> mNotVisitedLandmarks;
+    RecyclerView mRvLandmarks;
+    ArrayList<Location> mLandmarks;
+    LandmarksAdapter mAdapter;
 
     private OnMapReadyCallback callback = new OnMapReadyCallback() {
 
         @Override
         public void onMapReady(GoogleMap googleMap) {
-            if (geoPoint != null){
-                LatLng currentLocation = new LatLng(geoPoint.getLatitude(), geoPoint.getLongitude());
-                googleMap.addMarker(new MarkerOptions().position(currentLocation).title("Current Location"));
-                googleMap.moveCamera(CameraUpdateFactory.newLatLngZoom(currentLocation, 12.0f));
-            }
+            LatLng currentLocation = new LatLng(mUser.getLatitude(), mUser.getLongitude());
+            googleMap.addMarker(new MarkerOptions().position(currentLocation).title("Current Location"));
+            googleMap.moveCamera(CameraUpdateFactory.newLatLngZoom(currentLocation, 12.0f));
 
-            for (int i=0; i<notVisitedLandmarks.size(); i++){
-                Location loc = notVisitedLandmarks.get(i);
+
+            for (int i=0; i<mNotVisitedLandmarks.size(); i++){
+                Location loc = mNotVisitedLandmarks.get(i);
                 LatLng newMarkerLocation = new LatLng(loc.getCoordinates().getLatitude(), loc.getCoordinates().getLongitude());
                 googleMap.addMarker(new MarkerOptions().position(newMarkerLocation).title(loc.getString("place_name")).icon(BitmapDescriptorFactory.defaultMarker(96)));
             }
@@ -60,8 +54,8 @@ public class MapsFragment extends Fragment {
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
         // Get data passed from bundle
-        user = this.getArguments().getParcelable("User");
-        notVisitedLandmarks = user.getNotVisitedLandmarks();
+        mUser = this.getArguments().getParcelable("User");
+        mNotVisitedLandmarks = mUser.getNotVisitedLandmarks();
 
         return inflater.inflate(R.layout.fragment_maps, container, false);
     }
@@ -75,19 +69,23 @@ public class MapsFragment extends Fragment {
             mapFragment.getMapAsync(callback);
         }
 
-        rvLandmarks = view.findViewById(R.id.rvLandmarks_Maps);
+        mRvLandmarks = view.findViewById(R.id.rvLandmarks_Maps);
         LinearLayoutManager linearLayoutManager = new LinearLayoutManager(getContext(), LinearLayoutManager.HORIZONTAL, false);
 
+        // Addition for the horizontal scrolling UI
+        // If a list item is "halfway" on the screen, the SnapHelper "snaps" it into place so that
+        // the item is centered on the screen
         SnapHelper helper = new LinearSnapHelper();
-        helper.attachToRecyclerView(rvLandmarks);
+        helper.attachToRecyclerView(mRvLandmarks);
 
         // Initialize the list of landmarks and adapter
-        landmarks = new ArrayList<>();
-        adapter = new LandmarksAdapter(getContext(), landmarks);
-        // Recycler view setup: layout manager and the adapter
-        rvLandmarks.setLayoutManager(linearLayoutManager);
-        rvLandmarks.setAdapter(adapter);
+        mLandmarks = new ArrayList<>();
+        mAdapter = new LandmarksAdapter(getContext(), mLandmarks);
 
-        landmarks.addAll(notVisitedLandmarks);
+        // Recycler view setup: layout manager and the adapter
+        mRvLandmarks.setLayoutManager(linearLayoutManager);
+        mRvLandmarks.setAdapter(mAdapter);
+
+        mLandmarks.addAll(mNotVisitedLandmarks);
     }
 }

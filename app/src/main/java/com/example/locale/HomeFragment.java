@@ -5,11 +5,17 @@ visited yet.
 
 package com.example.locale;
 
+import static com.example.locale.MainActivity.TAG;
+
+import android.content.Context;
 import android.os.Bundle;
+import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.Toast;
 
+import androidx.annotation.LongDef;
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.fragment.app.Fragment;
@@ -19,10 +25,10 @@ import androidx.recyclerview.widget.RecyclerView;
 import java.util.ArrayList;
 
 public class HomeFragment extends Fragment {
-    RecyclerView rvLandmarks;
-    ArrayList<Location> landmarks;
-    LandmarksAdapter adapter;
-    User user;
+    RecyclerView mRvLandmarks;
+    ArrayList<Location> mLandmarks;
+    LandmarksAdapter mAdapter;
+    User mUser;
 
     // Required empty public constructor
     public HomeFragment() {}
@@ -36,7 +42,7 @@ public class HomeFragment extends Fragment {
     public View onCreateView(LayoutInflater inflater, ViewGroup container,
                              Bundle savedInstanceState) {
         // Get data passed from bundle
-        user = this.getArguments().getParcelable("User");
+        mUser = this.getArguments().getParcelable("User");
 
         // Inflate the layout for this fragment
         return inflater.inflate(R.layout.fragment_home, container, false);
@@ -46,18 +52,17 @@ public class HomeFragment extends Fragment {
     public void onViewCreated(@NonNull View view, @Nullable Bundle savedInstanceState) {
         super.onViewCreated(view, savedInstanceState);
 
-        rvLandmarks = view.findViewById(R.id.rvLandmarks);
-        LinearLayoutManager linearLayoutManager = new LinearLayoutManager(getContext());
-
         // Initialize the list of landmarks and adapter
-        landmarks = new ArrayList<Location>();
-        adapter = new LandmarksAdapter(getContext(), landmarks);
+        mLandmarks = new ArrayList<Location>();
+        mAdapter = new LandmarksAdapter(getContext(), mLandmarks);
 
         // Recycler view setup: layout manager and the adapter
-        rvLandmarks.setLayoutManager(linearLayoutManager);
-        rvLandmarks.setAdapter(adapter);
+        mRvLandmarks = view.findViewById(R.id.rvLandmarks);
+        LinearLayoutManager linearLayoutManager = new LinearLayoutManager(getContext());
+        mRvLandmarks.setLayoutManager(linearLayoutManager);
+        mRvLandmarks.setAdapter(mAdapter);
 
-        ArrayList<Location> notVisitedLandmarks = user.getNotVisitedLandmarks();
-        landmarks.addAll(notVisitedLandmarks);
+        ArrayList<Location> notVisitedLandmarks = mUser.getNotVisitedLandmarks();
+        mLandmarks.addAll(notVisitedLandmarks);
     }
 }
