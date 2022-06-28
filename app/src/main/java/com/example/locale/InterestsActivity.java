@@ -44,88 +44,103 @@ import okhttp3.Headers;
 
 public class InterestsActivity extends AppCompatActivity implements View.OnClickListener{
     public static final String TAG = "InterestsActivity";
-    private Map<String, ArrayList<Integer>> interests = new HashMap<String, ArrayList<Integer>>() {
+    public static final String KEY_AMUSEMENT_PARK= "amusement_park";
+    public static final String KEY_AQUARIUM = "aquarium";
+    public static final String KEY_ART_GALLERY = "art_gallery";
+    public static final String KEY_BAKERY = "bakery";
+    public static final String KEY_CAFE = "cafe";
+    public static final String KEY_MOVIE_THEATER= "move_theater";
+    public static final String KEY_MUSEUEM = "museum";
+    public static final String KEY_NIGHT_CLUB = "night_club";
+    public static final String KEY_PARK= "park";
+    public static final String KEY_RESTAURANT = "restaurant";
+    public static final String KEY_SHOPPING_MALL= "shopping_mall";
+    public static final String KEY_SPA = "spa";
+    public static final String KEY_STADIUM = "stadium";
+    public static final String KEY_TOURIST_ATTRACTION = "tourist_attraction";
+
+    private Map<String, ArrayList<Integer>> mInterests = new HashMap<String, ArrayList<Integer>>() {
         {
-            put("amusement_park", new ArrayList<Integer>(
+            put(KEY_AMUSEMENT_PARK, new ArrayList<Integer>(
                     List.of(R.drawable.ferris_wheel, R.id.amusement_park)));
-            put("aquarium", new ArrayList<Integer>(
+            put(KEY_AQUARIUM, new ArrayList<Integer>(
                     List.of(R.drawable.fish, R.id.aquarium)));
-            put("art_gallery", new ArrayList<Integer>(
+            put(KEY_ART_GALLERY, new ArrayList<Integer>(
                     List.of(R.drawable.palette, R.id.art_gallery)));
-            put("bakery", new ArrayList<Integer>(
+            put(KEY_BAKERY, new ArrayList<Integer>(
                     List.of(R.drawable.croissant, R.id.bakery)));
-            put("cafe", new ArrayList<Integer>(
+            put(KEY_CAFE, new ArrayList<Integer>(
                     List.of(R.drawable.mug, R.id.cafe)));
-            put("movie_theater", new ArrayList<Integer>(
+            put(KEY_MOVIE_THEATER, new ArrayList<Integer>(
                     List.of(R.drawable.popcorn, R.id.movie_theater)));
-            put("museum", new ArrayList<Integer>(
+            put(KEY_MUSEUEM, new ArrayList<Integer>(
                     List.of(R.drawable.bank, R.id.museum)));
-            put("night_club", new ArrayList<Integer>(
+            put(KEY_NIGHT_CLUB, new ArrayList<Integer>(
                     List.of(R.drawable.glass_cheers, R.id.night_club)));
-            put("park", new ArrayList<Integer>(
+            put(KEY_PARK, new ArrayList<Integer>(
                     List.of(R.drawable.tree, R.id.park)));
-            put("restaurant", new ArrayList<Integer>(
+            put(KEY_RESTAURANT, new ArrayList<Integer>(
                     List.of(R.drawable.food, R.id.restaurant)));
-            put("shopping_mall", new ArrayList<Integer>(
+            put(KEY_SHOPPING_MALL, new ArrayList<Integer>(
                     List.of(R.drawable.shopping, R.id.shopping_mall)));
-            put("spa", new ArrayList<Integer>(
+            put(KEY_SPA, new ArrayList<Integer>(
                     List.of(R.drawable.makeup_brush, R.id.spa)));
-            put("stadium", new ArrayList<Integer>(
+            put(KEY_STADIUM, new ArrayList<Integer>(
                     List.of(R.drawable.basketball, R.id.stadium)));
-            put("tourist_attraction", new ArrayList<Integer>(
+            put(KEY_TOURIST_ATTRACTION, new ArrayList<Integer>(
                     List.of(R.drawable.tourism, R.id.tourist_attraction)));
         }
     };
-    private Button submitBtn;
-    private int userPace = 0;
-    private View relaxed;
-    private View moderate;
-    private View intense;
-    private ArrayList<String> userInterests = new ArrayList<String>();
-    private ParseUser currentUser = ParseUser.getCurrentUser();
-    private FlexboxLayout flexboxLayout;
-    private double latitude;
-    private double longitude;
+    private Button mSubmitBtn;
+    private int mUserPace = 0;
+    private View mRelaxed;
+    private View mModerate;
+    private View mIntense;
+    private ArrayList<String> mUserInterests = new ArrayList<>();
+    private ParseUser mCurrentUser = ParseUser.getCurrentUser();
+    private FlexboxLayout mFlexboxLayout;
+    private double mLatitude;
+    private double mLongitude;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_interests);
 
-        flexboxLayout = findViewById(R.id.interestsView);
+        mFlexboxLayout = findViewById(R.id.interestsView);
         // Initialize the SDK
         Places.initialize(getApplicationContext(), BuildConfig.MAPS_API_KEY);
 
         // TO DO: SET THE BACKGROUND TINT FOR ALREADY SELECTED INTERESTS IF THIS ACTIVITY IS REUSED
         // ON THE PROFILE PAGE TO ALLOW USERS TO EDIT THEIR INTERESTS
-        for (String name : interests.keySet()){
+        for (String name : mInterests.keySet()){
             createNewInterest(name);
         }
 
-        submitBtn = findViewById(R.id.btnSubmit);
-        submitBtn.setOnClickListener(new View.OnClickListener(){
+        mSubmitBtn = findViewById(R.id.btnSubmit);
+        mSubmitBtn.setOnClickListener(new View.OnClickListener(){
             @Override
             public void onClick(View v) {
                 // If the user does not click any intensity, set the intensity to 10 by default
-                userPace = 10;
+                mUserPace = 10;
 
-                currentUser.put("interests", userInterests);
-                currentUser.put("pace", userPace);
-                currentUser.saveInBackground();
+                mCurrentUser.put("interests", mUserInterests);
+                mCurrentUser.put("pace", mUserPace);
+                mCurrentUser.saveInBackground();
 
                 // Access the user's saved location
-                ParseGeoPoint geoPoint = (ParseGeoPoint) currentUser.get("location");
+                ParseGeoPoint geoPoint = (ParseGeoPoint) mCurrentUser.get("location");
                 // If the user has a saved location, retrieve the latitude and longitude coordinates from
                 // the saved location
                 if (geoPoint != null){
-                    latitude = geoPoint.getLatitude();
-                    longitude = geoPoint.getLongitude();
+                    mLatitude = geoPoint.getLatitude();
+                    mLongitude = geoPoint.getLongitude();
 
                     // If a user does not select any interests
-                    if (userInterests.size() == 0){
-                        userInterests.add("tourist_attraction");
+                    if (mUserInterests.size() == 0){
+                        mUserInterests.add("tourist_attraction");
                     }
-                    queryAPI(latitude, longitude);
+                    queryAPI(mLatitude, mLongitude);
                 }
 
                 // Create a handler to delay the start of the Main Activity
@@ -142,14 +157,14 @@ public class InterestsActivity extends AppCompatActivity implements View.OnClick
             }
         });
 
-        relaxed = findViewById(R.id.relaxedView);
-        relaxed.setOnClickListener(this);
+        mRelaxed = findViewById(R.id.relaxedView);
+        mRelaxed.setOnClickListener(this);
 
-        moderate = findViewById(R.id.moderateView);
-        moderate.setOnClickListener(this);
+        mModerate = findViewById(R.id.moderateView);
+        mModerate.setOnClickListener(this);
 
-        intense = findViewById(R.id.intenseView);
-        intense.setOnClickListener(this);
+        mIntense = findViewById(R.id.intenseView);
+        mIntense.setOnClickListener(this);
     }
 
     @Override
@@ -159,57 +174,57 @@ public class InterestsActivity extends AppCompatActivity implements View.OnClick
         // When a user clicks on a pace type
         switch (v.getId()){
             case R.id.relaxedView:
-                if (userPace == 5){
-                    userPace = 0;
+                if (mUserPace == 5){
+                    mUserPace = 0;
                     viewId.setBackgroundTintList(getColorStateList(R.color.light_gray));
                 }
                 else {
-                    userPace = 5;
+                    mUserPace = 5;
                     viewId.setBackgroundTintList(getColorStateList(R.color.dusty_green_light));
                     findViewById(R.id.moderateView).setBackgroundTintList(getColorStateList(R.color.light_gray));
                     findViewById(R.id.intenseView).setBackgroundTintList(getColorStateList(R.color.light_gray));
                 }
                 return;
             case R.id.moderateView:
-                if (userPace == 10){
-                    userPace = 0;
+                if (mUserPace == 10){
+                    mUserPace = 0;
                     viewId.setBackgroundTintList(getColorStateList(R.color.light_gray));
                 }
                 else {
-                    userPace = 10;
+                    mUserPace = 10;
                     viewId.setBackgroundTintList(getColorStateList(R.color.pale_yellow));
                     findViewById(R.id.relaxedView).setBackgroundTintList(getColorStateList(R.color.light_gray));
                     findViewById(R.id.intenseView).setBackgroundTintList(getColorStateList(R.color.light_gray));
                 }
                 return;
             case R.id.intenseView:
-                if (userPace == 20){
-                    userPace = 0;
+                if (mUserPace == 20){
+                    mUserPace = 0;
                     viewId.setBackgroundTintList(getColorStateList(R.color.light_gray));
                 }
                 else {
-                    userPace = 20;
+                    mUserPace = 20;
                     viewId.setBackgroundTintList(getColorStateList(R.color.dusty_red));
                     findViewById(R.id.relaxedView).setBackgroundTintList(getColorStateList(R.color.light_gray));
                     findViewById(R.id.moderateView).setBackgroundTintList(getColorStateList(R.color.light_gray));
                 }
                 return;
             default:
-                userPace = 10;
+                mUserPace = 10;
         }
 
         // When the user clicks on an interest
         TextView apiType = viewId.findViewById(R.id.tvHiddenText);
 
         // If the view is not already selected and there are less than 5 interests already selected
-        if (!viewId.isSelected() && userInterests.size() < 5){
+        if (!viewId.isSelected() && mUserInterests.size() < 5){
             viewId.setSelected(true);
-            userInterests.add((String) apiType.getText());
+            mUserInterests.add((String) apiType.getText());
             viewId.setBackgroundTintList(getColorStateList(R.color.dusty_green_light));
         }
         else {
             viewId.setSelected(false);
-            userInterests.remove(apiType.getText());
+            mUserInterests.remove(apiType.getText());
             viewId.setBackgroundTintList(getColorStateList(R.color.light_gray));
         }
     }
@@ -227,7 +242,7 @@ public class InterestsActivity extends AppCompatActivity implements View.OnClick
 
         // Create a new interest layout
         LinearLayout interestLayout = new LinearLayout(InterestsActivity.this);
-        interestLayout.setId(interests.get(name).get(1));
+        interestLayout.setId(mInterests.get(name).get(1));
         interestLayout.setOnClickListener(this);
         interestLayout.setSelected(false);
         interestLayout.setOrientation(LinearLayout.HORIZONTAL);
@@ -240,7 +255,7 @@ public class InterestsActivity extends AppCompatActivity implements View.OnClick
 
         // Create image view for the icon
         ImageView ivInterestIcon = new ImageView(InterestsActivity.this);
-        ivInterestIcon.setImageResource(interests.get(name).get(0));
+        ivInterestIcon.setImageResource(mInterests.get(name).get(0));
         interestLayout.addView(ivInterestIcon);
 
         // Create text view for the interest layout
@@ -259,7 +274,7 @@ public class InterestsActivity extends AppCompatActivity implements View.OnClick
         tvHiddenText.setVisibility(View.GONE);
         interestLayout.addView(tvHiddenText);
 
-        flexboxLayout.addView(interestLayout);
+        mFlexboxLayout.addView(interestLayout);
     }
 
     // Save the queried locations to the Location class in the Parse Database
@@ -316,8 +331,8 @@ public class InterestsActivity extends AppCompatActivity implements View.OnClick
     // Query the Places API
     private void queryAPI(double latitude, double longitude){
         // Filters landmarks based on the user's selected interests
-        for (int i=0; i<userInterests.size(); i++){
-            String url = "https://maps.googleapis.com/maps/api/place/nearbysearch/json?location=" + latitude +  "%2C" + longitude + "&radius=30000&type=" + userInterests.get(i) + "&key=" + BuildConfig.MAPS_API_KEY;
+        for (int i=0; i<mUserInterests.size(); i++){
+            String url = "https://maps.googleapis.com/maps/api/place/nearbysearch/json?location=" + latitude +  "%2C" + longitude + "&radius=30000&type=" + mUserInterests.get(i) + "&key=" + BuildConfig.MAPS_API_KEY;
             AsyncHttpClient client = new AsyncHttpClient();
             client.get(url, new JsonHttpResponseHandler() {
                 @Override
@@ -331,7 +346,7 @@ public class InterestsActivity extends AppCompatActivity implements View.OnClick
                         // selects "moderate", add 20 landmarks if the user selects "intense"; if the
                         // user does not select an intensity, the app default adds 10 landmarks for the
                         // user
-                        for (int j=0; j<userPace/userInterests.size(); j++){
+                        for (int j=0; j<mUserPace/mUserInterests.size(); j++){
 
                             JSONObject locationObject = jsonArray.getJSONObject(j);
 
