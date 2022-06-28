@@ -9,6 +9,7 @@ package com.example.locale;
 
 import android.content.Intent;
 import android.os.Bundle;
+import android.os.Handler;
 import android.util.Log;
 import android.view.View;
 import android.widget.Button;
@@ -105,6 +106,9 @@ public class InterestsActivity extends AppCompatActivity implements View.OnClick
         submitBtn.setOnClickListener(new View.OnClickListener(){
             @Override
             public void onClick(View v) {
+                // If the user does not click any intensity, set the intensity to 10 by default
+                userPace = 10;
+
                 currentUser.put("interests", userInterests);
                 currentUser.put("pace", userPace);
                 currentUser.saveInBackground();
@@ -116,9 +120,25 @@ public class InterestsActivity extends AppCompatActivity implements View.OnClick
                 if (geoPoint != null){
                     latitude = geoPoint.getLatitude();
                     longitude = geoPoint.getLongitude();
+
+                    // If a user does not select any interests
+                    if (userInterests.size() == 0){
+                        userInterests.add("tourist_attraction");
+                    }
                     queryAPI(latitude, longitude);
                 }
-                navigateToMainActivity();
+
+                // Create a handler to delay the start of the Main Activity
+                // Prevents navigating to the Home Fragment when the locations have not been stored
+                // to the Parse database yet
+                Handler handler = new Handler();
+                handler.postDelayed(new Runnable() {
+                    @Override
+                    public void run() {
+                        navigateToMainActivity();
+                    }
+                }, 1000);
+
             }
         });
 
@@ -192,8 +212,6 @@ public class InterestsActivity extends AppCompatActivity implements View.OnClick
             userInterests.remove(apiType.getText());
             viewId.setBackgroundTintList(getColorStateList(R.color.light_gray));
         }
-
-
     }
 
     // Add new interest to the screen
@@ -297,10 +315,8 @@ public class InterestsActivity extends AppCompatActivity implements View.OnClick
 
     // Query the Places API
     private void queryAPI(double latitude, double longitude){
-
-        // Make a new query for each user interest
+        // Filters landmarks based on the user's selected interests
         for (int i=0; i<userInterests.size(); i++){
-            // Filters landmarks based on the user's selected interests
             String url = "https://maps.googleapis.com/maps/api/place/nearbysearch/json?location=" + latitude +  "%2C" + longitude + "&radius=30000&type=" + userInterests.get(i) + "&key=" + BuildConfig.MAPS_API_KEY;
             AsyncHttpClient client = new AsyncHttpClient();
             client.get(url, new JsonHttpResponseHandler() {
