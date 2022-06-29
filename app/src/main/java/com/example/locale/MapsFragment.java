@@ -7,6 +7,7 @@ landmarks that the user has not visited yet.
 package com.example.locale;
 
 import android.os.Bundle;
+import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -22,22 +23,26 @@ import com.google.android.gms.maps.GoogleMap;
 import com.google.android.gms.maps.OnMapReadyCallback;
 import com.google.android.gms.maps.SupportMapFragment;
 import com.google.android.gms.maps.model.BitmapDescriptorFactory;
+import com.google.android.gms.maps.model.CameraPosition;
 import com.google.android.gms.maps.model.LatLng;
 import com.google.android.gms.maps.model.MarkerOptions;
 
 import java.util.ArrayList;
 
-public class MapsFragment extends Fragment {
+public class MapsFragment extends Fragment implements LandmarksAdapter.OnLocationClickedListener {
     User mUser;
     ArrayList<Location> mNotVisitedLandmarks;
     RecyclerView mRvLandmarks;
     ArrayList<Location> mLandmarks;
     LandmarksAdapter mAdapter;
+    LatLng markerLocation;
+    GoogleMap mGoogleMap;
 
     private OnMapReadyCallback callback = new OnMapReadyCallback() {
 
         @Override
         public void onMapReady(GoogleMap googleMap) {
+            mGoogleMap = googleMap;
             LatLng currentLocation = new LatLng(mUser.getLatitude(), mUser.getLongitude());
             googleMap.addMarker(new MarkerOptions().position(currentLocation).title("Current Location"));
             googleMap.moveCamera(CameraUpdateFactory.newLatLngZoom(currentLocation, 12.0f));
@@ -80,12 +85,27 @@ public class MapsFragment extends Fragment {
 
         // Initialize the list of landmarks and adapter
         mLandmarks = new ArrayList<>();
-        mAdapter = new LandmarksAdapter(getContext(), mLandmarks);
+        mAdapter = new LandmarksAdapter(getContext(), mLandmarks, this);
 
         // Recycler view setup: layout manager and the adapter
         mRvLandmarks.setLayoutManager(linearLayoutManager);
         mRvLandmarks.setAdapter(mAdapter);
 
         mLandmarks.addAll(mNotVisitedLandmarks);
+
+    }
+
+    @Override
+    public void zoomInOnMarkers(double latitude, double longitude) {
+        markerLocation = new LatLng(latitude, longitude);
+
+        // Construct a CameraPosition focusing on the marker location and animate the camera to that position.
+        CameraPosition cameraPosition = new CameraPosition.Builder()
+                .target(markerLocation )    // Sets the center of the map to the marker location
+                .zoom(20)                   // Sets the zoom
+                .bearing(0)                 // Sets the orientation of the camera to north
+                .tilt(0)                    // Sets the tilt of the camera to 0 degrees
+                .build();                   // Creates a CameraPosition from the builder
+        mGoogleMap.animateCamera(CameraUpdateFactory.newCameraPosition(cameraPosition));
     }
 }
