@@ -4,10 +4,9 @@ landmarks that the user has not visited yet.
  */
 
 
-package com.example.locale;
+package com.example.locale.fragments;
 
 import android.os.Bundle;
-import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -18,6 +17,10 @@ import androidx.recyclerview.widget.LinearSnapHelper;
 import androidx.recyclerview.widget.RecyclerView;
 import androidx.recyclerview.widget.SnapHelper;
 
+import com.example.locale.adapters.LandmarksAdapter;
+import com.example.locale.models.Location;
+import com.example.locale.R;
+import com.example.locale.models.User;
 import com.google.android.gms.maps.CameraUpdateFactory;
 import com.google.android.gms.maps.GoogleMap;
 import com.google.android.gms.maps.OnMapReadyCallback;

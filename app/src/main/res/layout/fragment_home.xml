@@ -4,11 +4,11 @@
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    tools:context=".HomeFragment">
+    tools:context=".fragments.HomeFragment">
     <androidx.recyclerview.widget.RecyclerView
         android:id="@+id/rvLandmarks"
         android:layout_width="match_parent"
-        android:layout_height="wrap_content"
+        android:layout_height="match_parent"
         android:paddingBottom="80dp"
         android:clipToPadding="false"
         app:layout_constraintTop_toTopOf="parent"

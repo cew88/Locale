@@ -3,10 +3,13 @@ Creates a profile fragment that displays the user's first name, last name, usern
 a button for users to log out of the app.
  */
 
-package com.example.locale;
+package com.example.locale.fragments;
+
+import static com.example.locale.MainActivity.TAG;
 
 import android.content.Intent;
 import android.os.Bundle;
+import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -16,15 +19,30 @@ import android.widget.TextView;
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.fragment.app.Fragment;
+import androidx.recyclerview.widget.LinearLayoutManager;
+import androidx.recyclerview.widget.RecyclerView;
 
+import com.example.locale.LoginActivity;
+import com.example.locale.R;
+import com.example.locale.adapters.DateAdapter;
+import com.example.locale.models.User;
 import com.parse.ParseUser;
+
+import java.util.ArrayList;
+import java.util.Date;
 
 public class ProfileFragment extends Fragment {
     private ImageView mIvProfileImage;
     private ImageView mIvLogout;
     private TextView mTvName;
     private TextView mTvUsername;
-    User mUser;
+
+    private TextView mPlacesVisitedCount;
+    private TextView mInterests;
+
+    private User mUser;
+    private DateAdapter mDateAdapter;
+    private RecyclerView mRvDates;
 
     public ProfileFragment() {
         // Required empty public constructor
@@ -39,6 +57,9 @@ public class ProfileFragment extends Fragment {
     public View onCreateView(LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
         // Get data passed from bundle
         mUser = this.getArguments().getParcelable("User");
+
+        Log.d(TAG, String.valueOf(mUser.getVisitedLandmarks()));
+
         // Inflate the layout for this fragment
         return inflater.inflate(R.layout.fragment_profile, container, false);
     }
@@ -47,14 +68,44 @@ public class ProfileFragment extends Fragment {
     public void onViewCreated(@NonNull View view, @Nullable Bundle savedInstanceState) {
         super.onViewCreated(view, savedInstanceState);
 
+        // Set the user timeline list
+        ArrayList<String> uniqueDates = new ArrayList<>();
+
+        for (Date date : mUser.getVisitedLandmarks().values()){
+            String dateString = date.toString().substring(0, 10);
+            if (!uniqueDates.contains(dateString)){
+                uniqueDates.add(dateString);
+            }
+        }
+
+        mDateAdapter = new DateAdapter(getContext(), uniqueDates, mUser);
+        mRvDates = view.findViewById(R.id.rvDates);
+        LinearLayoutManager dateLinearLayoutManager = new LinearLayoutManager(getContext());
+        mRvDates.setLayoutManager(dateLinearLayoutManager);
+        mRvDates.setAdapter(mDateAdapter);
+
         // Find views
         mIvProfileImage = view.findViewById(R.id.ivProfileImage);
         mTvName = view.findViewById(R.id.tvName);
         mTvUsername = view.findViewById(R.id.tvUsername);
+        mPlacesVisitedCount = view.findViewById(R.id.tvPlacesVisitedCount);
+        mInterests = view.findViewById(R.id.tvInterestsList);
+
 
         // Set views
+        // TO DO: CHANGE PROFILE IMAGE
+        mIvProfileImage.setImageResource(R.drawable.bank);
         mTvName.setText(mUser.getFirstName() + " " + mUser.getLastName());
         mTvUsername.setText(mUser.getUserName());
+
+        mPlacesVisitedCount.setText(String.valueOf(mUser.getVisitedLandmarks().values().size()));
+
+        String interestsList = mUser.getInterests().get(0).replaceAll("_", " ");
+        for (int i=1; i<mUser.getInterests().size(); i++){
+            interestsList += ", " + mUser.getInterests().get(i).replaceAll("_", " ");;
+        }
+
+        mInterests.setText(interestsList);
 
         mIvLogout = view.findViewById(R.id.ivLogoutIcon);
         mIvLogout.setOnClickListener(new View.OnClickListener() {
@@ -67,5 +118,10 @@ public class ProfileFragment extends Fragment {
                 startActivity(i);
             }
         });
+
+
+
+
+
     }
 }

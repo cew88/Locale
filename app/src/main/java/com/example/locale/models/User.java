@@ -3,12 +3,9 @@ Class represents the Parse User. Saving the Parse User's information in a Java O
 number of queries made to the Parse database.
 */
 
-package com.example.locale;
-
-import static com.example.locale.MainActivity.TAG;
+package com.example.locale.models;
 
 import android.os.Parcelable;
-import android.util.Log;
 
 import com.parse.GetCallback;
 import com.parse.ParseException;
@@ -25,7 +22,6 @@ import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Date;
 import java.util.HashMap;
-import java.util.Map;
 
 @Parcel
 public class User implements Parcelable{
@@ -36,8 +32,8 @@ public class User implements Parcelable{
     private double mLatitude;
     private double mLongitude;
     private ArrayList<String> mInterests = new ArrayList<String>();
+    private HashMap<String, Date> mVisited= new HashMap<String, Date>(){};
     private ArrayList<Location> mNotVisited = new ArrayList<Location>();
-    private Map<Location, Date> mVisited= new HashMap<Location, Date>(){};
     private ArrayList<Location> mAll = new ArrayList<Location>();
     private int mUserPace;
 
@@ -95,7 +91,8 @@ public class User implements Parcelable{
                 query.getFirstInBackground(new GetCallback<ParseObject>() {
                     public void done(ParseObject object, ParseException e) {
                         if (e == null) {
-                            mVisited.put((Location) object, dateVisited);
+                            Location visitedLocation = (Location) object;
+                            mVisited.put(visitedLocation.getName(), dateVisited);
                         }
                     }
                 });
@@ -175,7 +172,9 @@ public class User implements Parcelable{
         return mNotVisited;
     }
 
-    public HashMap<Location, Date> getVisitedLandmarks(){ return (HashMap<Location, Date>) mVisited;}
+    public HashMap<String, Date> getVisitedLandmarks(){
+        return mVisited;
+    }
 
     public ArrayList<Location> getAllLandmarks() {
         return mAll;

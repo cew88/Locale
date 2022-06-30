@@ -21,6 +21,7 @@ import android.widget.Toast;
 import androidx.appcompat.app.AppCompatActivity;
 import com.codepath.asynchttpclient.AsyncHttpClient;
 import com.codepath.asynchttpclient.callback.JsonHttpResponseHandler;
+import com.example.locale.models.Location;
 import com.google.android.flexbox.FlexboxLayout;
 import com.google.android.libraries.places.api.Places;
 import com.parse.GetCallback;
@@ -43,6 +44,7 @@ import java.util.Map;
 import okhttp3.Headers;
 
 public class InterestsActivity extends AppCompatActivity implements View.OnClickListener{
+    // Set constants
     public static final String TAG = "InterestsActivity";
     public static final String KEY_AMUSEMENT_PARK= "amusement_park";
     public static final String KEY_AQUARIUM = "aquarium";
@@ -58,6 +60,18 @@ public class InterestsActivity extends AppCompatActivity implements View.OnClick
     public static final String KEY_SPA = "spa";
     public static final String KEY_STADIUM = "stadium";
     public static final String KEY_TOURIST_ATTRACTION = "tourist_attraction";
+    public static final String KEY_NAME = "name";
+    public static final String KEY_PLACE_ID = "place_id";
+    public static final String KEY_TYPES = "types";
+    public static final String KEY_VICINITY = "vicinity";
+    public static final String KEY_LATITUDE = "lat";
+    public static final String KEY_LONGITUDE = "lng";
+    public static final String KEY_ALL_LANDMARKS = "all_landmarks";
+    public static final String KEY_NOT_VISITED_LANDMARKS = "not_visited_landmarks";
+    public static final String KEY_OBJECT_ID = "objectId";
+    public static final String KEY_INTERESTS = "interests";
+    public static final String KEY_PACE = "pace";
+    public static final String KEY_LOCATION = "location";
 
     private Map<String, ArrayList<Integer>> mInterests = new HashMap<String, ArrayList<Integer>>() {
         {
@@ -124,12 +138,12 @@ public class InterestsActivity extends AppCompatActivity implements View.OnClick
                 // If the user does not click any intensity, set the intensity to 10 by default
                 mUserPace = 10;
 
-                mCurrentUser.put("interests", mUserInterests);
-                mCurrentUser.put("pace", mUserPace);
+                mCurrentUser.put(KEY_INTERESTS, mUserInterests);
+                mCurrentUser.put(KEY_PACE, mUserPace);
                 mCurrentUser.saveInBackground();
 
                 // Access the user's saved location
-                ParseGeoPoint geoPoint = (ParseGeoPoint) mCurrentUser.get("location");
+                ParseGeoPoint geoPoint = (ParseGeoPoint) mCurrentUser.get(KEY_LOCATION);
                 // If the user has a saved location, retrieve the latitude and longitude coordinates from
                 // the saved location
                 if (geoPoint != null){
@@ -138,7 +152,7 @@ public class InterestsActivity extends AppCompatActivity implements View.OnClick
 
                     // If a user does not select any interests
                     if (mUserInterests.size() == 0){
-                        mUserInterests.add("tourist_attraction");
+                        mUserInterests.add(KEY_TOURIST_ATTRACTION);
                     }
                     queryAPI(mLatitude, mLongitude);
                 }
@@ -281,20 +295,19 @@ public class InterestsActivity extends AppCompatActivity implements View.OnClick
     // Check for duplicate place_id's before adding
     private void saveLocation(Location location, String place_id) throws JSONException {
         ParseUser currentUser = ParseUser.getCurrentUser();
-
         ParseQuery<ParseObject> placeIdQuery = ParseQuery.getQuery("Location");
-        placeIdQuery.whereEqualTo("place_id", place_id);
+        placeIdQuery.whereEqualTo(KEY_PLACE_ID, place_id);
         placeIdQuery.getFirstInBackground(new GetCallback<ParseObject>() {
             public void done(ParseObject object, ParseException e) {
                 ParseQuery<ParseObject> objectIdQuery = ParseQuery.getQuery("Location");
                 if (object != null){
-                    objectIdQuery.whereEqualTo("objectId", object.getObjectId());
+                    objectIdQuery.whereEqualTo(KEY_OBJECT_ID, object.getObjectId());
                     objectIdQuery.getFirstInBackground(new GetCallback<ParseObject>() {
                         public void done(ParseObject object, ParseException e) {
                             if (e == null) {
                                 Log.d(TAG, "Object exists!");
-                                currentUser.add("all_landmarks", object);
-                                currentUser.add("not_visited_landmarks", object);
+                                currentUser.add(KEY_ALL_LANDMARKS, object);
+                                currentUser.add(KEY_NOT_VISITED_LANDMARKS, object);
                                 currentUser.saveInBackground();
                             } else {
                                 Log.d(TAG, "Error!");
@@ -330,6 +343,7 @@ public class InterestsActivity extends AppCompatActivity implements View.OnClick
 
     // Query the Places API
     private void queryAPI(double latitude, double longitude){
+
         // Filters landmarks based on the user's selected interests
         for (int i=0; i<mUserInterests.size(); i++){
             String url = "https://maps.googleapis.com/maps/api/place/nearbysearch/json?location=" + latitude +  "%2C" + longitude + "&radius=30000&type=" + mUserInterests.get(i) + "&key=" + BuildConfig.MAPS_API_KEY;
@@ -346,24 +360,24 @@ public class InterestsActivity extends AppCompatActivity implements View.OnClick
                         // selects "moderate", add 20 landmarks if the user selects "intense"; if the
                         // user does not select an intensity, the app default adds 10 landmarks for the
                         // user
-                        for (int j=0; j<mUserPace/mUserInterests.size(); j++){
+                        for (int j=0; j<mUserPace/mUserInterests.size(); j++) {
 
                             JSONObject locationObject = jsonArray.getJSONObject(j);
 
                             // Create a new location object
                             Location newLocation = new Location();
-                            newLocation.setName(locationObject.getString("name"));
-                            newLocation.setPlaceId(locationObject.getString("place_id"));
-                            newLocation.setTypes(locationObject.getJSONArray("types"));
-                            newLocation.setVicinity(locationObject.getString("vicinity"));
+                            newLocation.setName(locationObject.getString(KEY_NAME));
+                            newLocation.setPlaceId(locationObject.getString(KEY_PLACE_ID));
+                            newLocation.setTypes(locationObject.getJSONArray(KEY_TYPES));
+                            newLocation.setVicinity(locationObject.getString(KEY_VICINITY));
 
                             JSONObject coordinates = locationObject.getJSONObject("geometry").getJSONObject("location");
-                            double lat = coordinates.getDouble("lat");
-                            double lng = coordinates.getDouble("lng");
+                            double lat = coordinates.getDouble(KEY_LATITUDE);
+                            double lng = coordinates.getDouble(KEY_LONGITUDE);
                             newLocation.setCoordinates(new ParseGeoPoint(lat, lng));
 
                             //Update the Parse database with the user's nearby landmarks
-                            saveLocation(newLocation, locationObject.getString("place_id"));
+                            saveLocation(newLocation, locationObject.getString(KEY_PLACE_ID));
                         }
 
                     } catch (JSONException e) {

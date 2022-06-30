@@ -3,10 +3,9 @@ Creates the item views for each landmark listed as "unvisited" for each user. Ha
 locations as visited.
  */
 
-package com.example.locale;
+package com.example.locale.adapters;
 
 import android.content.Context;
-import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -14,9 +13,10 @@ import android.widget.ImageView;
 import android.widget.TextView;
 
 import androidx.annotation.NonNull;
-import androidx.fragment.app.Fragment;
 import androidx.recyclerview.widget.RecyclerView;
 
+import com.example.locale.R;
+import com.example.locale.models.Location;
 import com.parse.ParseUser;
 
 import org.json.JSONException;
@@ -89,9 +89,9 @@ public class LandmarksAdapter extends RecyclerView.Adapter<LandmarksAdapter.View
     }
 
     public class ViewHolder extends RecyclerView.ViewHolder {
-        ImageView ivLandmarkImage;
-        TextView tvLandmarkName;
-        TextView tvVicinity;
+        private ImageView ivLandmarkImage;
+        private TextView tvLandmarkName;
+        private TextView tvVicinity;
 
         public ViewHolder(@NonNull View itemView) {
             super(itemView);
@@ -109,7 +109,15 @@ public class LandmarksAdapter extends RecyclerView.Adapter<LandmarksAdapter.View
                 @Override
                 public boolean onLongClick(View v) {
                     // Toast.makeText(v.getContext(), "Location long clicked!", Toast.LENGTH_SHORT).show();
+                    // Remove the landmark that was just marked as visited from the array of not visited locations
                     removeFromNotVisited(landmark);
+
+                    // Add the landmark that was just marked as visited to an array of visited locations
+                    try {
+                        addToVisited(landmark);
+                    } catch (JSONException e) {
+                        e.printStackTrace();
+                    }
 
                     if (mContext instanceof OnLocationVisitedListener) {
                         mLocationVisitedListener = (OnLocationVisitedListener) mContext;
@@ -143,6 +151,21 @@ public class LandmarksAdapter extends RecyclerView.Adapter<LandmarksAdapter.View
 
         this.mLandmarks = notVisited;
         notifyDataSetChanged();
+    }
+
+
+    // The following function adds the location to a JSON Array of visited locations
+    public void addToVisited(Location location) throws JSONException {
+        Date currentTime = Calendar.getInstance().getTime();
+        JSONObject jsonObject = new JSONObject();
+        jsonObject.put(location.getObjectId(), currentTime);
+        jsonObject.put("objectId", location.getObjectId());
+        jsonObject.put("place_id", location.getPlaceId());
+        jsonObject.put("place_name", location.getName());
+        jsonObject.put("date_visited", currentTime);
+
+        mCurrentUser.add(KEY_VISITED_LANDMARKS, String.valueOf(jsonObject));
+        mCurrentUser.saveInBackground();
     }
 
     // If a user long clicks on a list item, the following function marks the location as visited

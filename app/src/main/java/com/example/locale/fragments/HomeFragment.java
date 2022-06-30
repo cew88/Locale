@@ -3,32 +3,31 @@ Creates a fragment for the home screen which displays the list of landmarks that
 visited yet.
  */
 
-package com.example.locale;
+package com.example.locale.fragments;
 
-import static com.example.locale.MainActivity.TAG;
-
-import android.content.Context;
 import android.os.Bundle;
-import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
-import android.widget.Toast;
 
-import androidx.annotation.LongDef;
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.fragment.app.Fragment;
 import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
 
+import com.example.locale.adapters.LandmarksAdapter;
+import com.example.locale.models.Location;
+import com.example.locale.R;
+import com.example.locale.models.User;
+
 import java.util.ArrayList;
 
 public class HomeFragment extends Fragment {
-    RecyclerView mRvLandmarks;
-    ArrayList<Location> mLandmarks;
-    LandmarksAdapter mAdapter;
-    User mUser;
+    private RecyclerView mRvLandmarks;
+    private ArrayList<Location> mLandmarks;
+    private LandmarksAdapter mAdapter;
+    private User mUser;
 
     // Required empty public constructor
     public HomeFragment() {}

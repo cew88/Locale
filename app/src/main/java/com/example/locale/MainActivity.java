@@ -6,7 +6,6 @@ location from the Parse database and queries the Places API to generate a list o
 package com.example.locale;
 
 import android.os.Bundle;
-import android.util.Log;
 import android.view.MenuItem;
 
 import androidx.annotation.NonNull;
@@ -15,6 +14,12 @@ import androidx.appcompat.app.AppCompatActivity;
 import androidx.fragment.app.Fragment;
 import androidx.fragment.app.FragmentManager;
 
+import com.example.locale.adapters.LandmarksAdapter;
+import com.example.locale.fragments.HomeFragment;
+import com.example.locale.fragments.MapsFragment;
+import com.example.locale.fragments.ProfileFragment;
+import com.example.locale.models.Location;
+import com.example.locale.models.User;
 import com.google.android.material.bottomnavigation.BottomNavigationView;
 import com.parse.ParseObject;
 import com.parse.ParseUser;

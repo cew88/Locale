@@ -52,6 +52,7 @@ public class RegisterActivity extends AppCompatActivity {
     private double mLongitude;
     private String city;
 
+
     private FusedLocationProviderClient fusedLocationClient;
 
     @Override
