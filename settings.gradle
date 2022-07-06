@@ -4,6 +4,8 @@ pluginManagement {
         google()
         mavenCentral()
 
+        jcenter()
+
         // Parse dependency
         maven { url 'https://jitpack.io' }
     }
