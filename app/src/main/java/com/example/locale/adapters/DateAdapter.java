@@ -13,6 +13,8 @@ import androidx.recyclerview.widget.RecyclerView;
 import com.example.locale.R;
 import com.example.locale.models.User;
 
+import org.json.JSONException;
+
 import java.util.ArrayList;
 import java.util.Date;
 import java.util.HashMap;
@@ -23,16 +25,16 @@ public class DateAdapter extends RecyclerView.Adapter<DateAdapter.ViewHolder> {
     private User mUser;
     private String date;
 
-    private HashMap<String, Date> mVisitedLandmarks;;
+    private HashMap<String, Date> mVisitedLandmarks;
     private ArrayList<String> mVisitedLandmarksNames;
     private VisitedLandmarksAdapter mVisitedLandmarksAdapter;
     private RecyclerView mRvVisitedLandmarks;
 
-    public DateAdapter(Context context, ArrayList<String> dates, User user){
+    public DateAdapter(Context context, ArrayList<String> dates, User user) throws JSONException {
         this.mContext = context;
         this.mDates = dates;
         this.mUser = user;
-        this.mVisitedLandmarks = mUser.getVisitedLandmarks();
+        this.mVisitedLandmarks = mUser.getVisited();
     }
 
     @NonNull

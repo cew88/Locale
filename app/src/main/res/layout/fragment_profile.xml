@@ -95,7 +95,7 @@
         android:textStyle="bold"
         android:layout_marginStart="20dp"
         app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toBottomOf="@id/tvInterests"/>
+        app:layout_constraintTop_toBottomOf="@id/tvInterestsList"/>
 
     <View
         android:id="@+id/vHorizontalLine"

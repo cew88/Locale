@@ -1,0 +1,94 @@
+{
+  "formatVersion": 1,
+  "database": {
+    "version": 1,
+    "identityHash": "30fbc157cf0882a599f947334373467f",
+    "entities": [
+      {
+        "tableName": "User",
+        "createSql": "CREATE TABLE IF NOT EXISTS `${TABLE_NAME}` (`mFirstName` TEXT, `mLastName` TEXT, `mUserName` TEXT NOT NULL, `mEmail` TEXT, `mLatitude` REAL NOT NULL, `mLongitude` REAL NOT NULL, `mUserPace` INTEGER NOT NULL, `mInterestsString` TEXT, `mVisitedString` TEXT, `mNotVisitedString` TEXT, `mAllString` TEXT, PRIMARY KEY(`mUserName`))",
+        "fields": [
+          {
+            "fieldPath": "mFirstName",
+            "columnName": "mFirstName",
+            "affinity": "TEXT",
+            "notNull": false
+          },
+          {
+            "fieldPath": "mLastName",
+            "columnName": "mLastName",
+            "affinity": "TEXT",
+            "notNull": false
+          },
+          {
+            "fieldPath": "mUserName",
+            "columnName": "mUserName",
+            "affinity": "TEXT",
+            "notNull": true
+          },
+          {
+            "fieldPath": "mEmail",
+            "columnName": "mEmail",
+            "affinity": "TEXT",
+            "notNull": false
+          },
+          {
+            "fieldPath": "mLatitude",
+            "columnName": "mLatitude",
+            "affinity": "REAL",
+            "notNull": true
+          },
+          {
+            "fieldPath": "mLongitude",
+            "columnName": "mLongitude",
+            "affinity": "REAL",
+            "notNull": true
+          },
+          {
+            "fieldPath": "mUserPace",
+            "columnName": "mUserPace",
+            "affinity": "INTEGER",
+            "notNull": true
+          },
+          {
+            "fieldPath": "mInterestsString",
+            "columnName": "mInterestsString",
+            "affinity": "TEXT",
+            "notNull": false
+          },
+          {
+            "fieldPath": "mVisitedString",
+            "columnName": "mVisitedString",
+            "affinity": "TEXT",
+            "notNull": false
+          },
+          {
+            "fieldPath": "mNotVisitedString",
+            "columnName": "mNotVisitedString",
+            "affinity": "TEXT",
+            "notNull": false
+          },
+          {
+            "fieldPath": "mAllString",
+            "columnName": "mAllString",
+            "affinity": "TEXT",
+            "notNull": false
+          }
+        ],
+        "primaryKey": {
+          "columnNames": [
+            "mUserName"
+          ],
+          "autoGenerate": false
+        },
+        "indices": [],
+        "foreignKeys": []
+      }
+    ],
+    "views": [],
+    "setupQueries": [
+      "CREATE TABLE IF NOT EXISTS room_master_table (id INTEGER PRIMARY KEY,identity_hash TEXT)",
+      "INSERT OR REPLACE INTO room_master_table (id,identity_hash) VALUES(42, '30fbc157cf0882a599f947334373467f')"
+    ]
+  }
+}

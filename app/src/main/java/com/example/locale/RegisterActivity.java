@@ -12,6 +12,7 @@ import androidx.appcompat.app.AppCompatActivity;
 import androidx.core.app.ActivityCompat;
 
 import android.Manifest;
+import android.app.Application;
 import android.content.Context;
 import android.content.Intent;
 import android.content.pm.PackageManager;
@@ -26,12 +27,15 @@ import android.widget.Button;
 import android.widget.TextView;
 import android.widget.Toast;
 
+import com.example.locale.models.User;
 import com.google.android.gms.location.FusedLocationProviderClient;
 import com.google.android.gms.location.LocationServices;
 import com.google.android.gms.tasks.OnSuccessListener;
 import com.parse.ParseException;
 import com.parse.ParseGeoPoint;
 import com.parse.ParseUser;
+
+import org.json.JSONException;
 
 import java.io.IOException;
 import java.util.List;
@@ -52,7 +56,6 @@ public class RegisterActivity extends AppCompatActivity {
     private double mLongitude;
     private String city;
 
-
     private FusedLocationProviderClient fusedLocationClient;
 
     @Override
@@ -64,6 +67,7 @@ public class RegisterActivity extends AppCompatActivity {
         ActionBar actionBar = getSupportActionBar();
         actionBar.hide();
 
+        // Find layout IDs
         mFirstName = findViewById(R.id.etFirstNameReg);
         mLastName = findViewById(R.id.etLastNameReg);
         mUsername = findViewById(R.id.etUsernameReg);

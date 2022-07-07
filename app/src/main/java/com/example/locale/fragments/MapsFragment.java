@@ -7,6 +7,7 @@ landmarks that the user has not visited yet.
 package com.example.locale.fragments;
 
 import android.os.Bundle;
+import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -17,7 +18,7 @@ import androidx.recyclerview.widget.LinearSnapHelper;
 import androidx.recyclerview.widget.RecyclerView;
 import androidx.recyclerview.widget.SnapHelper;
 
-import com.example.locale.adapters.LandmarksAdapter;
+import com.example.locale.adapters.MapLandmarksAdapter;
 import com.example.locale.models.Location;
 import com.example.locale.R;
 import com.example.locale.models.User;
@@ -30,14 +31,16 @@ import com.google.android.gms.maps.model.CameraPosition;
 import com.google.android.gms.maps.model.LatLng;
 import com.google.android.gms.maps.model.MarkerOptions;
 
+import org.json.JSONException;
+
 import java.util.ArrayList;
 
-public class MapsFragment extends Fragment implements LandmarksAdapter.OnLocationClickedListener {
+public class MapsFragment extends Fragment implements MapLandmarksAdapter.OnLocationClickedListener {
     User mUser;
     ArrayList<Location> mNotVisitedLandmarks;
     RecyclerView mRvLandmarks;
     ArrayList<Location> mLandmarks;
-    LandmarksAdapter mAdapter;
+    MapLandmarksAdapter mAdapter;
     LatLng markerLocation;
     GoogleMap mGoogleMap;
 
@@ -49,7 +52,6 @@ public class MapsFragment extends Fragment implements LandmarksAdapter.OnLocatio
             LatLng currentLocation = new LatLng(mUser.getLatitude(), mUser.getLongitude());
             googleMap.addMarker(new MarkerOptions().position(currentLocation).title("Current Location"));
             googleMap.moveCamera(CameraUpdateFactory.newLatLngZoom(currentLocation, 12.0f));
-
 
             for (int i=0; i<mNotVisitedLandmarks.size(); i++){
                 Location loc = mNotVisitedLandmarks.get(i);
@@ -63,7 +65,13 @@ public class MapsFragment extends Fragment implements LandmarksAdapter.OnLocatio
     public View onCreateView(LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
         // Get data passed from bundle
         mUser = this.getArguments().getParcelable("User");
-        mNotVisitedLandmarks = mUser.getNotVisitedLandmarks();
+        try {
+            if (mUser.getVisitedString() != null){
+                mNotVisitedLandmarks = mUser.getNotVisited();
+            }
+        } catch (JSONException e) {
+            e.printStackTrace();
+        }
 
         return inflater.inflate(R.layout.fragment_maps, container, false);
     }
@@ -88,14 +96,13 @@ public class MapsFragment extends Fragment implements LandmarksAdapter.OnLocatio
 
         // Initialize the list of landmarks and adapter
         mLandmarks = new ArrayList<>();
-        mAdapter = new LandmarksAdapter(getContext(), mLandmarks, this);
+        mAdapter = new MapLandmarksAdapter(getContext(), mLandmarks, this);
 
         // Recycler view setup: layout manager and the adapter
         mRvLandmarks.setLayoutManager(linearLayoutManager);
         mRvLandmarks.setAdapter(mAdapter);
 
         mLandmarks.addAll(mNotVisitedLandmarks);
-
     }
 
     @Override

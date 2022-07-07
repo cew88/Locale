@@ -6,6 +6,7 @@ visited yet.
 package com.example.locale.fragments;
 
 import android.os.Bundle;
+import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -13,20 +14,25 @@ import android.view.ViewGroup;
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.fragment.app.Fragment;
+import androidx.fragment.app.FragmentManager;
 import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
 
-import com.example.locale.adapters.LandmarksAdapter;
+import com.example.locale.Converters;
+import com.example.locale.OnLocationsLoaded;
+import com.example.locale.adapters.HomeLandmarksAdapter;
 import com.example.locale.models.Location;
 import com.example.locale.R;
 import com.example.locale.models.User;
+
+import org.json.JSONException;
 
 import java.util.ArrayList;
 
 public class HomeFragment extends Fragment {
     private RecyclerView mRvLandmarks;
     private ArrayList<Location> mLandmarks;
-    private LandmarksAdapter mAdapter;
+    private HomeLandmarksAdapter mAdapter;
     private User mUser;
 
     // Required empty public constructor
@@ -53,7 +59,7 @@ public class HomeFragment extends Fragment {
 
         // Initialize the list of landmarks and adapter
         mLandmarks = new ArrayList<Location>();
-        mAdapter = new LandmarksAdapter(getContext(), mLandmarks);
+        mAdapter = new HomeLandmarksAdapter(getContext(), mLandmarks);
 
         // Recycler view setup: layout manager and the adapter
         mRvLandmarks = view.findViewById(R.id.rvLandmarks);
@@ -61,7 +67,14 @@ public class HomeFragment extends Fragment {
         mRvLandmarks.setLayoutManager(linearLayoutManager);
         mRvLandmarks.setAdapter(mAdapter);
 
-        ArrayList<Location> notVisitedLandmarks = mUser.getNotVisitedLandmarks();
-        mLandmarks.addAll(notVisitedLandmarks);
+        try {
+            mLandmarks.addAll(mUser.getNotVisited());
+        } catch (JSONException e) {
+            e.printStackTrace();
+        }
+
+        // Create pop up dialog
+        LocationVisitedFragment locationVisitedFragment = new LocationVisitedFragment();
+        //locationVisitedFragment.show(getFragmentManager(), "visited dialog");
     }
 }

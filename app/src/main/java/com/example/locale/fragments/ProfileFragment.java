@@ -28,6 +28,8 @@ import com.example.locale.adapters.DateAdapter;
 import com.example.locale.models.User;
 import com.parse.ParseUser;
 
+import org.json.JSONException;
+
 import java.util.ArrayList;
 import java.util.Date;
 
@@ -58,7 +60,7 @@ public class ProfileFragment extends Fragment {
         // Get data passed from bundle
         mUser = this.getArguments().getParcelable("User");
 
-        Log.d(TAG, String.valueOf(mUser.getVisitedLandmarks()));
+        Log.d(TAG, String.valueOf(mUser.getEmail()));
 
         // Inflate the layout for this fragment
         return inflater.inflate(R.layout.fragment_profile, container, false);
@@ -68,22 +70,6 @@ public class ProfileFragment extends Fragment {
     public void onViewCreated(@NonNull View view, @Nullable Bundle savedInstanceState) {
         super.onViewCreated(view, savedInstanceState);
 
-        // Set the user timeline list
-        ArrayList<String> uniqueDates = new ArrayList<>();
-
-        for (Date date : mUser.getVisitedLandmarks().values()){
-            String dateString = date.toString().substring(0, 10);
-            if (!uniqueDates.contains(dateString)){
-                uniqueDates.add(dateString);
-            }
-        }
-
-        mDateAdapter = new DateAdapter(getContext(), uniqueDates, mUser);
-        mRvDates = view.findViewById(R.id.rvDates);
-        LinearLayoutManager dateLinearLayoutManager = new LinearLayoutManager(getContext());
-        mRvDates.setLayoutManager(dateLinearLayoutManager);
-        mRvDates.setAdapter(mDateAdapter);
-
         // Find views
         mIvProfileImage = view.findViewById(R.id.ivProfileImage);
         mTvName = view.findViewById(R.id.tvName);
@@ -91,14 +77,36 @@ public class ProfileFragment extends Fragment {
         mPlacesVisitedCount = view.findViewById(R.id.tvPlacesVisitedCount);
         mInterests = view.findViewById(R.id.tvInterestsList);
 
+        // Set the user timeline list
+        ArrayList<String> uniqueDates = new ArrayList<>();
+
+        // Only run the following if the user has visited locations
+        try {
+            if (mUser.getVisitedString() != null){
+                for (Date date : mUser.getVisited().values()){
+                    String dateString = date.toString().substring(0, 10);
+                    if (!uniqueDates.contains(dateString)){
+                        uniqueDates.add(dateString);
+                    }
+                }
+                mDateAdapter = new DateAdapter(getContext(), uniqueDates, mUser);
+                mRvDates = view.findViewById(R.id.rvDates);
+                LinearLayoutManager dateLinearLayoutManager = new LinearLayoutManager(getContext());
+                mRvDates.setLayoutManager(dateLinearLayoutManager);
+                mRvDates.setAdapter(mDateAdapter);
+
+                mPlacesVisitedCount.setText(String.valueOf(mUser.getVisited().size()));
+            }
+        } catch (JSONException e) {
+            e.printStackTrace();
+        }
+
 
         // Set views
         // TO DO: CHANGE PROFILE IMAGE
         mIvProfileImage.setImageResource(R.drawable.bank);
         mTvName.setText(mUser.getFirstName() + " " + mUser.getLastName());
         mTvUsername.setText(mUser.getUserName());
-
-        mPlacesVisitedCount.setText(String.valueOf(mUser.getVisitedLandmarks().values().size()));
 
         String interestsList = mUser.getInterests().get(0).replaceAll("_", " ");
         for (int i=1; i<mUser.getInterests().size(); i++){

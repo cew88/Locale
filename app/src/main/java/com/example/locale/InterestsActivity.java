@@ -10,6 +10,7 @@ package com.example.locale;
 import android.content.Intent;
 import android.os.Bundle;
 import android.os.Handler;
+import android.os.Parcelable;
 import android.util.Log;
 import android.view.View;
 import android.widget.Button;
@@ -22,6 +23,7 @@ import androidx.appcompat.app.AppCompatActivity;
 import com.codepath.asynchttpclient.AsyncHttpClient;
 import com.codepath.asynchttpclient.callback.JsonHttpResponseHandler;
 import com.example.locale.models.Location;
+import com.example.locale.models.User;
 import com.google.android.flexbox.FlexboxLayout;
 import com.google.android.libraries.places.api.Places;
 import com.parse.GetCallback;
@@ -35,6 +37,7 @@ import com.parse.SaveCallback;
 import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
+import org.parceler.Parcels;
 
 import java.util.ArrayList;
 import java.util.HashMap;
@@ -334,7 +337,7 @@ public class InterestsActivity extends AppCompatActivity implements View.OnClick
                         });
                     }
                     else {
-                        Log.d(TAG, "Error!");
+                        Log.d(TAG, "Error: " + e.getCode());
                     }
                 }
             }
@@ -395,8 +398,41 @@ public class InterestsActivity extends AppCompatActivity implements View.OnClick
 
     // Start new intent to navigate to the main activity
     private void navigateToMainActivity() {
-        Intent intent = new Intent(InterestsActivity.this, MainActivity.class);
-        startActivity(intent);
-        finish();
+        // Get the DAO
+        final User.UserDao userDao = ((DatabaseApplication) getApplicationContext()).getUserDatabase().userDao();
+        ((DatabaseApplication) getApplicationContext()).getUserDatabase().runInTransaction(new Runnable() {
+            @Override
+            public void run() {
+                try {
+                    OnLocationsLoaded onLocationsLoaded = new OnLocationsLoaded() {
+                        @Override
+                        public void updateNotVisited(String string) {
+                            Log.d("InterestsActivity", "Not Visited Loaded");
+                            userDao.updateNotVisited(string);
+                        }
+
+                        @Override
+                        public void updateVisited(String string) {
+                            Log.d("InterestsActivity", "Visited Loaded");
+                            userDao.updateVisited(string);
+                        }
+
+                        @Override
+                        public void updateAll(String string) {
+                            Log.d("InterestsActivity", "All Loaded");
+                            userDao.updateAll(string);
+
+                            Intent intent = new Intent(InterestsActivity.this, MainActivity.class);
+                            startActivity(intent);
+                            finish();
+                        }
+                    };
+                    User newUser = new User(ParseUser.getCurrentUser(), onLocationsLoaded);
+                    userDao.insertUser(newUser);
+                } catch (JSONException | InterruptedException e) {
+                    e.printStackTrace();
+                }
+            }
+        });
     }
 }
