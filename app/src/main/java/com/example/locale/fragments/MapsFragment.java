@@ -65,13 +65,13 @@ public class MapsFragment extends Fragment implements MapLandmarksAdapter.OnLoca
     public View onCreateView(LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
         // Get data passed from bundle
         mUser = this.getArguments().getParcelable("User");
+
         try {
-            if (mUser.getVisitedString() != null){
-                mNotVisitedLandmarks = mUser.getNotVisited();
-            }
+            mNotVisitedLandmarks = mUser.getNotVisited();
         } catch (JSONException e) {
             e.printStackTrace();
         }
+
 
         return inflater.inflate(R.layout.fragment_maps, container, false);
     }
@@ -102,9 +102,7 @@ public class MapsFragment extends Fragment implements MapLandmarksAdapter.OnLoca
         mRvLandmarks.setLayoutManager(linearLayoutManager);
         mRvLandmarks.setAdapter(mAdapter);
 
-        if (mNotVisitedLandmarks != null) {
-            mLandmarks.addAll(mNotVisitedLandmarks);
-        }
+        mLandmarks.addAll(mNotVisitedLandmarks);
     }
 
     @Override

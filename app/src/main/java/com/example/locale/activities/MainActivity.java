@@ -5,6 +5,7 @@ location from the Parse database and queries the Places API to generate a list o
 
 package com.example.locale.activities;
 
+import android.content.Intent;
 import android.location.Address;
 import android.location.Geocoder;
 import android.os.Bundle;
@@ -61,14 +62,14 @@ public class MainActivity extends AppCompatActivity implements HomeLandmarksAdap
     public static final String KEY_NOT_VISITED_LANDMARKS = "not_visited_landmarks";
     public static final String KEY_VISITED_LANDMARKS = "visited_landmarks";
 
-
     final FragmentManager mFragmentManager = getSupportFragmentManager();
+
     // Get the user that is currently logged in
     ParseUser mCurrentUser = ParseUser.getCurrentUser();
     User mUser;
     Bundle mBundle;
-    private FusedLocationProviderClient fusedLocationClient;
 
+    private FusedLocationProviderClient fusedLocationClient;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -99,7 +100,7 @@ public class MainActivity extends AppCompatActivity implements HomeLandmarksAdap
 
                     // Filters landmarks based on the user's selected interests
                     for (int i=0; i<mUser.getInterests().size(); i++) {
-                        String url = "https://maps.googleapis.com/maps/api/place/nearbysearch/json?location=" + latitude + "%2C" + longitude + "&radius=30000&type=" + mUser.getInterests().get(i) + "&key=" + BuildConfig.MAPS_API_KEY;
+                        String url = "https://maps.googleapis.com/maps/api/place/nearbysearch/json?location=" + latitude + "%2C" + longitude + "&radius=100&type=" + mUser.getInterests().get(i) + "&key=" + BuildConfig.MAPS_API_KEY;
                         AsyncHttpClient client = new AsyncHttpClient();
                         client.get(url, new JsonHttpResponseHandler() {
                             @Override
@@ -107,7 +108,6 @@ public class MainActivity extends AppCompatActivity implements HomeLandmarksAdap
                                 JSONObject jsonObject = json.jsonObject;
                                 try {
                                     JSONArray jsonArray = jsonObject.getJSONArray("results");
-
                                     for (int j = 0; j < mUser.getUserPace() / mUser.getInterests().size(); j++) {
 
                                         JSONObject locationObject = jsonArray.getJSONObject(j);
@@ -119,28 +119,33 @@ public class MainActivity extends AppCompatActivity implements HomeLandmarksAdap
                                             LocationVisitedFragment locationVisitedFragment = new LocationVisitedFragment();
                                             locationVisitedFragment.show(mFragmentManager, "visited dialog");
 
-                                            ParseQuery<ParseObject> query = ParseQuery.getQuery("Location");
-                                            query.whereEqualTo("place_id", placeId);
-                                            query.getFirstInBackground(new GetCallback<ParseObject>() {
-                                                public void done(ParseObject object, ParseException e) {
-                                                    if (e == null) {
-                                                        Location locationToMarkAsVisited = (Location) object;
-                                                        // Mark the location as visited
-                                                        try {
-                                                            removeFromNotVisited(locationToMarkAsVisited);
-                                                            addToVisited(locationToMarkAsVisited);
-                                                            updateLandmarks();
+                                            for (Location location: mUser.getNotVisited()){
+                                                if (location.getPlaceId().equals(placeId)){
+                                                    try {
+                                                        // Remove the visited landmark from the list of not visited landmarks
+                                                        ArrayList<Location> updatedNotVisited = removeFromNotVisited(location);
+                                                        // Add the landmarks to the list of visited landmarks
+                                                        addToVisited(location);
+                                                        // Updated mUser
+                                                        updateLandmarks();
 
-                                                            Fragment defaultFragment = new HomeFragment();
-                                                            defaultFragment.setArguments(mBundle);
-                                                            mFragmentManager.beginTransaction().replace(R.id.flContainer, defaultFragment).commit();
+                                                        // Update the Room local database
+                                                        String notVisitedLandmarks = Converters.fromLocationArrayList(updatedNotVisited);
+                                                        String visitedLandmarks = String.valueOf(mCurrentUser.getJSONArray(KEY_VISITED_LANDMARKS));
+                                                        mUser.setNotVisitedString(notVisitedLandmarks);
+                                                        mUser.setVisitedString(visitedLandmarks);
+                                                        userDao.updateUser(mUser);
 
-                                                        } catch (JSONException ex) {
-                                                            ex.printStackTrace();
-                                                        }
+                                                        // Recreate the Home fragment so that the visited landmark no longer appears on the screen
+                                                        Fragment defaultFragment = new HomeFragment();
+                                                        defaultFragment.setArguments(mBundle);
+                                                        mFragmentManager.beginTransaction().replace(R.id.flContainer, defaultFragment).commit();
+
+                                                    } catch (JSONException ex) {
+                                                        ex.printStackTrace();
                                                     }
                                                 }
-                                            });
+                                            }
                                         }
                                     }
 
@@ -211,25 +216,26 @@ public class MainActivity extends AppCompatActivity implements HomeLandmarksAdap
                 try {
                     OnLocationsLoaded onLocationsLoaded = new OnLocationsLoaded() {
                         @Override
-                        public void updateNotVisited(String string) {
-                            Log.d("InterestsActivity", "Not Visited Loaded");
-                            userDao.updateNotVisited(string);
+                        public void updateNotVisited(String notVisitedString) {
+                            Log.d("MainActivity", "Not Visited Loaded");
+                            userDao.updateNotVisited(notVisitedString);
                         }
 
                         @Override
-                        public void updateVisited(String string) {
-                            Log.d("InterestsActivity", "Visited Loaded");
-                            userDao.updateVisited(string);
+                        public void updateVisited(String visitedString) {
+                            Log.d("MainActivity", "Visited Loaded");
+                            userDao.updateVisited(visitedString);
                         }
 
                         @Override
-                        public void updateAll(String string) {
-                            Log.d("InterestsActivity", "All Loaded");
-                            userDao.updateAll(string);
+                        public void updateAll(String allString) {
+                            Log.d("MainActivity", "All Loaded");
+                            userDao.updateAll(allString);
                         }
                     };
-                    User updatedUser = new User(ParseUser.getCurrentUser(), onLocationsLoaded);
-                    mBundle.putParcelable("User", updatedUser);
+                    mUser = new User(ParseUser.getCurrentUser(), onLocationsLoaded);
+                    userDao.insertUser(mUser);
+                    mBundle.putParcelable("User", mUser);
                 } catch (JSONException | InterruptedException e) {
                     e.printStackTrace();
                 }
@@ -237,28 +243,36 @@ public class MainActivity extends AppCompatActivity implements HomeLandmarksAdap
         });
     }
 
-    // If a user long clicks on a list item, the following function marks the location as visited
-    // in the Parse database by removing the location from the array of not visited landmarks
-    public void removeFromNotVisited(Location location) throws JSONException {
-        ArrayList<Location> notVisited = mUser.getNotVisited();
-        notVisited.remove(location);
+    // The following function marks the location as visited in the Parse database by removing the
+    // location from the array of not visited landmarks
+    public ArrayList<Location> removeFromNotVisited(Location location) throws JSONException {
+        ArrayList<Location> updatedNotVisited =  new ArrayList<Location>();
+        for (Location notVisitedLocation : mUser.getNotVisited()){
+            if (!notVisitedLocation.getPlaceId().equals(location.getPlaceId())){
+                updatedNotVisited.add(notVisitedLocation);
+            }
+        }
 
         // Overwrite what is currently saved under the user's not visited landmarks
-        mCurrentUser.put(KEY_NOT_VISITED_LANDMARKS, notVisited);
+        mCurrentUser.put(KEY_NOT_VISITED_LANDMARKS, updatedNotVisited);
         mCurrentUser.saveInBackground();
+        return updatedNotVisited;
     }
 
     // The following function adds the location to a JSON Array of visited locations
     public void addToVisited(Location location) throws JSONException {
-        Date currentTime = Calendar.getInstance().getTime();
-        JSONObject jsonObject = new JSONObject();
-        jsonObject.put(location.getObjectId(), currentTime);
-        jsonObject.put("objectId", location.getObjectId());
-        jsonObject.put("place_id", location.getPlaceId());
-        jsonObject.put("place_name", location.getName());
-        jsonObject.put("date_visited", currentTime);
+        // Check to make sure that the location is not already in the list of visited landmarks
+        if (!String.valueOf(mCurrentUser.getJSONArray(KEY_VISITED_LANDMARKS)).contains(location.getPlaceId())){
+            Date currentTime = Calendar.getInstance().getTime();
+            JSONObject jsonObject = new JSONObject();
+            jsonObject.put(location.getObjectId(), currentTime);
+            jsonObject.put("objectId", location.getObjectId());
+            jsonObject.put("place_id", location.getPlaceId());
+            jsonObject.put("place_name", location.getName());
+            jsonObject.put("date_visited", currentTime);
 
-        mCurrentUser.add(KEY_VISITED_LANDMARKS, String.valueOf(jsonObject));
-        mCurrentUser.saveInBackground();
+            mCurrentUser.add(KEY_VISITED_LANDMARKS, String.valueOf(jsonObject));
+            mCurrentUser.saveInBackground();
+        }
     }
 }

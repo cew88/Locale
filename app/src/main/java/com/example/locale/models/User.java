@@ -16,6 +16,7 @@ import androidx.room.Insert;
 import androidx.room.OnConflictStrategy;
 import androidx.room.PrimaryKey;
 import androidx.room.Query;
+import androidx.room.Update;
 
 import com.example.locale.interfaces.OnLocationsLoaded;
 import com.parse.GetCallback;
@@ -285,7 +286,10 @@ public class User implements Parcelable{
     }
 
     public ArrayList<Location> getNotVisited() throws JSONException {
-        return Converters.fromStringtoLocationArrayList(getNotVisitedString());
+        if (getNotVisitedString() != null){
+            return Converters.fromStringtoLocationArrayList(getNotVisitedString());
+        }
+        return new ArrayList<Location>();
     }
 
     public ArrayList<String> getNotVisitedPlaceIds() throws JSONException {
@@ -305,7 +309,10 @@ public class User implements Parcelable{
     }
 
     public HashMap<String, Date> getVisited() throws JSONException {
-        return Converters.fromStringtoHashMap(getVisitedString());
+        if (getVisitedString() != null){
+            return Converters.fromStringtoHashMap(getVisitedString());
+        }
+        return new HashMap<String, Date>();
     }
 
     public String getAllString() {
@@ -317,7 +324,10 @@ public class User implements Parcelable{
     }
 
     public ArrayList<Location> getAll() throws JSONException {
-        return Converters.fromStringtoLocationArrayList(getAllString());
+        if (getAllString() != null) {
+            return Converters.fromStringtoLocationArrayList(getAllString());
+        }
+        return new ArrayList<Location>();
     }
 
     public int getUserPace() {
@@ -344,6 +354,9 @@ public class User implements Parcelable{
 
         @Query("UPDATE user SET mAllString = :all")
         public void updateAll(String all);
+
+        @Update
+        public void updateUser(User user);
 
         @Delete
         public void deleteUser(User user);

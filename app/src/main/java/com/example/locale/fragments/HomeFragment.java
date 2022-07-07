@@ -64,9 +64,7 @@ public class HomeFragment extends Fragment {
         mRvLandmarks.setAdapter(mAdapter);
 
         try {
-            if (mUser.getNotVisitedString() != null){
-                mLandmarks.addAll(mUser.getNotVisited());
-            }
+            mLandmarks.addAll(mUser.getNotVisited());
         } catch (JSONException e) {
             e.printStackTrace();
         }

@@ -408,21 +408,21 @@ public class InterestsActivity extends AppCompatActivity implements View.OnClick
                 try {
                     OnLocationsLoaded onLocationsLoaded = new OnLocationsLoaded() {
                         @Override
-                        public void updateNotVisited(String string) {
+                        public void updateNotVisited(String notVisitedString) {
                             Log.d("InterestsActivity", "Not Visited Loaded");
-                            userDao.updateNotVisited(string);
+                            userDao.updateNotVisited(notVisitedString);
                         }
 
                         @Override
-                        public void updateVisited(String string) {
+                        public void updateVisited(String visitedString) {
                             Log.d("InterestsActivity", "Visited Loaded");
-                            userDao.updateVisited(string);
+                            userDao.updateVisited(visitedString);
                         }
 
                         @Override
-                        public void updateAll(String string) {
+                        public void updateAll(String allString) {
                             Log.d("InterestsActivity", "All Loaded");
-                            userDao.updateAll(string);
+                            userDao.updateAll(allString);
 
                             Intent intent = new Intent(InterestsActivity.this, MainActivity.class);
                             startActivity(intent);

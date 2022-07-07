@@ -60,8 +60,6 @@ public class ProfileFragment extends Fragment {
         // Get data passed from bundle
         mUser = this.getArguments().getParcelable("User");
 
-        Log.d(TAG, String.valueOf(mUser.getEmail()));
-
         // Inflate the layout for this fragment
         return inflater.inflate(R.layout.fragment_profile, container, false);
     }
@@ -82,12 +80,10 @@ public class ProfileFragment extends Fragment {
 
         // Only run the following if the user has visited locations
         try {
-            if (mUser.getVisitedString() != null){
-                for (Date date : mUser.getVisited().values()){
-                    String dateString = date.toString().substring(0, 10);
-                    if (!uniqueDates.contains(dateString)){
-                        uniqueDates.add(dateString);
-                    }
+            for (Date date : mUser.getVisited().values()){
+                String dateString = date.toString().substring(0, 10);
+                if (!uniqueDates.contains(dateString)){
+                    uniqueDates.add(dateString);
                 }
                 mDateAdapter = new DateAdapter(getContext(), uniqueDates, mUser);
                 mRvDates = view.findViewById(R.id.rvDates);

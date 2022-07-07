@@ -17,6 +17,7 @@ import androidx.annotation.NonNull;
 import androidx.recyclerview.widget.RecyclerView;
 
 import com.example.locale.R;
+import com.example.locale.models.Converters;
 import com.example.locale.models.Location;
 import com.parse.ParseUser;
 
