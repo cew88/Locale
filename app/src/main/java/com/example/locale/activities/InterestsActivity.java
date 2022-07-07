@@ -5,12 +5,11 @@ is selected). Submitting these categories saves their interests to the Parse dat
 categories are then used in the query to the Places API to filter nearby locations by user interest.
  */
 
-package com.example.locale;
+package com.example.locale.activities;
 
 import android.content.Intent;
 import android.os.Bundle;
 import android.os.Handler;
-import android.os.Parcelable;
 import android.util.Log;
 import android.view.View;
 import android.widget.Button;
@@ -22,6 +21,10 @@ import android.widget.Toast;
 import androidx.appcompat.app.AppCompatActivity;
 import com.codepath.asynchttpclient.AsyncHttpClient;
 import com.codepath.asynchttpclient.callback.JsonHttpResponseHandler;
+import com.example.locale.BuildConfig;
+import com.example.locale.R;
+import com.example.locale.applications.DatabaseApplication;
+import com.example.locale.interfaces.OnLocationsLoaded;
 import com.example.locale.models.Location;
 import com.example.locale.models.User;
 import com.google.android.flexbox.FlexboxLayout;
@@ -37,7 +40,6 @@ import com.parse.SaveCallback;
 import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
-import org.parceler.Parcels;
 
 import java.util.ArrayList;
 import java.util.HashMap;

@@ -5,14 +5,13 @@ stores it in the Parse database. Successful registration log the user in and all
 the main activity.
  */
 
-package com.example.locale;
+package com.example.locale.activities;
 
 import androidx.appcompat.app.ActionBar;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.core.app.ActivityCompat;
 
 import android.Manifest;
-import android.app.Application;
 import android.content.Context;
 import android.content.Intent;
 import android.content.pm.PackageManager;
@@ -27,15 +26,13 @@ import android.widget.Button;
 import android.widget.TextView;
 import android.widget.Toast;
 
-import com.example.locale.models.User;
+import com.example.locale.R;
 import com.google.android.gms.location.FusedLocationProviderClient;
 import com.google.android.gms.location.LocationServices;
 import com.google.android.gms.tasks.OnSuccessListener;
 import com.parse.ParseException;
 import com.parse.ParseGeoPoint;
 import com.parse.ParseUser;
-
-import org.json.JSONException;
 
 import java.io.IOException;
 import java.util.List;
@@ -117,8 +114,7 @@ public class RegisterActivity extends AppCompatActivity {
                                         Geocoder gcd = new Geocoder(getBaseContext(), Locale.getDefault());
                                         List<Address> addresses;
                                         try {
-                                            addresses = gcd.getFromLocation(mLatitude,
-                                                    mLongitude, 1);
+                                            addresses = gcd.getFromLocation(mLatitude, mLongitude, 1);
                                             if (addresses.size() > 0) {
                                                 System.out.println(addresses.get(0).getLocality());
                                                 city = addresses.get(0).getLocality();

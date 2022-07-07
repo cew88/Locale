@@ -6,7 +6,6 @@ visited yet.
 package com.example.locale.fragments;
 
 import android.os.Bundle;
-import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -14,12 +13,9 @@ import android.view.ViewGroup;
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.fragment.app.Fragment;
-import androidx.fragment.app.FragmentManager;
 import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
 
-import com.example.locale.Converters;
-import com.example.locale.OnLocationsLoaded;
 import com.example.locale.adapters.HomeLandmarksAdapter;
 import com.example.locale.models.Location;
 import com.example.locale.R;
@@ -68,13 +64,11 @@ public class HomeFragment extends Fragment {
         mRvLandmarks.setAdapter(mAdapter);
 
         try {
-            mLandmarks.addAll(mUser.getNotVisited());
+            if (mUser.getNotVisitedString() != null){
+                mLandmarks.addAll(mUser.getNotVisited());
+            }
         } catch (JSONException e) {
             e.printStackTrace();
         }
-
-        // Create pop up dialog
-        LocationVisitedFragment locationVisitedFragment = new LocationVisitedFragment();
-        //locationVisitedFragment.show(getFragmentManager(), "visited dialog");
     }
 }

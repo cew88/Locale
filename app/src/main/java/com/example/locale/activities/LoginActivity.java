@@ -3,7 +3,7 @@ Login activity allows users to log in to their account or navigate to a create a
 they do not already have an account. Successful log in allows users to access the main activity.
  */
 
-package com.example.locale;
+package com.example.locale.activities;
 
 import android.Manifest;
 import android.content.Intent;
@@ -19,11 +19,9 @@ import androidx.activity.result.contract.ActivityResultContracts;
 import androidx.appcompat.app.ActionBar;
 import androidx.appcompat.app.AppCompatActivity;
 
-import com.example.locale.models.Location;
+import com.example.locale.R;
 import com.parse.LogInCallback;
-import com.parse.Parse;
 import com.parse.ParseException;
-import com.parse.ParseObject;
 import com.parse.ParseUser;
 
 public class LoginActivity extends AppCompatActivity {

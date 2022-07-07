@@ -1,4 +1,4 @@
-package com.example.locale;
+package com.example.locale.interfaces;
 
 import com.example.locale.models.User;
 import com.parse.ParseUser;

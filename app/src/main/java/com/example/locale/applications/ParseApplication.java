@@ -1,7 +1,8 @@
-package com.example.locale;
+package com.example.locale.applications;
 
 import android.app.Application;
 
+import com.example.locale.R;
 import com.example.locale.models.Location;
 import com.parse.Parse;
 import com.parse.ParseObject;

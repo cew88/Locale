@@ -5,9 +5,7 @@ number of queries made to the Parse database.
 
 package com.example.locale.models;
 
-import android.content.Context;
 import android.os.Parcelable;
-import android.util.Log;
 
 import androidx.annotation.NonNull;
 import androidx.room.ColumnInfo;
@@ -19,9 +17,7 @@ import androidx.room.OnConflictStrategy;
 import androidx.room.PrimaryKey;
 import androidx.room.Query;
 
-import com.example.locale.Converters;
-import com.example.locale.MainActivity;
-import com.example.locale.OnLocationsLoaded;
+import com.example.locale.interfaces.OnLocationsLoaded;
 import com.parse.GetCallback;
 import com.parse.ParseException;
 import com.parse.ParseGeoPoint;
@@ -290,6 +286,14 @@ public class User implements Parcelable{
 
     public ArrayList<Location> getNotVisited() throws JSONException {
         return Converters.fromStringtoLocationArrayList(getNotVisitedString());
+    }
+
+    public ArrayList<String> getNotVisitedPlaceIds() throws JSONException {
+        ArrayList<String> notVisitedPlaceIds = new ArrayList<String>();
+        for (Location location : getNotVisited()){
+            notVisitedPlaceIds.add(location.getPlaceId());
+        }
+        return notVisitedPlaceIds;
     }
 
     public String getVisitedString(){

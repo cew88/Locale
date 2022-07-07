@@ -1,6 +1,4 @@
-package com.example.locale;
-
-import android.app.Application;
+package com.example.locale.applications;
 
 import androidx.room.Room;
 

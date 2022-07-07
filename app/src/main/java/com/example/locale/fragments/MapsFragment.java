@@ -102,7 +102,9 @@ public class MapsFragment extends Fragment implements MapLandmarksAdapter.OnLoca
         mRvLandmarks.setLayoutManager(linearLayoutManager);
         mRvLandmarks.setAdapter(mAdapter);
 
-        mLandmarks.addAll(mNotVisitedLandmarks);
+        if (mNotVisitedLandmarks != null) {
+            mLandmarks.addAll(mNotVisitedLandmarks);
+        }
     }
 
     @Override

@@ -5,7 +5,7 @@ a button for users to log out of the app.
 
 package com.example.locale.fragments;
 
-import static com.example.locale.MainActivity.TAG;
+import static com.example.locale.activities.MainActivity.TAG;
 
 import android.content.Intent;
 import android.os.Bundle;
@@ -22,7 +22,7 @@ import androidx.fragment.app.Fragment;
 import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
 
-import com.example.locale.LoginActivity;
+import com.example.locale.activities.LoginActivity;
 import com.example.locale.R;
 import com.example.locale.adapters.DateAdapter;
 import com.example.locale.models.User;

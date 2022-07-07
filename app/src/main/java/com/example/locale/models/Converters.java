@@ -1,4 +1,4 @@
-package com.example.locale;
+package com.example.locale.models;
 
 import android.util.Log;
 
