@@ -6,7 +6,6 @@ pluginManagement {
 
         jcenter()
 
-        // Parse dependency
         maven { url 'https://jitpack.io' }
     }
 }
@@ -16,7 +15,6 @@ dependencyResolutionManagement {
         google()
         mavenCentral()
 
-        // Parse dependency
         maven { url 'https://jitpack.io' }
     }
 }

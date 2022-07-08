@@ -36,7 +36,6 @@ public class MapLandmarksAdapter extends RecyclerView.Adapter<MapLandmarksAdapte
     private ParseUser mCurrentUser = ParseUser.getCurrentUser();
     private Context mContext;
     private ArrayList<Location> mLandmarks;
-    private OnLocationVisitedListener mLocationVisitedListener;
     private OnLocationClickedListener mLocationClickedListener;
 
     // Define an interface to notify the Main Activity that an update to the user information in the

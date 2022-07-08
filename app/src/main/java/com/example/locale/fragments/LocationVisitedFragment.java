@@ -17,6 +17,9 @@ import com.example.locale.activities.MainActivity;
 import com.example.locale.models.Location;
 
 public class LocationVisitedFragment extends DialogFragment {
+    private String mPlaceName;
+    private String mPlaceId;
+    private String mObjectId;
     private Button mContinueBtn;
 
     public LocationVisitedFragment() {
@@ -31,6 +34,12 @@ public class LocationVisitedFragment extends DialogFragment {
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container,
                              Bundle savedInstanceState) {
+
+        // Get data passed from bundle
+        mPlaceName = this.getArguments().getString("Place Name");
+        mPlaceId = this.getArguments().getString("Place Id");
+        mObjectId = this.getArguments().getString("Object Id");
+
         // Inflate the layout for this fragment
         getDialog().setTitle("visited dialog");
         return inflater.inflate(R.layout.fragment_location_visited, container, false);
@@ -45,6 +54,14 @@ public class LocationVisitedFragment extends DialogFragment {
             @Override
             public void onClick(View v) {
                 dismiss();
+
+                ReviewFragment reviewFragment = new ReviewFragment();
+                Bundle locationBundle = new Bundle();
+                locationBundle.putString("Place Name", mPlaceName);
+                locationBundle.putString("Place Id", mPlaceId);
+                locationBundle.putString("Object Id", mObjectId);
+                reviewFragment.setArguments(locationBundle);
+                reviewFragment.show(getActivity().getSupportFragmentManager(), "review dialog");
             }
         });
     }

@@ -121,6 +121,8 @@ public class InterestsActivity extends AppCompatActivity implements View.OnClick
     private double mLatitude;
     private double mLongitude;
 
+    private ParseUser currentUser = ParseUser.getCurrentUser();
+
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -299,7 +301,6 @@ public class InterestsActivity extends AppCompatActivity implements View.OnClick
     // Save the queried locations to the Location class in the Parse Database
     // Check for duplicate place_id's before adding
     private void saveLocation(Location location, String place_id) throws JSONException {
-        ParseUser currentUser = ParseUser.getCurrentUser();
         ParseQuery<ParseObject> placeIdQuery = ParseQuery.getQuery("Location");
         placeIdQuery.whereEqualTo(KEY_PLACE_ID, place_id);
         placeIdQuery.getFirstInBackground(new GetCallback<ParseObject>() {
@@ -368,21 +369,25 @@ public class InterestsActivity extends AppCompatActivity implements View.OnClick
                         for (int j=0; j<mUserPace/mUserInterests.size(); j++) {
 
                             JSONObject locationObject = jsonArray.getJSONObject(j);
+                            // Check if the location is not already in the array of all landmarks
+                            if (!currentUser.getJSONArray(KEY_ALL_LANDMARKS).toString().contains(locationObject.getString(KEY_PLACE_ID))){
+                                // Create a new location object
+                                Location newLocation = new Location();
+                                newLocation.setName(locationObject.getString(KEY_NAME));
+                                newLocation.setPlaceId(locationObject.getString(KEY_PLACE_ID));
+                                newLocation.setTypes(locationObject.getJSONArray(KEY_TYPES));
+                                newLocation.setVicinity(locationObject.getString(KEY_VICINITY));
+                                JSONObject coordinates = locationObject.getJSONObject("geometry").getJSONObject("location");
+                                double lat = coordinates.getDouble(KEY_LATITUDE);
+                                double lng = coordinates.getDouble(KEY_LONGITUDE);
+                                newLocation.setCoordinates(new ParseGeoPoint(lat, lng));
 
-                            // Create a new location object
-                            Location newLocation = new Location();
-                            newLocation.setName(locationObject.getString(KEY_NAME));
-                            newLocation.setPlaceId(locationObject.getString(KEY_PLACE_ID));
-                            newLocation.setTypes(locationObject.getJSONArray(KEY_TYPES));
-                            newLocation.setVicinity(locationObject.getString(KEY_VICINITY));
-
-                            JSONObject coordinates = locationObject.getJSONObject("geometry").getJSONObject("location");
-                            double lat = coordinates.getDouble(KEY_LATITUDE);
-                            double lng = coordinates.getDouble(KEY_LONGITUDE);
-                            newLocation.setCoordinates(new ParseGeoPoint(lat, lng));
-
-                            //Update the Parse database with the user's nearby landmarks
-                            saveLocation(newLocation, locationObject.getString(KEY_PLACE_ID));
+                                //Update the Parse database with the user's nearby landmarks
+                                saveLocation(newLocation, locationObject.getString(KEY_PLACE_ID));
+                            }
+                            else {
+                                j--;
+                            }
                         }
 
                     } catch (JSONException e) {

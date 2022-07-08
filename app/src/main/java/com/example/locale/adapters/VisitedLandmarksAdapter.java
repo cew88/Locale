@@ -1,6 +1,7 @@
 package com.example.locale.adapters;
 
 import android.content.Context;
+import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -21,6 +22,7 @@ public class VisitedLandmarksAdapter extends RecyclerView.Adapter<VisitedLandmar
         this.mContext = context;
         this.mLocationNames = locationNames;
     }
+
 
     @NonNull
     @Override

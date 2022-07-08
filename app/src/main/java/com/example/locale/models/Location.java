@@ -1,11 +1,15 @@
 package com.example.locale.models;
 
 
+import android.os.Parcelable;
+
 import com.parse.ParseClassName;
 import com.parse.ParseGeoPoint;
 import com.parse.ParseObject;
 
 import org.json.JSONArray;
+import org.parceler.Parcel;
+
 
 @ParseClassName("Location")
 public class Location extends ParseObject {
@@ -14,6 +18,9 @@ public class Location extends ParseObject {
     public static final String KEY_PLACE_ID = "place_id";
     public static final String KEY_TYPES = "types";
     public static final String KEY_VICINITY = "vicinity";
+
+    // Empty constructor needed by Parceler library
+    public Location(){}
 
     public String getName(){
         return getString(KEY_NAME);
@@ -55,3 +62,4 @@ public class Location extends ParseObject {
         put(KEY_COORDINATES, geoPoint);
     }
 }
+

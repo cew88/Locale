@@ -5,7 +5,9 @@ locations as visited.
 
 package com.example.locale.adapters;
 
+import android.content.AsyncQueryHandler;
 import android.content.Context;
+import android.graphics.Bitmap;
 import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
@@ -16,23 +18,38 @@ import android.widget.TextView;
 import androidx.annotation.NonNull;
 import androidx.recyclerview.widget.RecyclerView;
 
+import com.codepath.asynchttpclient.AsyncHttpClient;
+import com.codepath.asynchttpclient.callback.JsonHttpResponseHandler;
+import com.example.locale.BuildConfig;
 import com.example.locale.R;
 import com.example.locale.models.Converters;
 import com.example.locale.models.Location;
+import com.google.android.gms.common.api.ApiException;
+import com.google.android.libraries.places.api.Places;
+import com.google.android.libraries.places.api.model.PhotoMetadata;
+import com.google.android.libraries.places.api.model.Place;
+import com.google.android.libraries.places.api.net.FetchPhotoRequest;
+import com.google.android.libraries.places.api.net.FetchPlaceRequest;
+import com.google.android.libraries.places.api.net.PlacesClient;
 import com.parse.ParseUser;
 
+import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
 
 import java.util.ArrayList;
 import java.util.Calendar;
+import java.util.Collections;
 import java.util.Date;
 import java.util.List;
+
+import okhttp3.Headers;
 
 
 public class HomeLandmarksAdapter extends RecyclerView.Adapter<HomeLandmarksAdapter.ViewHolder> {
     public static final String KEY_NOT_VISITED_LANDMARKS = "not_visited_landmarks";
     public static final String KEY_VISITED_LANDMARKS = "visited_landmarks";
+    public static final String TAG = "HomeFragment";
 
     private ParseUser mCurrentUser = ParseUser.getCurrentUser();
     private Context mContext;
@@ -54,12 +71,6 @@ public class HomeLandmarksAdapter extends RecyclerView.Adapter<HomeLandmarksAdap
     public HomeLandmarksAdapter(Context context, ArrayList<Location> landmarks) {
         this.mContext = context;
         this.mLandmarks = landmarks;
-    }
-
-    public HomeLandmarksAdapter(Context context, ArrayList<Location> landmarks, OnLocationClickedListener locationClickedListener) {
-        this.mContext = context;
-        this.mLandmarks = landmarks;
-        this.mLocationClickedListener = locationClickedListener;
     }
 
     // For each row, inflate the layout
@@ -107,6 +118,52 @@ public class HomeLandmarksAdapter extends RecyclerView.Adapter<HomeLandmarksAdap
             tvLandmarkName.setText(landmark.getName());
             tvVicinity.setText(landmark.getVicinity());
 
+            // Get photo from place ID and display the photo; code below provied by Google documentation
+
+            // Define a Place ID
+            final String placeId = landmark.getPlaceId();
+
+            // Specify fields
+            // Requests for photos must always have the PHOTO_METADATAS field
+            final List<Place.Field> fields = Collections.singletonList(Place.Field.PHOTO_METADATAS);
+
+            // Get a Place object (this example uses fetchPlace(), but you can also use findCurrentPlace())
+            final FetchPlaceRequest placeRequest = FetchPlaceRequest.newInstance(placeId, fields);
+
+            Places.initialize(mContext, BuildConfig.MAPS_API_KEY);
+            PlacesClient placesClient = Places.createClient(mContext);
+
+            placesClient.fetchPlace(placeRequest).addOnSuccessListener((response) -> {
+                final Place place = response.getPlace();
+
+                // Get the photo metadata
+                final List<PhotoMetadata> metadata = place.getPhotoMetadatas();
+                if (metadata == null || metadata.isEmpty()) {
+                    Log.w(TAG, "No photo metadata.");
+                    return;
+                }
+                final PhotoMetadata photoMetadata = metadata.get(0);
+
+                // Get the attribution text
+                final String attributions = photoMetadata.getAttributions();
+
+                // Create a FetchPhotoRequest
+                final FetchPhotoRequest photoRequest = FetchPhotoRequest.builder(photoMetadata)
+                        .setMaxWidth(itemView.getMeasuredWidth())
+                        .build();
+                placesClient.fetchPhoto(photoRequest).addOnSuccessListener((fetchPhotoResponse) -> {
+                    Bitmap bitmap = fetchPhotoResponse.getBitmap();
+                    ivLandmarkImage.setImageBitmap(bitmap);
+                }).addOnFailureListener((exception) -> {
+                    if (exception instanceof ApiException) {
+                        final ApiException apiException = (ApiException) exception;
+                        Log.e(TAG, "Place not found: " + exception.getMessage());
+                        ivLandmarkImage.setVisibility(View.GONE);
+                        final int statusCode = apiException.getStatusCode();
+                    }
+                });
+            });
+
             itemView.setOnLongClickListener(new View.OnLongClickListener() {
                 @Override
                 public boolean onLongClick(View v) {
@@ -147,7 +204,6 @@ public class HomeLandmarksAdapter extends RecyclerView.Adapter<HomeLandmarksAdap
         this.mLandmarks = notVisited;
         notifyDataSetChanged();
     }
-
 
     // The following function adds the location to a JSON Array of visited locations
     public void addToVisited(Location location) throws JSONException {

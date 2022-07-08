@@ -80,6 +80,7 @@ public class ProfileFragment extends Fragment {
 
         // Only run the following if the user has visited locations
         try {
+            Log.d("Profile Fragment", String.valueOf(mUser.getVisited()));
             for (Date date : mUser.getVisited().values()){
                 String dateString = date.toString().substring(0, 10);
                 if (!uniqueDates.contains(dateString)){
@@ -122,10 +123,6 @@ public class ProfileFragment extends Fragment {
                 startActivity(i);
             }
         });
-
-
-
-
 
     }
 }

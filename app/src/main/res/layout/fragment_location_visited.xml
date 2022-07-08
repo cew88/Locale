@@ -4,9 +4,10 @@
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="wrap_content"
-    android:background="@drawable/rounded_background"
     android:layout_margin="20dp"
-    android:padding="10dp">
+    android:padding="10dp"
+    android:minWidth="350dp"
+    android:minHeight="300dp">
 
     <com.airbnb.lottie.LottieAnimationView
         android:id="@+id/avMaps"

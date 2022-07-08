@@ -30,6 +30,7 @@ import org.json.JSONException;
 import org.json.JSONObject;
 import org.parceler.Parcel;
 
+import java.lang.reflect.Array;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Date;
@@ -96,7 +97,6 @@ public class User implements Parcelable{
         for (int i=0; i<userInterests.length(); i++){
             mInterests.add((String) userInterests.get(i));
         }
-
         this.mInterestsString = Converters.fromStringArrayList(mInterests);
 
         // Iterate through the JSON Array of not visited landmarks returned by Parse and add to an ArrayList
@@ -168,7 +168,6 @@ public class User implements Parcelable{
                 e.printStackTrace();
             }
         }
-
 
         // Iterate through the JSON Array of all landmarks returned by Parse and add to an ArrayList
         JSONArray allLandmarks = user.getJSONArray("not_visited_landmarks");

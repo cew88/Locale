@@ -1,6 +1,7 @@
 package com.example.locale.adapters;
 
 import android.content.Context;
+import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -15,6 +16,7 @@ import com.example.locale.models.User;
 
 import org.json.JSONException;
 
+import java.lang.reflect.Array;
 import java.util.ArrayList;
 import java.util.Date;
 import java.util.HashMap;
@@ -27,6 +29,7 @@ public class DateAdapter extends RecyclerView.Adapter<DateAdapter.ViewHolder> {
 
     private HashMap<String, Date> mVisitedLandmarks;
     private ArrayList<String> mVisitedLandmarksNames;
+    private ArrayList<byte[]> mVisitedLandmarkPhotos;
     private VisitedLandmarksAdapter mVisitedLandmarksAdapter;
     private RecyclerView mRvVisitedLandmarks;
 
@@ -67,8 +70,8 @@ public class DateAdapter extends RecyclerView.Adapter<DateAdapter.ViewHolder> {
             tvDate.setText(date);
 
             mVisitedLandmarksNames = new ArrayList<String>();
+            mVisitedLandmarkPhotos = new ArrayList<byte[]>();
             for (String landmarkName: mVisitedLandmarks.keySet()){
-
                 Date dateValue = mVisitedLandmarks.get(landmarkName);
                 if (dateValue.toString().substring(0, 10).equals(date)){
                     mVisitedLandmarksNames.add(landmarkName);
