@@ -29,11 +29,14 @@
         <entry key="app/src/main/res/layout/activity_main.xml" value="0.17552083333333332" />
         <entry key="app/src/main/res/layout/activity_profile.xml" value="0.11458333333333333" />
         <entry key="app/src/main/res/layout/activity_register.xml" value="0.17552083333333332" />
+        <entry key="app/src/main/res/layout/edit_profile.xml" value="0.18177083333333333" />
+        <entry key="app/src/main/res/layout/fragment_edit_profile.xml" value="0.18020833333333333" />
         <entry key="app/src/main/res/layout/fragment_home.xml" value="0.16770833333333332" />
         <entry key="app/src/main/res/layout/fragment_location_visited.xml" value="0.2609375" />
         <entry key="app/src/main/res/layout/fragment_location_visited_review.xml" value="0.1" />
         <entry key="app/src/main/res/layout/fragment_maps.xml" value="0.1" />
         <entry key="app/src/main/res/layout/fragment_profile.xml" value="0.21354166666666666" />
+        <entry key="app/src/main/res/layout/fragment_upload_photo.xml" value="0.17916666666666667" />
         <entry key="app/src/main/res/layout/fragment_upload_photos.xml" value="0.14479166666666668" />
         <entry key="app/src/main/res/layout/fragment_visited_page.xml" value="0.19479166666666667" />
         <entry key="app/src/main/res/layout/item_date.xml" value="0.18958333333333333" />

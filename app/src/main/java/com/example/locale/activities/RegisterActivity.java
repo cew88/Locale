@@ -130,7 +130,6 @@ public class RegisterActivity extends AppCompatActivity {
                                         } catch (ParseException e) {
                                             e.printStackTrace();
                                         }
-                                        navigateToInterestsActivity();
                                     }
                                     else {
                                         try {
@@ -138,7 +137,6 @@ public class RegisterActivity extends AppCompatActivity {
                                         } catch (ParseException e) {
                                             e.printStackTrace();
                                         }
-                                        navigateToInterestsActivity();
                                     }
                                 }
                             });
@@ -168,6 +166,8 @@ public class RegisterActivity extends AppCompatActivity {
         newUser.put("email", email);
         newUser.put("password", password);
         newUser.signUp();
+        navigateToInterestsActivity();
+        Log.d(TAG, "New Parse user created (with no location)!");
     }
 
     // Create user account with location
@@ -182,6 +182,8 @@ public class RegisterActivity extends AppCompatActivity {
         newUser.put("password", password);
         newUser.put("location", geoPoint);
         newUser.signUp();
+        navigateToInterestsActivity();
+        Log.d(TAG, "New Parse user created (with location)!");
     }
 
     // Start new intent to navigate to the interests activity

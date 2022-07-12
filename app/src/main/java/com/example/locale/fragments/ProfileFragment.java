@@ -13,29 +13,37 @@ import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.view.textclassifier.ConversationAction;
+import android.widget.Button;
 import android.widget.ImageView;
 import android.widget.TextView;
 
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.fragment.app.Fragment;
+import androidx.fragment.app.FragmentManager;
 import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
 
 import com.example.locale.activities.LoginActivity;
 import com.example.locale.R;
 import com.example.locale.adapters.DateAdapter;
+import com.example.locale.models.Converters;
 import com.example.locale.models.User;
 import com.parse.ParseUser;
 
+import org.json.JSONArray;
 import org.json.JSONException;
+import org.json.JSONObject;
 
+import java.text.ParseException;
 import java.util.ArrayList;
 import java.util.Date;
 
 public class ProfileFragment extends Fragment {
     private ImageView mIvProfileImage;
-    private ImageView mIvLogout;
+    private Button mBtnLogout;
+    private Button mBtnEditProfile;
     private TextView mTvName;
     private TextView mTvUsername;
 
@@ -80,21 +88,23 @@ public class ProfileFragment extends Fragment {
 
         // Only run the following if the user has visited locations
         try {
-            Log.d("Profile Fragment", String.valueOf(mUser.getVisited()));
-            for (Date date : mUser.getVisited().values()){
-                String dateString = date.toString().substring(0, 10);
+            // Log.d("Profile Fragment", String.valueOf(mUser.getVisited()));
+            for (int i=0; i<mUser.getVisited().size(); i++){
+                JSONObject jsonObject = mUser.getVisited().get(i);
+                String dateString = jsonObject.getString("date_visited").substring(0, 10);
                 if (!uniqueDates.contains(dateString)){
                     uniqueDates.add(dateString);
                 }
-                mDateAdapter = new DateAdapter(getContext(), uniqueDates, mUser);
-                mRvDates = view.findViewById(R.id.rvDates);
-                LinearLayoutManager dateLinearLayoutManager = new LinearLayoutManager(getContext());
-                mRvDates.setLayoutManager(dateLinearLayoutManager);
-                mRvDates.setAdapter(mDateAdapter);
-
-                mPlacesVisitedCount.setText(String.valueOf(mUser.getVisited().size()));
             }
-        } catch (JSONException e) {
+
+            mDateAdapter = new DateAdapter(getContext(), uniqueDates, mUser);
+            mRvDates = view.findViewById(R.id.rvDates);
+            LinearLayoutManager dateLinearLayoutManager = new LinearLayoutManager(getContext());
+            mRvDates.setLayoutManager(dateLinearLayoutManager);
+            mRvDates.setAdapter(mDateAdapter);
+
+            mPlacesVisitedCount.setText(String.valueOf(mUser.getVisited().size()));
+        } catch (JSONException | ParseException e) {
             e.printStackTrace();
         }
 
@@ -112,8 +122,8 @@ public class ProfileFragment extends Fragment {
 
         mInterests.setText(interestsList);
 
-        mIvLogout = view.findViewById(R.id.ivLogoutIcon);
-        mIvLogout.setOnClickListener(new View.OnClickListener() {
+        mBtnLogout = view.findViewById(R.id.btnLogout);
+        mBtnLogout.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
                 ParseUser.logOut();
@@ -124,5 +134,18 @@ public class ProfileFragment extends Fragment {
             }
         });
 
+        mBtnEditProfile = view.findViewById(R.id.btnEditProfile);
+        mBtnEditProfile.setOnClickListener(new View.OnClickListener(){
+
+            @Override
+            public void onClick(View v) {
+                Bundle bundle = new Bundle();
+                bundle.putParcelable("User", mUser);
+
+                FragmentManager mFragmentManager = getParentFragmentManager();
+                Fragment fragment = new EditProfileFragment();
+                mFragmentManager.beginTransaction().replace(R.id.flContainer, fragment).commit();
+            }
+        });
     }
 }

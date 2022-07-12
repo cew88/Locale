@@ -29,6 +29,7 @@ import org.json.JSONException;
 
 import java.io.ByteArrayOutputStream;
 import java.io.IOException;
+import java.io.UnsupportedEncodingException;
 
 public class ReviewFragment extends DialogFragment {
     private View vUpload;
@@ -44,7 +45,7 @@ public class ReviewFragment extends DialogFragment {
     private byte[] mByteArray;
 
     public interface AddPhoto {
-        public void addPhoto(String object_id, String place_id, String place_name, byte[] bytes) throws JSONException;
+        public void addPhoto(String object_id, String place_id, String place_name, byte[] bytes) throws JSONException, UnsupportedEncodingException;
     }
 
     public ReviewFragment() {
@@ -63,7 +64,7 @@ public class ReviewFragment extends DialogFragment {
             mAddPhotoListener = (AddPhoto) context;
         }
         else {
-            throw new ClassCastException(context.toString() + " must implement MyListFragment.OnItemSelectedListener");
+            throw new ClassCastException(context + " must implement MyListFragment.OnItemSelectedListener");
         }
     }
 
@@ -85,7 +86,6 @@ public class ReviewFragment extends DialogFragment {
 
         mTvLocationName = view.findViewById(R.id.tvLocationVisitedName);
         mTvLocationName.setText(mPlaceName);
-        Log.d("HERE", mPlaceName);
 
         mIvImage = view.findViewById(R.id.ivUploadedImage);
 
@@ -111,7 +111,7 @@ public class ReviewFragment extends DialogFragment {
                     if (getmByteArray() != null){
                         mAddPhotoListener.addPhoto(mObjectId, mPlaceId, mPlaceName, getmByteArray());
                     }
-                } catch (JSONException e) {
+                } catch (JSONException | UnsupportedEncodingException e) {
                     e.printStackTrace();
                 }
                 dismiss();

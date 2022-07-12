@@ -9,17 +9,6 @@
     <!-- TO DO: ADD MARGINS TO DIMENS.XML INSTEAD OF HARD CODING-->
 
     <ImageView
-        android:id="@+id/ivLogoutIcon"
-        android:layout_width="25dp"
-        android:layout_height="25dp"
-        android:layout_margin="20dp"
-        tools:srcCompat="@tools:sample/avatars"
-        android:src="@drawable/logout"
-        app:layout_constraintTop_toTopOf="parent"
-        app:layout_constraintEnd_toEndOf="parent"
-        app:tint="#2573FA" />
-
-    <ImageView
         android:id="@+id/ivProfileImage"
         android:layout_width="100dp"
         android:layout_height="100dp"
@@ -36,14 +25,15 @@
         android:tooltipText="First Last"
         android:textSize="16sp"
         android:textStyle="bold"
-        app:layout_constraintTop_toTopOf="parent"
+        app:layout_constraintTop_toTopOf="@id/ivProfileImage"
         app:layout_constraintStart_toEndOf="@id/ivProfileImage"/>
 
     <TextView
         android:id="@+id/tvUsername"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:layout_margin="20dp"
+        android:layout_marginStart="20dp"
+        android:layout_marginTop="10dp"
         android:tooltipText="Username"
         app:layout_constraintTop_toBottomOf="@id/tvName"
         app:layout_constraintStart_toEndOf="@id/ivProfileImage"/>
@@ -54,6 +44,7 @@
         android:layout_height="wrap_content"
         android:textStyle="bold"
         android:text="Places Visited: "
+        android:textSize="14sp"
         android:layout_marginTop="20dp"
         android:layout_marginStart="20dp"
         app:layout_constraintStart_toStartOf="parent"
@@ -64,6 +55,7 @@
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:hint="0"
+        android:textSize="14sp"
         android:layout_marginTop="20dp"
         app:layout_constraintTop_toBottomOf="@id/ivProfileImage"
         app:layout_constraintStart_toEndOf="@id/tvPlacesVisited"/>
@@ -73,6 +65,7 @@
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:text="Interests: "
+        android:textSize="14sp"
         android:textStyle="bold"
         android:layout_marginStart="20dp"
         app:layout_constraintTop_toBottomOf="@id/tvPlacesVisited"
@@ -83,19 +76,54 @@
         android:layout_width="0dp"
         android:layout_height="wrap_content"
         android:layout_marginEnd="20dp"
+        android:text="None"
+        android:textSize="14sp"
         app:layout_constraintTop_toBottomOf="@id/tvPlacesVisitedCount"
         app:layout_constraintStart_toEndOf="@id/tvInterests"
         app:layout_constraintEnd_toEndOf="parent"/>
+
+    <LinearLayout
+        android:id="@+id/llBtns"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_marginStart="20dp"
+        android:layout_marginEnd="20dp"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintTop_toBottomOf="@id/tvInterestsList"
+        android:orientation="horizontal">
+
+        <Button
+            android:id="@+id/btnEditProfile"
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:layout_weight="1"
+            android:text="Edit Profile"
+            android:textAllCaps="false"
+            android:layout_marginEnd="5dp"
+            android:minHeight="20dp"/>
+
+        <Button
+            android:id="@+id/btnLogout"
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:layout_weight="1"
+            android:text="Logout"
+            android:textAllCaps="false"
+            android:layout_marginStart="5dp"
+            android:minHeight="20dp"/>
+    </LinearLayout>
 
     <TextView
         android:id="@+id/tvYourTimeline"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:text="Timeline"
+        android:textSize="14sp"
         android:textStyle="bold"
         android:layout_marginStart="20dp"
         app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toBottomOf="@id/tvInterestsList"/>
+        app:layout_constraintTop_toBottomOf="@id/llBtns"/>
 
     <View
         android:id="@+id/vHorizontalLine"
@@ -112,7 +140,6 @@
         android:id="@+id/rvDates"
         android:layout_width="wrap_content"
         android:layout_height="0dp"
-
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintTop_toBottomOf="@id/vHorizontalLine"

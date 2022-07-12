@@ -251,7 +251,9 @@ public class InterestsActivity extends AppCompatActivity implements View.OnClick
     }
 
     // Add new interest to the screen
-    private void createNewInterest(String name){
+    public void createNewInterest(String name){
+
+
         // Get the name of the landmark and capitalize letters
         String interestName = name.replaceAll("_", " ");
         interestName = interestName.substring(0, 1).toUpperCase() + interestName.substring(1).toLowerCase();

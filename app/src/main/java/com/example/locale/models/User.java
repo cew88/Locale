@@ -5,7 +5,9 @@ number of queries made to the Parse database.
 
 package com.example.locale.models;
 
+import android.icu.util.LocaleData;
 import android.os.Parcelable;
+import android.util.Log;
 
 import androidx.annotation.NonNull;
 import androidx.room.ColumnInfo;
@@ -18,7 +20,9 @@ import androidx.room.PrimaryKey;
 import androidx.room.Query;
 import androidx.room.Update;
 
+import com.codepath.asynchttpclient.callback.JsonHttpResponseHandler;
 import com.example.locale.interfaces.OnLocationsLoaded;
+import com.google.gson.Gson;
 import com.parse.GetCallback;
 import com.parse.ParseException;
 import com.parse.ParseGeoPoint;
@@ -46,7 +50,7 @@ public class User implements Parcelable{
     private String mLastName;
 
     @ColumnInfo @PrimaryKey @NonNull
-    private String mUserName;
+    private String mUserName = "";
 
     @ColumnInfo
     private String mEmail;
@@ -87,10 +91,10 @@ public class User implements Parcelable{
         this.mLatitude = location.getLatitude();
         this.mLongitude = location.getLongitude();
 
-        ArrayList<String> mInterests = new ArrayList<String>();
-        HashMap<Location, Date> mVisited= new HashMap<Location, Date>(){};
-        ArrayList<Location> mNotVisited = new ArrayList<Location>();
-        ArrayList<Location> mAll = new ArrayList<Location>();
+        ArrayList<String> mInterests = new ArrayList<>();
+        HashMap<JSONObject, Date> mVisited= new HashMap<>(){};
+        ArrayList<Location> mNotVisited = new ArrayList<>();
+        ArrayList<Location> mAll = new ArrayList<>();
 
         // Iterate through the JSON Array of user interests returned by Parse and add to an ArrayList
         JSONArray userInterests = user.getJSONArray("interests");
@@ -102,11 +106,10 @@ public class User implements Parcelable{
         // Iterate through the JSON Array of not visited landmarks returned by Parse and add to an ArrayList
         JSONArray notVisitedLandmarks = user.getJSONArray("not_visited_landmarks");
         for (int j=0; j<notVisitedLandmarks.length(); j++){
-            JSONObject jsonObject = null;
+            JSONObject jsonObject;
             try {
                 jsonObject = (JSONObject) notVisitedLandmarks.get(j);
-                String objectId = null;
-                objectId = jsonObject.getString("objectId");
+                String objectId = jsonObject.getString("objectId");
                 ParseQuery<ParseObject> query = ParseQuery.getQuery("Location");
                 query.whereEqualTo("objectId", objectId);
                 query.getFirstInBackground(new GetCallback<ParseObject>() {
@@ -133,41 +136,9 @@ public class User implements Parcelable{
 
         // Iterate through JSON Array of visited landmarks returned by Parse and add to HashMap
         JSONArray visitedLandmarks = user.getJSONArray("visited_landmarks");
-        for (int k=0; k<visitedLandmarks.length(); k++){
-            JSONObject jsonObject = new JSONObject((String) visitedLandmarks.get(k));
-            String objectId = jsonObject.getString("objectId");
+        setVisitedString(String.valueOf(visitedLandmarks));
+        mOnLocationsLoaded.updateVisited(String.valueOf(visitedLandmarks));
 
-            // Create a new date format in the correct pattern
-            SimpleDateFormat dateFormat = new SimpleDateFormat("EEE MMM dd HH:mm:ss Z yyyy");
-            try {
-                // Convert the date from a String to a Date object
-                Date dateVisited = dateFormat.parse(jsonObject.getString("date_visited"));
-
-                // Query Parse to the get Location object from the stored objectId
-                ParseQuery<ParseObject> query = ParseQuery.getQuery("Location");
-                query.whereEqualTo("objectId", objectId);
-                query.getFirstInBackground(new GetCallback<ParseObject>() {
-                    public void done(ParseObject object, ParseException e) {
-                        if (e == null) {
-                            Location visitedLocation = (Location) object;
-                            mVisited.put(visitedLocation, dateVisited);
-
-                            if (mVisited.size() == visitedLandmarks.length()){
-                                try {
-                                    String visitedString = Converters.fromLocationHashMap(mVisited);
-                                    setVisitedString(visitedString);
-                                    mOnLocationsLoaded.updateVisited(visitedString);
-                                } catch (JSONException ex) {
-                                    ex.printStackTrace();
-                                }
-                            }
-                        }
-                    }
-                });
-            } catch (java.text.ParseException e) {
-                e.printStackTrace();
-            }
-        }
 
         // Iterate through the JSON Array of all landmarks returned by Parse and add to an ArrayList
         JSONArray allLandmarks = user.getJSONArray("not_visited_landmarks");
@@ -177,7 +148,7 @@ public class User implements Parcelable{
 
             ParseQuery<ParseObject> query = ParseQuery.getQuery("Location");
             query.whereEqualTo("objectId", objectId);
-            query.getFirstInBackground(new GetCallback<ParseObject>() {
+            query.getFirstInBackground(new GetCallback<>() {
                 public void done(ParseObject object, ParseException e) {
                     if (e == null) {
                         mAll.add((Location) object);
@@ -288,11 +259,11 @@ public class User implements Parcelable{
         if (getNotVisitedString() != null){
             return Converters.fromStringtoLocationArrayList(getNotVisitedString());
         }
-        return new ArrayList<Location>();
+        return new ArrayList<>();
     }
 
     public ArrayList<String> getNotVisitedPlaceIds() throws JSONException {
-        ArrayList<String> notVisitedPlaceIds = new ArrayList<String>();
+        ArrayList<String> notVisitedPlaceIds = new ArrayList<>();
         for (Location location : getNotVisited()){
             notVisitedPlaceIds.add(location.getPlaceId());
         }
@@ -307,11 +278,23 @@ public class User implements Parcelable{
         this.mVisitedString = visited;
     }
 
-    public HashMap<String, Date> getVisited() throws JSONException {
+    public ArrayList<JSONObject> getVisited() throws JSONException, java.text.ParseException {
         if (getVisitedString() != null){
-            return Converters.fromStringtoHashMap(getVisitedString());
+            ArrayList<JSONObject> visitedLandmarks = new ArrayList<>();
+            JSONArray jsonArray = new JSONArray(getVisitedString());
+            for (int i=0; i<jsonArray.length(); i++){
+                visitedLandmarks.add(new JSONObject((String) jsonArray.get(i)));
+            }
+            return visitedLandmarks;
         }
-        return new HashMap<String, Date>();
+        return new ArrayList<>();
+    }
+
+    public HashMap<String, byte[]> getVisitedPhotos() throws JSONException, java.text.ParseException {
+        if (getVisitedString() != null){
+            return Converters.fromArraytoHashMapStringByte(getVisited());
+        }
+        return new HashMap<>();
     }
 
     public String getAllString() {
@@ -326,7 +309,7 @@ public class User implements Parcelable{
         if (getAllString() != null) {
             return Converters.fromStringtoLocationArrayList(getAllString());
         }
-        return new ArrayList<Location>();
+        return new ArrayList<>();
     }
 
     public int getUserPace() {
@@ -340,24 +323,24 @@ public class User implements Parcelable{
     @Dao
     public interface UserDao {
         @Query("SELECT * FROM User where mUserName = :username")
-        public User getByUsername(String username);
+        User getByUsername(String username);
 
         @Insert(onConflict = OnConflictStrategy.REPLACE)
-        public Long insertUser(User user);
+        Long insertUser(User user);
 
         @Query("UPDATE user SET mNotVisitedString = :notVisited")
-        public void updateNotVisited(String notVisited);
+        void updateNotVisited(String notVisited);
 
         @Query("UPDATE user SET mVisitedString = :visited")
-        public void updateVisited(String visited);
+        void updateVisited(String visited);
 
         @Query("UPDATE user SET mAllString = :all")
-        public void updateAll(String all);
+        void updateAll(String all);
 
         @Update
-        public void updateUser(User user);
+        void updateUser(User user);
 
         @Delete
-        public void deleteUser(User user);
+        void deleteUser(User user);
     }
 }

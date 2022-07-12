@@ -5,13 +5,9 @@ location from the Parse database and queries the Places API to generate a list o
 
 package com.example.locale.activities;
 
-import android.content.Intent;
-import android.location.Address;
-import android.location.Geocoder;
 import android.os.Bundle;
 import android.util.Log;
 import android.view.MenuItem;
-import android.widget.Toast;
 
 import androidx.annotation.NonNull;
 import androidx.appcompat.app.ActionBar;
@@ -38,24 +34,19 @@ import com.google.android.gms.location.FusedLocationProviderClient;
 import com.google.android.gms.location.LocationServices;
 import com.google.android.gms.tasks.OnSuccessListener;
 import com.google.android.material.bottomnavigation.BottomNavigationView;
-import com.parse.GetCallback;
-import com.parse.ParseException;
-import com.parse.ParseGeoPoint;
 import com.parse.ParseObject;
-import com.parse.ParseQuery;
 import com.parse.ParseUser;
 
 import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
-import org.parceler.Parcels;
 
-import java.io.IOException;
+import java.io.UnsupportedEncodingException;
+import java.nio.charset.StandardCharsets;
 import java.util.ArrayList;
+import java.util.Base64;
 import java.util.Calendar;
 import java.util.Date;
-import java.util.List;
-import java.util.Locale;
 
 import okhttp3.Headers;
 
@@ -89,7 +80,7 @@ public class MainActivity extends AppCompatActivity implements HomeLandmarksAdap
         final User.UserDao userDao = ((DatabaseApplication)getApplicationContext()).getUserDatabase().userDao();
         mUser = userDao.getByUsername(mCurrentUser.getUsername());
 
-        // Get the user's location and create an account if the location is not null
+        // Get the user's location
         fusedLocationClient = LocationServices.getFusedLocationProviderClient(MainActivity.this);
         fusedLocationClient.getLastLocation().addOnSuccessListener( new OnSuccessListener<android.location.Location>() {
             @Override
@@ -102,7 +93,7 @@ public class MainActivity extends AppCompatActivity implements HomeLandmarksAdap
 
                     // Filters landmarks based on the user's selected interests
                     for (int i=0; i<mUser.getInterests().size(); i++) {
-                        String url = "https://maps.googleapis.com/maps/api/place/nearbysearch/json?location=" + latitude + "%2C" + longitude + "&radius=1000&type=" + mUser.getInterests().get(i) + "&key=" + BuildConfig.MAPS_API_KEY;
+                        String url = "https://maps.googleapis.com/maps/api/place/nearbysearch/json?location=" + latitude + "%2C" + longitude + "&radius=500&type=" + mUser.getInterests().get(i) + "&key=" + BuildConfig.MAPS_API_KEY;
                         AsyncHttpClient client = new AsyncHttpClient();
                         client.get(url, new JsonHttpResponseHandler() {
                             @Override
@@ -138,9 +129,7 @@ public class MainActivity extends AppCompatActivity implements HomeLandmarksAdap
 
                                                         // Update the Room local database
                                                         String notVisitedLandmarks = Converters.fromLocationArrayList(updatedNotVisited);
-                                                        String visitedLandmarks = String.valueOf(mCurrentUser.getJSONArray(KEY_VISITED_LANDMARKS));
                                                         mUser.setNotVisitedString(notVisitedLandmarks);
-                                                        mUser.setVisitedString(visitedLandmarks);
                                                         userDao.updateUser(mUser);
 
                                                         // Recreate the Home fragment so that the visited landmark no longer appears on the screen
@@ -266,7 +255,7 @@ public class MainActivity extends AppCompatActivity implements HomeLandmarksAdap
     }
 
     // The following function adds the location to a JSON Array of visited locations
-    public void addToVisited(String objectId, String placeId, String placeName, byte[] image) throws JSONException {
+    public void addToVisited(String objectId, String placeId, String placeName, byte[] image) throws JSONException, UnsupportedEncodingException {
         // Check to make sure that the location is not already in the list of visited landmarks
         if (!String.valueOf(mCurrentUser.getJSONArray(KEY_VISITED_LANDMARKS)).contains(placeId)){
             Date currentTime = Calendar.getInstance().getTime();
@@ -276,15 +265,20 @@ public class MainActivity extends AppCompatActivity implements HomeLandmarksAdap
             jsonObject.put("place_id", placeId);
             jsonObject.put("place_name", placeName);
             jsonObject.put("date_visited", currentTime);
-            jsonObject.put("photo", image);
+
+            String encodedImage = Base64.getEncoder().encodeToString(image);
+            jsonObject.put("photo", encodedImage);
 
             mCurrentUser.add(KEY_VISITED_LANDMARKS, String.valueOf(jsonObject));
             mCurrentUser.saveInBackground();
+            mUser.setVisitedString(String.valueOf(mCurrentUser.getJSONArray(KEY_VISITED_LANDMARKS)));
+            User.UserDao userDao = ((DatabaseApplication)getApplicationContext()).getUserDatabase().userDao();
+            userDao.updateUser(mUser);
         }
     }
 
     @Override
-    public void addPhoto(String objectId, String placeId, String placeName, byte[] image) throws JSONException {
+    public void addPhoto(String objectId, String placeId, String placeName, byte[] image) throws JSONException, UnsupportedEncodingException {
         // Add the location to the visited landmarks
         addToVisited(objectId, placeId, placeName, image);
 

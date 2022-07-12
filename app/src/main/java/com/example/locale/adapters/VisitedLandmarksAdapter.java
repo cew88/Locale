@@ -1,28 +1,45 @@
 package com.example.locale.adapters;
 
 import android.content.Context;
+import android.graphics.Bitmap;
+import android.graphics.BitmapFactory;
+import android.net.Uri;
+import android.provider.MediaStore;
 import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.ImageView;
 import android.widget.TextView;
 
 import androidx.annotation.NonNull;
+import androidx.core.content.res.ResourcesCompat;
 import androidx.recyclerview.widget.RecyclerView;
 
+import com.bumptech.glide.Glide;
 import com.example.locale.R;
+import com.example.locale.models.User;
 
+import org.json.JSONException;
+
+import java.io.ByteArrayOutputStream;
+import java.text.ParseException;
 import java.util.ArrayList;
+import java.util.Base64;
+import java.util.HashMap;
 
 public class VisitedLandmarksAdapter extends RecyclerView.Adapter<VisitedLandmarksAdapter.ViewHolder> {
     private Context mContext;
     private ArrayList<String> mLocationNames;
+    private User mUser;
+    private HashMap<String, byte[]> mLocationByteHashMap;
 
-    public VisitedLandmarksAdapter(Context context, ArrayList<String> locationNames){
+    public VisitedLandmarksAdapter(Context context, ArrayList<String> locationNames, User user) throws JSONException, ParseException {
         this.mContext = context;
         this.mLocationNames = locationNames;
+        this.mUser = user;
+        this.mLocationByteHashMap = user.getVisitedPhotos();
     }
-
 
     @NonNull
     @Override
@@ -44,14 +61,27 @@ public class VisitedLandmarksAdapter extends RecyclerView.Adapter<VisitedLandmar
 
     public class ViewHolder extends RecyclerView.ViewHolder{
         private TextView tvVisitedLandmarkName;
+        private ImageView ivVisitedLandmarkPhoto;
 
         public ViewHolder(View itemView) {
             super(itemView);
             tvVisitedLandmarkName = itemView.findViewById(R.id.tvVisitedLandmarkName);
+            ivVisitedLandmarkPhoto = itemView.findViewById(R.id.ivVisitedLandmarkPhoto);
         }
 
         public void bind(String landmarkName) {
-            tvVisitedLandmarkName.setText(landmarkName);
+        tvVisitedLandmarkName.setText(landmarkName);
+        byte[] bitmapData = Base64.getDecoder().decode(mLocationByteHashMap.get(landmarkName));
+        Bitmap bitmap = BitmapFactory.decodeByteArray(bitmapData, 0, bitmapData.length);
+        ivVisitedLandmarkPhoto.setImageURI(getImageUri(mContext, bitmap));
         }
     }
+
+    public Uri getImageUri(Context inContext, Bitmap inImage) {
+        ByteArrayOutputStream bytes = new ByteArrayOutputStream();
+        inImage.compress(Bitmap.CompressFormat.JPEG, 100, bytes);
+        String path = MediaStore.Images.Media.insertImage(inContext.getContentResolver(), inImage, "Title", null);
+        return Uri.parse(path);
+    }
 }
+

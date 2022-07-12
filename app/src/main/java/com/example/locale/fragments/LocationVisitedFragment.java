@@ -32,8 +32,7 @@ public class LocationVisitedFragment extends DialogFragment {
     }
 
     @Override
-    public View onCreateView(LayoutInflater inflater, ViewGroup container,
-                             Bundle savedInstanceState) {
+    public View onCreateView(LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
 
         // Get data passed from bundle
         mPlaceName = this.getArguments().getString("Place Name");

@@ -1,14 +1,11 @@
 package com.example.locale.models;
 
 
-import android.os.Parcelable;
-
 import com.parse.ParseClassName;
 import com.parse.ParseGeoPoint;
 import com.parse.ParseObject;
 
 import org.json.JSONArray;
-import org.parceler.Parcel;
 
 
 @ParseClassName("Location")

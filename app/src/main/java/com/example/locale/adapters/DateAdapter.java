@@ -1,5 +1,7 @@
 package com.example.locale.adapters;
 
+import static com.example.locale.models.Constants.KEY_NAME;
+
 import android.content.Context;
 import android.util.Log;
 import android.view.LayoutInflater;
@@ -15,8 +17,9 @@ import com.example.locale.R;
 import com.example.locale.models.User;
 
 import org.json.JSONException;
+import org.json.JSONObject;
 
-import java.lang.reflect.Array;
+import java.text.ParseException;
 import java.util.ArrayList;
 import java.util.Date;
 import java.util.HashMap;
@@ -27,13 +30,13 @@ public class DateAdapter extends RecyclerView.Adapter<DateAdapter.ViewHolder> {
     private User mUser;
     private String date;
 
-    private HashMap<String, Date> mVisitedLandmarks;
+    private ArrayList<JSONObject> mVisitedLandmarks;
     private ArrayList<String> mVisitedLandmarksNames;
     private ArrayList<byte[]> mVisitedLandmarkPhotos;
     private VisitedLandmarksAdapter mVisitedLandmarksAdapter;
     private RecyclerView mRvVisitedLandmarks;
 
-    public DateAdapter(Context context, ArrayList<String> dates, User user) throws JSONException {
+    public DateAdapter(Context context, ArrayList<String> dates, User user) throws JSONException, ParseException {
         this.mContext = context;
         this.mDates = dates;
         this.mUser = user;
@@ -50,7 +53,11 @@ public class DateAdapter extends RecyclerView.Adapter<DateAdapter.ViewHolder> {
     @Override
     public void onBindViewHolder(@NonNull DateAdapter.ViewHolder holder, int position) {
         date = mDates.get(position);
-        holder.bind(date);
+        try {
+            holder.bind(date);
+        } catch (JSONException | ParseException e) {
+            e.printStackTrace();
+        }
     }
 
     @Override
@@ -66,19 +73,21 @@ public class DateAdapter extends RecyclerView.Adapter<DateAdapter.ViewHolder> {
             tvDate = itemView.findViewById(R.id.tvDateLandmarkVisited);
         }
 
-        public void bind(String date) {
+        public void bind(String date) throws JSONException, ParseException {
             tvDate.setText(date);
 
             mVisitedLandmarksNames = new ArrayList<String>();
             mVisitedLandmarkPhotos = new ArrayList<byte[]>();
-            for (String landmarkName: mVisitedLandmarks.keySet()){
-                Date dateValue = mVisitedLandmarks.get(landmarkName);
-                if (dateValue.toString().substring(0, 10).equals(date)){
-                    mVisitedLandmarksNames.add(landmarkName);
+
+            for (int i=0; i<mVisitedLandmarks.size(); i++){
+                JSONObject landmark = mVisitedLandmarks.get(i);
+                String dateValue = landmark.getString("date_visited").substring(0, 10);
+                if (dateValue.equals(date)){
+                    mVisitedLandmarksNames.add(landmark.getString("place_name"));
                 }
             }
 
-            mVisitedLandmarksAdapter = new VisitedLandmarksAdapter(itemView.getContext(), mVisitedLandmarksNames);
+            mVisitedLandmarksAdapter = new VisitedLandmarksAdapter(itemView.getContext(), mVisitedLandmarksNames, mUser);
             mRvVisitedLandmarks = itemView.findViewById(R.id.rvVisitedLandmarks);
             LinearLayoutManager  visitedLinearLayoutManager = new LinearLayoutManager(itemView.getContext(), LinearLayoutManager.HORIZONTAL, false);
 

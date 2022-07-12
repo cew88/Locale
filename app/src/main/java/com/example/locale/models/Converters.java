@@ -2,17 +2,12 @@ package com.example.locale.models;
 
 import android.util.Log;
 
+import androidx.annotation.LongDef;
 import androidx.room.TypeConverter;
 
-import com.codepath.asynchttpclient.callback.JsonHttpResponseHandler;
-import com.example.locale.models.Location;
 import com.google.gson.Gson;
-import com.google.gson.JsonParser;
 import com.google.gson.reflect.TypeToken;
-import com.parse.GetCallback;
 import com.parse.ParseGeoPoint;
-import com.parse.ParseObject;
-import com.parse.ParseQuery;
 
 import org.json.JSONArray;
 import org.json.JSONException;
@@ -49,41 +44,25 @@ public class Converters {
             location.setTypes(typesArray);
             location.setCoordinates(new ParseGeoPoint(jsonObject.getDouble("latitude"), jsonObject.getDouble("longitude")));
             location.setVicinity(jsonObject.getString("vicinity"));
+
             locationArrayList.add(location);
         }
         return locationArrayList;
     }
 
+
     @TypeConverter
-    public static HashMap<String, Date> fromStringtoHashMap(String value) throws JSONException {
-        HashMap<String, Date> locationDateHashMap = new HashMap<String, Date>();
+    public static HashMap<String, byte[]> fromArraytoHashMapStringByte(ArrayList<JSONObject> jsonObjects) throws JSONException {
+        HashMap<String, byte[]> locationByteHashMap = new HashMap<String, byte[]>();
+        for (int i=0; i<jsonObjects.size(); i++) {
+            JSONObject jsonObject = jsonObjects.get(i);
+            Log.d("here 2", jsonObject.getString("photo"));
+            String byteArrayString = jsonObject.getString("photo");
+            byte[] byteArray = byteArrayString.getBytes();
 
-        JSONArray jsonArray = new JSONArray(value);
-        for (int i=0; i<jsonArray.length(); i++){
-            JSONObject jsonObject = jsonArray.getJSONObject(i);
-
-//            Location location = new Location();
-//            location.setObjectId(jsonObject.getString("objectId"));
-//            location.setName(jsonObject.getString("place_name"));
-//            location.setPlaceId(jsonObject.getString("place_id"));
-//            JSONObject typesObjects = new JSONObject(jsonObject.getString("types"));
-//            JSONArray typesArray = typesObjects.getJSONArray("values");
-//            location.setTypes(typesArray);
-//            location.setCoordinates(new ParseGeoPoint(jsonObject.getDouble("latitude"), jsonObject.getDouble("longitude")));
-//            location.setVicinity(jsonObject.getString("vicinity"));
-
-
-            SimpleDateFormat dateFormat = new SimpleDateFormat("EEE MMM dd HH:mm:ss Z yyyy");
-            try {
-                // Convert the date from a String to a Date object
-                Date dateVisited = dateFormat.parse(jsonObject.getString("date_visited"));
-                locationDateHashMap.put(jsonObject.getString("place_name"), dateVisited);
-            } catch (ParseException e) {
-                e.printStackTrace();
-            }
+            locationByteHashMap.put(jsonObject.getString("place_name"), byteArray);
         }
-
-        return locationDateHashMap;
+            return locationByteHashMap;
     }
 
 
@@ -105,29 +84,6 @@ public class Converters {
 
             jsonArray.put(jsonObject);
         }
-        return String.valueOf(jsonArray);
-    }
-
-    @TypeConverter
-    public static String fromLocationHashMap(HashMap<Location, Date> locationDateHashMap) throws JSONException {
-        JSONArray jsonArray = new JSONArray();
-
-        for (Location location : locationDateHashMap.keySet()){
-            Gson gson = new Gson();
-
-            JSONObject jsonObject = new JSONObject();
-            jsonObject.put("objectId", location.getObjectId());
-            jsonObject.put("place_name", location.getName());
-            jsonObject.put("place_id", location.getPlaceId());
-            jsonObject.put("types", gson.toJson(location.getTypes()));
-            jsonObject.put("latitude", String.valueOf(location.getCoordinates().getLatitude()));
-            jsonObject.put("longitude", String.valueOf(location.getCoordinates().getLongitude()));
-            jsonObject.put("vicinity", location.getVicinity());
-            jsonObject.put("date_visited", locationDateHashMap.get(location));
-
-            jsonArray.put(jsonObject);
-        }
-
         return String.valueOf(jsonArray);
     }
 
