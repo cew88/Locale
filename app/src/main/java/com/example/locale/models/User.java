@@ -5,9 +5,9 @@ number of queries made to the Parse database.
 
 package com.example.locale.models;
 
-import android.icu.util.LocaleData;
+import static com.example.locale.models.Constants.*;
+
 import android.os.Parcelable;
-import android.util.Log;
 
 import androidx.annotation.NonNull;
 import androidx.room.ColumnInfo;
@@ -20,22 +20,19 @@ import androidx.room.PrimaryKey;
 import androidx.room.Query;
 import androidx.room.Update;
 
-import com.codepath.asynchttpclient.callback.JsonHttpResponseHandler;
 import com.example.locale.interfaces.OnLocationsLoaded;
-import com.google.gson.Gson;
 import com.parse.GetCallback;
 import com.parse.ParseException;
 import com.parse.ParseGeoPoint;
 import com.parse.ParseObject;
 import com.parse.ParseQuery;
 import com.parse.ParseUser;
+
 import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
 import org.parceler.Parcel;
 
-import java.lang.reflect.Array;
-import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Date;
 import java.util.HashMap;
@@ -82,12 +79,12 @@ public class User implements Parcelable{
         final OnLocationsLoaded mOnLocationsLoaded = onLocationsLoaded;
 
         // Initialize class variables
-        this.mFirstName = user.getString("first_name");
-        this.mLastName = user.getString("last_name");
-        this.mUserName = user.getString("username");
+        this.mFirstName = user.getString(KEY_FIRST_NAME);
+        this.mLastName = user.getString(KEY_LAST_NAME);
+        this.mUserName = user.getString(KEY_USERNAME);
         this.mEmail = user.getEmail();
 
-        ParseGeoPoint location = user.getParseGeoPoint("location");
+        ParseGeoPoint location = user.getParseGeoPoint(KEY_LOCATION);
         this.mLatitude = location.getLatitude();
         this.mLongitude = location.getLongitude();
 
@@ -97,21 +94,21 @@ public class User implements Parcelable{
         ArrayList<Location> mAll = new ArrayList<>();
 
         // Iterate through the JSON Array of user interests returned by Parse and add to an ArrayList
-        JSONArray userInterests = user.getJSONArray("interests");
+        JSONArray userInterests = user.getJSONArray(KEY_INTERESTS);
         for (int i=0; i<userInterests.length(); i++){
             mInterests.add((String) userInterests.get(i));
         }
         this.mInterestsString = Converters.fromStringArrayList(mInterests);
 
         // Iterate through the JSON Array of not visited landmarks returned by Parse and add to an ArrayList
-        JSONArray notVisitedLandmarks = user.getJSONArray("not_visited_landmarks");
+        JSONArray notVisitedLandmarks = user.getJSONArray(KEY_NOT_VISITED_LANDMARKS);
         for (int j=0; j<notVisitedLandmarks.length(); j++){
             JSONObject jsonObject;
             try {
                 jsonObject = (JSONObject) notVisitedLandmarks.get(j);
-                String objectId = jsonObject.getString("objectId");
+                String objectId = jsonObject.getString(KEY_OBJECT_ID);
                 ParseQuery<ParseObject> query = ParseQuery.getQuery("Location");
-                query.whereEqualTo("objectId", objectId);
+                query.whereEqualTo(KEY_OBJECT_ID, objectId);
                 query.getFirstInBackground(new GetCallback<ParseObject>() {
 
                     public void done(ParseObject object, ParseException e) {
@@ -135,19 +132,19 @@ public class User implements Parcelable{
         }
 
         // Iterate through JSON Array of visited landmarks returned by Parse and add to HashMap
-        JSONArray visitedLandmarks = user.getJSONArray("visited_landmarks");
+        JSONArray visitedLandmarks = user.getJSONArray(KEY_VISITED_LANDMARKS);
         setVisitedString(String.valueOf(visitedLandmarks));
         mOnLocationsLoaded.updateVisited(String.valueOf(visitedLandmarks));
 
 
         // Iterate through the JSON Array of all landmarks returned by Parse and add to an ArrayList
-        JSONArray allLandmarks = user.getJSONArray("not_visited_landmarks");
+        JSONArray allLandmarks = user.getJSONArray(KEY_ALL_LANDMARKS);
         for (int l=0; l<allLandmarks.length(); l++){
             JSONObject jsonObject = (JSONObject) notVisitedLandmarks.get(l);
-            String objectId = jsonObject.getString("objectId");
+            String objectId = jsonObject.getString(KEY_OBJECT_ID);
 
             ParseQuery<ParseObject> query = ParseQuery.getQuery("Location");
-            query.whereEqualTo("objectId", objectId);
+            query.whereEqualTo(KEY_OBJECT_ID, objectId);
             query.getFirstInBackground(new GetCallback<>() {
                 public void done(ParseObject object, ParseException e) {
                     if (e == null) {
@@ -165,7 +162,7 @@ public class User implements Parcelable{
                 }
             });
         }
-        this.mUserPace = user.getInt("pace");
+        this.mUserPace = user.getInt(KEY_PACE);
     }
 
     @Override

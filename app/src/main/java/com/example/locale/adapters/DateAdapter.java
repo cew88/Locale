@@ -1,9 +1,9 @@
 package com.example.locale.adapters;
 
-import static com.example.locale.models.Constants.KEY_NAME;
+import static com.example.locale.models.Constants.KEY_DATE_VISITED;
+import static com.example.locale.models.Constants.KEY_PLACE_NAME;
 
 import android.content.Context;
-import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -21,8 +21,6 @@ import org.json.JSONObject;
 
 import java.text.ParseException;
 import java.util.ArrayList;
-import java.util.Date;
-import java.util.HashMap;
 
 public class DateAdapter extends RecyclerView.Adapter<DateAdapter.ViewHolder> {
     private Context mContext;
@@ -32,7 +30,6 @@ public class DateAdapter extends RecyclerView.Adapter<DateAdapter.ViewHolder> {
 
     private ArrayList<JSONObject> mVisitedLandmarks;
     private ArrayList<String> mVisitedLandmarksNames;
-    private ArrayList<byte[]> mVisitedLandmarkPhotos;
     private VisitedLandmarksAdapter mVisitedLandmarksAdapter;
     private RecyclerView mRvVisitedLandmarks;
 
@@ -76,14 +73,13 @@ public class DateAdapter extends RecyclerView.Adapter<DateAdapter.ViewHolder> {
         public void bind(String date) throws JSONException, ParseException {
             tvDate.setText(date);
 
-            mVisitedLandmarksNames = new ArrayList<String>();
-            mVisitedLandmarkPhotos = new ArrayList<byte[]>();
+            mVisitedLandmarksNames = new ArrayList<>();
 
             for (int i=0; i<mVisitedLandmarks.size(); i++){
                 JSONObject landmark = mVisitedLandmarks.get(i);
-                String dateValue = landmark.getString("date_visited").substring(0, 10);
+                String dateValue = landmark.getString(KEY_DATE_VISITED).substring(0, 10);
                 if (dateValue.equals(date)){
-                    mVisitedLandmarksNames.add(landmark.getString("place_name"));
+                    mVisitedLandmarksNames.add(landmark.getString(KEY_PLACE_NAME));
                 }
             }
 

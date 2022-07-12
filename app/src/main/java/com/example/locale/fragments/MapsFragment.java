@@ -6,8 +6,9 @@ landmarks that the user has not visited yet.
 
 package com.example.locale.fragments;
 
+import static com.example.locale.models.Constants.KEY_PLACE_NAME;
+
 import android.os.Bundle;
-import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -56,7 +57,7 @@ public class MapsFragment extends Fragment implements MapLandmarksAdapter.OnLoca
             for (int i=0; i<mNotVisitedLandmarks.size(); i++){
                 Location loc = mNotVisitedLandmarks.get(i);
                 LatLng newMarkerLocation = new LatLng(loc.getCoordinates().getLatitude(), loc.getCoordinates().getLongitude());
-                googleMap.addMarker(new MarkerOptions().position(newMarkerLocation).title(loc.getString("place_name")).icon(BitmapDescriptorFactory.defaultMarker(96)));
+                googleMap.addMarker(new MarkerOptions().position(newMarkerLocation).title(loc.getString(KEY_PLACE_NAME)).icon(BitmapDescriptorFactory.defaultMarker(96)));
             }
         }
     };

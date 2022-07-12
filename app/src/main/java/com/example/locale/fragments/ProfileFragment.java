@@ -5,15 +5,13 @@ a button for users to log out of the app.
 
 package com.example.locale.fragments;
 
-import static com.example.locale.activities.MainActivity.TAG;
+import static com.example.locale.models.Constants.KEY_DATE_VISITED;
 
 import android.content.Intent;
 import android.os.Bundle;
-import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
-import android.view.textclassifier.ConversationAction;
 import android.widget.Button;
 import android.widget.ImageView;
 import android.widget.TextView;
@@ -25,20 +23,17 @@ import androidx.fragment.app.FragmentManager;
 import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
 
-import com.example.locale.activities.LoginActivity;
 import com.example.locale.R;
+import com.example.locale.activities.LoginActivity;
 import com.example.locale.adapters.DateAdapter;
-import com.example.locale.models.Converters;
 import com.example.locale.models.User;
 import com.parse.ParseUser;
 
-import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
 
 import java.text.ParseException;
 import java.util.ArrayList;
-import java.util.Date;
 
 public class ProfileFragment extends Fragment {
     private ImageView mIvProfileImage;
@@ -91,7 +86,7 @@ public class ProfileFragment extends Fragment {
             // Log.d("Profile Fragment", String.valueOf(mUser.getVisited()));
             for (int i=0; i<mUser.getVisited().size(); i++){
                 JSONObject jsonObject = mUser.getVisited().get(i);
-                String dateString = jsonObject.getString("date_visited").substring(0, 10);
+                String dateString = jsonObject.getString(KEY_DATE_VISITED).substring(0, 10);
                 if (!uniqueDates.contains(dateString)){
                     uniqueDates.add(dateString);
                 }

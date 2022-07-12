@@ -1,6 +1,7 @@
 package com.example.locale.models;
 
 
+import static com.example.locale.models.Constants.*;
 import com.parse.ParseClassName;
 import com.parse.ParseGeoPoint;
 import com.parse.ParseObject;
@@ -10,21 +11,16 @@ import org.json.JSONArray;
 
 @ParseClassName("Location")
 public class Location extends ParseObject {
-    public static final String KEY_COORDINATES= "coordinates";
-    public static final String KEY_NAME = "place_name";
-    public static final String KEY_PLACE_ID = "place_id";
-    public static final String KEY_TYPES = "types";
-    public static final String KEY_VICINITY = "vicinity";
 
     // Empty constructor needed by Parceler library
     public Location(){}
 
     public String getName(){
-        return getString(KEY_NAME);
+        return getString(KEY_PLACE_NAME);
     }
 
     public void setName(String name){
-        put(KEY_NAME, name);
+        put(KEY_PLACE_NAME, name);
     }
 
     public String getPlaceId(){

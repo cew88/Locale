@@ -1,6 +1,6 @@
 package com.example.locale.fragments;
 
-import static android.app.Activity.RESULT_OK;
+import static com.example.locale.models.Constants.*;
 
 import android.content.Context;
 import android.content.Intent;
@@ -71,9 +71,9 @@ public class ReviewFragment extends DialogFragment {
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
         // Get data passed from bundle
-        mPlaceName = this.getArguments().getString("Place Name");
-        mPlaceId = this.getArguments().getString("Place Id");
-        mObjectId = this.getArguments().getString("Object Id");
+        mPlaceName = this.getArguments().getString(KEY_PLACE_NAME);
+        mPlaceId = this.getArguments().getString(KEY_PLACE_ID);
+        mObjectId = this.getArguments().getString(KEY_OBJECT_ID);
 
         // Inflate the layout for this fragment
         getDialog().setTitle("review dialog");

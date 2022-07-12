@@ -5,6 +5,8 @@ they do not already have an account. Successful log in allows users to access th
 
 package com.example.locale.activities;
 
+import static com.example.locale.models.Constants.*;
+
 import android.Manifest;
 import android.content.Intent;
 import android.os.Bundle;
@@ -25,7 +27,6 @@ import com.parse.ParseException;
 import com.parse.ParseUser;
 
 public class LoginActivity extends AppCompatActivity {
-    public static final String TAG = "LoginActivity";
     private TextView mUsername;
     private TextView mPassword;
     private Button mLoginBtn;
@@ -91,14 +92,14 @@ public class LoginActivity extends AppCompatActivity {
             public void onClick(View v) {
                 String username = mUsername.getText().toString();
                 String password = mPassword.getText().toString();
-                Log.d(TAG, "Attempting to log in user: " + username);
+                Log.d(LOGIN_ACTIVITY_TAG, "Attempting to log in user: " + username);
 
                 ParseUser.logInInBackground(username, password, new LogInCallback() {
 
                     @Override
                     public void done(ParseUser user, ParseException e) {
                         if (e != null) {
-                            Log.e(TAG, "Error with logging in user", e);
+                            Log.e(LOGIN_ACTIVITY_TAG, "Error with logging in user", e);
                             Toast.makeText(LoginActivity.this, "Invalid username/password", Toast.LENGTH_SHORT).show();
                             return;
                         }

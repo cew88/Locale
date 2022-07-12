@@ -1,20 +1,20 @@
 package com.example.locale.fragments;
 
+import static com.example.locale.models.Constants.KEY_OBJECT_ID;
+import static com.example.locale.models.Constants.KEY_PLACE_ID;
+import static com.example.locale.models.Constants.KEY_PLACE_NAME;
+
 import android.os.Bundle;
-
-import androidx.annotation.NonNull;
-import androidx.annotation.Nullable;
-import androidx.fragment.app.DialogFragment;
-import androidx.fragment.app.Fragment;
-
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.Button;
 
+import androidx.annotation.NonNull;
+import androidx.annotation.Nullable;
+import androidx.fragment.app.DialogFragment;
+
 import com.example.locale.R;
-import com.example.locale.activities.MainActivity;
-import com.example.locale.models.Location;
 
 public class LocationVisitedFragment extends DialogFragment {
     private String mPlaceName;
@@ -35,9 +35,9 @@ public class LocationVisitedFragment extends DialogFragment {
     public View onCreateView(LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
 
         // Get data passed from bundle
-        mPlaceName = this.getArguments().getString("Place Name");
-        mPlaceId = this.getArguments().getString("Place Id");
-        mObjectId = this.getArguments().getString("Object Id");
+        mPlaceName = this.getArguments().getString(KEY_PLACE_NAME);
+        mPlaceId = this.getArguments().getString(KEY_PLACE_ID);
+        mObjectId = this.getArguments().getString( KEY_OBJECT_ID);
 
         // Inflate the layout for this fragment
         getDialog().setTitle("visited dialog");
@@ -56,9 +56,9 @@ public class LocationVisitedFragment extends DialogFragment {
 
                 ReviewFragment reviewFragment = new ReviewFragment();
                 Bundle locationBundle = new Bundle();
-                locationBundle.putString("Place Name", mPlaceName);
-                locationBundle.putString("Place Id", mPlaceId);
-                locationBundle.putString("Object Id", mObjectId);
+                locationBundle.putString(KEY_PLACE_NAME, mPlaceName);
+                locationBundle.putString(KEY_PLACE_ID, mPlaceId);
+                locationBundle.putString(KEY_OBJECT_ID, mObjectId);
                 reviewFragment.setArguments(locationBundle);
                 reviewFragment.show(getActivity().getSupportFragmentManager(), "review dialog");
             }

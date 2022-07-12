@@ -7,6 +7,8 @@ the main activity.
 
 package com.example.locale.activities;
 
+import static com.example.locale.models.Constants.*;
+
 import android.Manifest;
 import android.content.Context;
 import android.content.Intent;
@@ -27,6 +29,7 @@ import androidx.appcompat.app.AppCompatActivity;
 import androidx.core.app.ActivityCompat;
 
 import com.example.locale.R;
+import com.example.locale.models.User;
 import com.google.android.gms.location.FusedLocationProviderClient;
 import com.google.android.gms.location.LocationServices;
 import com.google.android.gms.tasks.OnSuccessListener;
@@ -40,7 +43,6 @@ import java.util.List;
 import java.util.Locale;
 
 public class RegisterActivity extends AppCompatActivity {
-    public static final String TAG = "RegisterActivity";
     private TextView mFirstName;
     private TextView mLastName;
     private TextView mUsername;
@@ -119,7 +121,7 @@ public class RegisterActivity extends AppCompatActivity {
                                     if (addresses.size() > 0) {
                                         System.out.println(addresses.get(0).getLocality());
                                         city = addresses.get(0).getLocality();
-                                        Log.d(TAG, city);
+                                        Log.d(REGISTER_ACTIVITY_TAG, city);
                                         Toast.makeText(RegisterActivity.this, city, Toast.LENGTH_SHORT).show();
                                     }
                                 } catch (IOException e) {
@@ -161,16 +163,16 @@ public class RegisterActivity extends AppCompatActivity {
     // Create user account without location
     private void createUser(String firstName, String lastName, String username, String email, String password) throws ParseException {
         ParseUser newUser = new ParseUser();
-        newUser.put("first_name", firstName);
-        newUser.put("last_name", lastName);
-        newUser.put("username", username);
-        newUser.put("email", email);
-        newUser.put("password", password);
+        newUser.put(KEY_FIRST_NAME, firstName);
+        newUser.put(KEY_LAST_NAME, lastName);
+        newUser.put(KEY_USERNAME, username);
+        newUser.put(KEY_EMAIL, email);
+        newUser.put(KEY_PASSWORD, password);
         newUser.signUpInBackground(new SignUpCallback() {
             @Override
             public void done(ParseException e) {
                 if (e == null){
-                    Log.d(TAG, "New Parse user created (with no location)!");
+                    Log.d(REGISTER_ACTIVITY_TAG, "New Parse user created (with no location)!");
                     navigateToInterestsActivity();
                 } else {
                     switch(e.getCode()){
@@ -192,17 +194,17 @@ public class RegisterActivity extends AppCompatActivity {
         ParseGeoPoint geoPoint = new ParseGeoPoint(location.getLatitude(), location.getLongitude());
 
         ParseUser newUser = new ParseUser();
-        newUser.put("first_name", firstName);
-        newUser.put("last_name", lastName);
-        newUser.put("username", username);
-        newUser.put("email", email);
-        newUser.put("password", password);
-        newUser.put("location", geoPoint);
+        newUser.put(KEY_FIRST_NAME, firstName);
+        newUser.put(KEY_LAST_NAME, lastName);
+        newUser.put(KEY_USERNAME, username);
+        newUser.put(KEY_EMAIL, email);
+        newUser.put(KEY_PASSWORD, password);
+        newUser.put(KEY_LOCATION, geoPoint);
         newUser.signUpInBackground(new SignUpCallback() {
             @Override
             public void done(ParseException e) {
                 if (e == null){
-                    Log.d(TAG, "New Parse user created (with location)!");
+                    Log.d(REGISTER_ACTIVITY_TAG, "New Parse user created (with location)!");
                     navigateToInterestsActivity();
                 } else {
                     switch(e.getCode()){

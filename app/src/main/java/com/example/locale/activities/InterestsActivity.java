@@ -7,6 +7,8 @@ categories are then used in the query to the Places API to filter nearby locatio
 
 package com.example.locale.activities;
 
+import static com.example.locale.models.Constants.*;
+
 import android.content.Intent;
 import android.os.Bundle;
 import android.os.Handler;
@@ -50,33 +52,6 @@ import okhttp3.Headers;
 
 public class InterestsActivity extends AppCompatActivity implements View.OnClickListener{
     // Set constants
-    public static final String TAG = "InterestsActivity";
-    public static final String KEY_AMUSEMENT_PARK= "amusement_park";
-    public static final String KEY_AQUARIUM = "aquarium";
-    public static final String KEY_ART_GALLERY = "art_gallery";
-    public static final String KEY_BAKERY = "bakery";
-    public static final String KEY_CAFE = "cafe";
-    public static final String KEY_MOVIE_THEATER= "move_theater";
-    public static final String KEY_MUSEUEM = "museum";
-    public static final String KEY_NIGHT_CLUB = "night_club";
-    public static final String KEY_PARK= "park";
-    public static final String KEY_RESTAURANT = "restaurant";
-    public static final String KEY_SHOPPING_MALL= "shopping_mall";
-    public static final String KEY_SPA = "spa";
-    public static final String KEY_STADIUM = "stadium";
-    public static final String KEY_TOURIST_ATTRACTION = "tourist_attraction";
-    public static final String KEY_NAME = "name";
-    public static final String KEY_PLACE_ID = "place_id";
-    public static final String KEY_TYPES = "types";
-    public static final String KEY_VICINITY = "vicinity";
-    public static final String KEY_LATITUDE = "lat";
-    public static final String KEY_LONGITUDE = "lng";
-    public static final String KEY_ALL_LANDMARKS = "all_landmarks";
-    public static final String KEY_NOT_VISITED_LANDMARKS = "not_visited_landmarks";
-    public static final String KEY_OBJECT_ID = "objectId";
-    public static final String KEY_INTERESTS = "interests";
-    public static final String KEY_PACE = "pace";
-    public static final String KEY_LOCATION = "location";
 
     private Map<String, ArrayList<Integer>> mInterests = new HashMap<String, ArrayList<Integer>>() {
         {
@@ -92,7 +67,7 @@ public class InterestsActivity extends AppCompatActivity implements View.OnClick
                     List.of(R.drawable.mug, R.id.cafe)));
             put(KEY_MOVIE_THEATER, new ArrayList<Integer>(
                     List.of(R.drawable.popcorn, R.id.movie_theater)));
-            put(KEY_MUSEUEM, new ArrayList<Integer>(
+            put(KEY_MUSEUM, new ArrayList<Integer>(
                     List.of(R.drawable.bank, R.id.museum)));
             put(KEY_NIGHT_CLUB, new ArrayList<Integer>(
                     List.of(R.drawable.glass_cheers, R.id.night_club)));
@@ -313,36 +288,36 @@ public class InterestsActivity extends AppCompatActivity implements View.OnClick
                     objectIdQuery.getFirstInBackground(new GetCallback<ParseObject>() {
                         public void done(ParseObject object, ParseException e) {
                             if (e == null) {
-                                Log.d(TAG, "Object exists!");
+                                Log.d(INTERESTS_ACTIVITY_TAG, "Object exists!");
                                 currentUser.add(KEY_ALL_LANDMARKS, object);
                                 currentUser.add(KEY_NOT_VISITED_LANDMARKS, object);
                                 currentUser.saveInBackground();
                             } else {
-                                Log.d(TAG, "Error!");
+                                Log.d(INTERESTS_ACTIVITY_TAG, "Error!");
                             }
                         }
                     });
                 }
 
                 if(e == null) {
-                    Log.d(TAG,"Object exists!");
+                    Log.d(INTERESTS_ACTIVITY_TAG,"Object exists!");
                 }
                 else {
                     if(e.getCode() == ParseException.OBJECT_NOT_FOUND) {
-                        Log.d(TAG, "Object does not exist");
+                        Log.d(INTERESTS_ACTIVITY_TAG, "Object does not exist");
                         location.saveInBackground(new SaveCallback() {
                             @Override
                             public void done(ParseException e) {
                                 if (e != null) {
-                                    Log.e(TAG, "Error while saving!", e);
+                                    Log.e(INTERESTS_ACTIVITY_TAG, "Error while saving!", e);
                                     Toast.makeText(InterestsActivity.this, "Error while saving!", Toast.LENGTH_SHORT).show();
                                 }
-                                Log.i(TAG, "Location save was successful!");
+                                Log.i(INTERESTS_ACTIVITY_TAG, "Location save was successful!");
                             }
                         });
                     }
                     else {
-                        Log.d(TAG, "Error: " + e.getCode());
+                        Log.d(INTERESTS_ACTIVITY_TAG, "Error: " + e.getCode());
                     }
                 }
             }
@@ -375,13 +350,13 @@ public class InterestsActivity extends AppCompatActivity implements View.OnClick
                             if (!currentUser.getJSONArray(KEY_ALL_LANDMARKS).toString().contains(locationObject.getString(KEY_PLACE_ID))){
                                 // Create a new location object
                                 Location newLocation = new Location();
-                                newLocation.setName(locationObject.getString(KEY_NAME));
+                                newLocation.setName(locationObject.getString(KEY_NAME_GOOGLE));
                                 newLocation.setPlaceId(locationObject.getString(KEY_PLACE_ID));
                                 newLocation.setTypes(locationObject.getJSONArray(KEY_TYPES));
                                 newLocation.setVicinity(locationObject.getString(KEY_VICINITY));
-                                JSONObject coordinates = locationObject.getJSONObject("geometry").getJSONObject("location");
-                                double lat = coordinates.getDouble(KEY_LATITUDE);
-                                double lng = coordinates.getDouble(KEY_LONGITUDE);
+                                JSONObject coordinates = locationObject.getJSONObject(KEY_GEOMETRY).getJSONObject(KEY_LOCATION);
+                                double lat = coordinates.getDouble(KEY_LAT);
+                                double lng = coordinates.getDouble(KEY_LNG);
                                 newLocation.setCoordinates(new ParseGeoPoint(lat, lng));
 
                                 //Update the Parse database with the user's nearby landmarks
@@ -399,7 +374,7 @@ public class InterestsActivity extends AppCompatActivity implements View.OnClick
 
                 @Override
                 public void onFailure(int statusCode, Headers headers, String response, Throwable throwable) {
-                    Log.d(TAG, "onFailure: " + response);
+                    Log.d(INTERESTS_ACTIVITY_TAG, "onFailure: " + response);
                 }
             });
         }

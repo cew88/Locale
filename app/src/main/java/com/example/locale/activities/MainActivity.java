@@ -5,6 +5,8 @@ location from the Parse database and queries the Places API to generate a list o
 
 package com.example.locale.activities;
 
+import static com.example.locale.models.Constants.*;
+
 import android.os.Bundle;
 import android.util.Log;
 import android.view.MenuItem;
@@ -34,6 +36,7 @@ import com.google.android.gms.location.FusedLocationProviderClient;
 import com.google.android.gms.location.LocationServices;
 import com.google.android.gms.tasks.OnSuccessListener;
 import com.google.android.material.bottomnavigation.BottomNavigationView;
+import com.parse.PLog;
 import com.parse.ParseObject;
 import com.parse.ParseUser;
 
@@ -51,10 +54,6 @@ import java.util.Date;
 import okhttp3.Headers;
 
 public class MainActivity extends AppCompatActivity implements HomeLandmarksAdapter.OnLocationVisitedListener, ReviewFragment.AddPhoto {
-    public static final String TAG = "MainActivity";
-    public static final String KEY_NOT_VISITED_LANDMARKS = "not_visited_landmarks";
-    public static final String KEY_VISITED_LANDMARKS = "visited_landmarks";
-
     final FragmentManager mFragmentManager = getSupportFragmentManager();
 
     // Get the user that is currently logged in
@@ -104,7 +103,7 @@ public class MainActivity extends AppCompatActivity implements HomeLandmarksAdap
                                     for (int j = 0; j < mUser.getUserPace() / mUser.getInterests().size(); j++) {
 
                                         JSONObject locationObject = jsonArray.getJSONObject(j);
-                                        String placeId = locationObject.getString("place_id");
+                                        String placeId = locationObject.getString(KEY_PLACE_ID);
 
                                         if (mUser.getNotVisitedPlaceIds().contains(placeId)){
                                             for (Location location: mUser.getNotVisited()){
@@ -120,9 +119,9 @@ public class MainActivity extends AppCompatActivity implements HomeLandmarksAdap
                                                         // Create pop up dialog
                                                         LocationVisitedFragment locationVisitedFragment = new LocationVisitedFragment();
                                                         Bundle locationBundle = new Bundle();
-                                                        locationBundle.putString("Place Name", location.getName());
-                                                        locationBundle.putString("Place Id", location.getPlaceId());
-                                                        locationBundle.putString("Object Id", location.getObjectId());
+                                                        locationBundle.putString(KEY_PLACE_NAME, location.getName());
+                                                        locationBundle.putString(KEY_PLACE_ID, location.getPlaceId());
+                                                        locationBundle.putString(KEY_OBJECT_ID, location.getObjectId());
 
                                                         locationVisitedFragment.setArguments(locationBundle);
                                                         locationVisitedFragment.show(mFragmentManager, "visited dialog");
@@ -151,14 +150,13 @@ public class MainActivity extends AppCompatActivity implements HomeLandmarksAdap
                             }
                             @Override
                             public void onFailure(int statusCode, Headers headers, String response, Throwable throwable) {
-                                Log.d(TAG, "onFailure: " + response);
+                                Log.d(MAIN_ACTIVITY_TAG, "onFailure: " + response);
                             }
                         });
                     }
                 }
             }
         });
-
 
         // Access stored user information when the Main activity is opened and pass the data to the
         // Fragments via Bundle
@@ -261,13 +259,13 @@ public class MainActivity extends AppCompatActivity implements HomeLandmarksAdap
             Date currentTime = Calendar.getInstance().getTime();
             JSONObject jsonObject = new JSONObject();
             jsonObject.put(objectId, currentTime);
-            jsonObject.put("objectId", objectId);
-            jsonObject.put("place_id", placeId);
-            jsonObject.put("place_name", placeName);
-            jsonObject.put("date_visited", currentTime);
+            jsonObject.put(KEY_OBJECT_ID, objectId);
+            jsonObject.put(KEY_PLACE_ID, placeId);
+            jsonObject.put(KEY_PLACE_NAME, placeName);
+            jsonObject.put(KEY_DATE_VISITED, currentTime);
 
             String encodedImage = Base64.getEncoder().encodeToString(image);
-            jsonObject.put("photo", encodedImage);
+            jsonObject.put(KEY_PHOTO, encodedImage);
 
             mCurrentUser.add(KEY_VISITED_LANDMARKS, String.valueOf(jsonObject));
             mCurrentUser.saveInBackground();

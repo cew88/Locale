@@ -6,7 +6,6 @@ locations as visited.
 package com.example.locale.adapters;
 
 import android.content.Context;
-import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -21,17 +20,12 @@ import com.example.locale.models.Location;
 import com.parse.ParseUser;
 
 import org.json.JSONException;
-import org.json.JSONObject;
 
 import java.util.ArrayList;
-import java.util.Calendar;
-import java.util.Date;
 import java.util.List;
 
 
 public class MapLandmarksAdapter extends RecyclerView.Adapter<MapLandmarksAdapter.ViewHolder> {
-    public static final String KEY_NOT_VISITED_LANDMARKS = "not_visited_landmarks";
-    public static final String KEY_VISITED_LANDMARKS = "visited_landmarks";
 
     private ParseUser mCurrentUser = ParseUser.getCurrentUser();
     private Context mContext;
@@ -89,14 +83,11 @@ public class MapLandmarksAdapter extends RecyclerView.Adapter<MapLandmarksAdapte
     }
 
     public class ViewHolder extends RecyclerView.ViewHolder {
-        private ImageView ivLandmarkImage;
         private TextView tvLandmarkName;
         private TextView tvVicinity;
 
         public ViewHolder(@NonNull View itemView) {
             super(itemView);
-
-            ivLandmarkImage = itemView.findViewById(R.id.ivLandmarkImage);
             tvLandmarkName = itemView.findViewById(R.id.tvLandmarkName);
             tvVicinity = itemView.findViewById(R.id.tvVicinity);
         }

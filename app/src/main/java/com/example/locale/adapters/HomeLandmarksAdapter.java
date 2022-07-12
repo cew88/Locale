@@ -5,6 +5,8 @@ locations as visited.
 
 package com.example.locale.adapters;
 
+import static com.example.locale.models.Constants.*;
+
 import android.content.AsyncQueryHandler;
 import android.content.Context;
 import android.graphics.Bitmap;
@@ -52,24 +54,15 @@ import okhttp3.Headers;
 
 
 public class HomeLandmarksAdapter extends RecyclerView.Adapter<HomeLandmarksAdapter.ViewHolder> {
-    public static final String KEY_NOT_VISITED_LANDMARKS = "not_visited_landmarks";
-    public static final String KEY_VISITED_LANDMARKS = "visited_landmarks";
-    public static final String TAG = "HomeFragment";
-
     private ParseUser mCurrentUser = ParseUser.getCurrentUser();
     private Context mContext;
     private ArrayList<Location> mLandmarks;
     private OnLocationVisitedListener mLocationVisitedListener;
-    private OnLocationClickedListener mLocationClickedListener;
 
     // Define an interface to notify the Main Activity that an update to the user information in the
     // Parse database has been made
     public interface OnLocationVisitedListener {
         public void updateLandmarks();
-    }
-
-    public interface OnLocationClickedListener {
-        public void zoomInOnMarkers(double latitude, double longitude);
     }
 
     // Pass in the context and the list of landmarks
@@ -144,7 +137,7 @@ public class HomeLandmarksAdapter extends RecyclerView.Adapter<HomeLandmarksAdap
                 // Get the photo metadata
                 final List<PhotoMetadata> metadata = place.getPhotoMetadatas();
                 if (metadata == null || metadata.isEmpty()) {
-                    Log.w(TAG, "No photo metadata.");
+                    Log.w(HOME_FRAGMENT_TAG, "No photo metadata.");
                     ivLandmarkImage.setVisibility(View.GONE);
                     return;
                 }
@@ -166,7 +159,7 @@ public class HomeLandmarksAdapter extends RecyclerView.Adapter<HomeLandmarksAdap
                 }).addOnFailureListener((exception) -> {
                     if (exception instanceof ApiException) {
                         final ApiException apiException = (ApiException) exception;
-                        Log.e(TAG, "Place not found: " + exception.getMessage());
+                        Log.e(HOME_FRAGMENT_TAG, "Place not found: " + exception.getMessage());
                         ivLandmarkImage.setVisibility(View.GONE);
                         final int statusCode = apiException.getStatusCode();
                     }
@@ -219,10 +212,10 @@ public class HomeLandmarksAdapter extends RecyclerView.Adapter<HomeLandmarksAdap
         Date currentTime = Calendar.getInstance().getTime();
         JSONObject jsonObject = new JSONObject();
         jsonObject.put(location.getObjectId(), currentTime);
-        jsonObject.put("objectId", location.getObjectId());
-        jsonObject.put("place_id", location.getPlaceId());
-        jsonObject.put("place_name", location.getName());
-        jsonObject.put("date_visited", currentTime);
+        jsonObject.put(KEY_OBJECT_ID, location.getObjectId());
+        jsonObject.put(KEY_PLACE_ID, location.getPlaceId());
+        jsonObject.put(KEY_PLACE_NAME, location.getName());
+        jsonObject.put(KEY_DATE_VISITED, currentTime);
 
         mCurrentUser.add(KEY_VISITED_LANDMARKS, String.valueOf(jsonObject));
         mCurrentUser.saveInBackground();

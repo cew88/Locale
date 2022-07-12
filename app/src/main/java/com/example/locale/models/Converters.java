@@ -1,8 +1,7 @@
 package com.example.locale.models;
 
-import android.util.Log;
+import static com.example.locale.models.Constants.*;
 
-import androidx.annotation.LongDef;
 import androidx.room.TypeConverter;
 
 import com.google.gson.Gson;
@@ -14,10 +13,7 @@ import org.json.JSONException;
 import org.json.JSONObject;
 
 import java.lang.reflect.Type;
-import java.text.ParseException;
-import java.text.SimpleDateFormat;
 import java.util.ArrayList;
-import java.util.Date;
 import java.util.HashMap;
 
 public class Converters {
@@ -36,14 +32,14 @@ public class Converters {
             JSONObject jsonObject = jsonArray.getJSONObject(i);
 
             Location location = new Location();
-            location.setObjectId(jsonObject.getString("objectId"));
-            location.setName(jsonObject.getString("place_name"));
-            location.setPlaceId(jsonObject.getString("place_id"));
-            JSONObject typesObjects = new JSONObject(jsonObject.getString("types"));
-            JSONArray typesArray = typesObjects.getJSONArray("values");
+            location.setObjectId(jsonObject.getString(KEY_OBJECT_ID));
+            location.setName(jsonObject.getString(KEY_PLACE_NAME));
+            location.setPlaceId(jsonObject.getString(KEY_PLACE_ID));
+            JSONObject typesObjects = new JSONObject(jsonObject.getString(KEY_TYPES));
+            JSONArray typesArray = typesObjects.getJSONArray(KEY_VALUES);
             location.setTypes(typesArray);
-            location.setCoordinates(new ParseGeoPoint(jsonObject.getDouble("latitude"), jsonObject.getDouble("longitude")));
-            location.setVicinity(jsonObject.getString("vicinity"));
+            location.setCoordinates(new ParseGeoPoint(jsonObject.getDouble(KEY_LATITUDE), jsonObject.getDouble(KEY_LONGITUDE)));
+            location.setVicinity(jsonObject.getString(KEY_VICINITY));
 
             locationArrayList.add(location);
         }
@@ -56,10 +52,10 @@ public class Converters {
         HashMap<String, byte[]> locationByteHashMap = new HashMap<String, byte[]>();
         for (int i=0; i<jsonObjects.size(); i++) {
             JSONObject jsonObject = jsonObjects.get(i);
-            String byteArrayString = jsonObject.getString("photo");
+            String byteArrayString = jsonObject.getString(KEY_PHOTO);
             byte[] byteArray = byteArrayString.getBytes();
 
-            locationByteHashMap.put(jsonObject.getString("place_name"), byteArray);
+            locationByteHashMap.put(jsonObject.getString(KEY_PLACE_NAME), byteArray);
         }
             return locationByteHashMap;
     }
@@ -73,13 +69,13 @@ public class Converters {
             Gson gson = new Gson();
 
             JSONObject jsonObject = new JSONObject();
-            jsonObject.put("objectId", location.getObjectId());
-            jsonObject.put("place_name", location.getName());
-            jsonObject.put("place_id", location.getPlaceId());
-            jsonObject.put("types", gson.toJson(location.getTypes()));
-            jsonObject.put("latitude", String.valueOf(location.getCoordinates().getLatitude()));
-            jsonObject.put("longitude", String.valueOf(location.getCoordinates().getLongitude()));
-            jsonObject.put("vicinity", location.getVicinity());
+            jsonObject.put(KEY_OBJECT_ID, location.getObjectId());
+            jsonObject.put(KEY_PLACE_NAME, location.getName());
+            jsonObject.put(KEY_PLACE_ID, location.getPlaceId());
+            jsonObject.put(KEY_TYPES, gson.toJson(location.getTypes()));
+            jsonObject.put(KEY_LATITUDE, String.valueOf(location.getCoordinates().getLatitude()));
+            jsonObject.put(KEY_LONGITUDE, String.valueOf(location.getCoordinates().getLongitude()));
+            jsonObject.put(KEY_VICINITY, location.getVicinity());
 
             jsonArray.put(jsonObject);
         }
