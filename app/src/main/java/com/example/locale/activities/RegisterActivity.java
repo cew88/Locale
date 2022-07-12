@@ -7,10 +7,6 @@ the main activity.
 
 package com.example.locale.activities;
 
-import androidx.appcompat.app.ActionBar;
-import androidx.appcompat.app.AppCompatActivity;
-import androidx.core.app.ActivityCompat;
-
 import android.Manifest;
 import android.content.Context;
 import android.content.Intent;
@@ -26,6 +22,10 @@ import android.widget.Button;
 import android.widget.TextView;
 import android.widget.Toast;
 
+import androidx.appcompat.app.ActionBar;
+import androidx.appcompat.app.AppCompatActivity;
+import androidx.core.app.ActivityCompat;
+
 import com.example.locale.R;
 import com.google.android.gms.location.FusedLocationProviderClient;
 import com.google.android.gms.location.LocationServices;
@@ -33,6 +33,7 @@ import com.google.android.gms.tasks.OnSuccessListener;
 import com.parse.ParseException;
 import com.parse.ParseGeoPoint;
 import com.parse.ParseUser;
+import com.parse.SignUpCallback;
 
 import java.io.IOException;
 import java.util.List;
@@ -102,44 +103,44 @@ public class RegisterActivity extends AppCompatActivity {
                     // Get the user's location and create an account if the location is not null
                     fusedLocationClient = LocationServices.getFusedLocationProviderClient(RegisterActivity.this);
                     fusedLocationClient.getLastLocation().addOnSuccessListener( new OnSuccessListener<Location>() {
-                                @Override
-                                public void onSuccess(Location location) {
-                                    // Got last known location. In some rare situations this can be null.
-                                    if (location != null) {
-                                        // Logic to handle location object
-                                        mLatitude = location.getLatitude();
-                                        mLongitude = location.getLongitude();
+                        @Override
+                        public void onSuccess(Location location) {
+                            // Got last known location. In some rare situations this can be null.
+                            if (location != null) {
+                                // Logic to handle location object
+                                mLatitude = location.getLatitude();
+                                mLongitude = location.getLongitude();
 
-                                        // Get city name
-                                        Geocoder gcd = new Geocoder(getBaseContext(), Locale.getDefault());
-                                        List<Address> addresses;
-                                        try {
-                                            addresses = gcd.getFromLocation(mLatitude, mLongitude, 1);
-                                            if (addresses.size() > 0) {
-                                                System.out.println(addresses.get(0).getLocality());
-                                                city = addresses.get(0).getLocality();
-                                                Log.d(TAG, city);
-                                                Toast.makeText(RegisterActivity.this, city, Toast.LENGTH_SHORT).show();
-                                            }
-                                        } catch (IOException e) {
-                                            e.printStackTrace();
-                                        }
-
-                                        try {
-                                            createUser(firstName, lastName, username, email, password, location);
-                                        } catch (ParseException e) {
-                                            e.printStackTrace();
-                                        }
+                                // Get city name
+                                Geocoder gcd = new Geocoder(getBaseContext(), Locale.getDefault());
+                                List<Address> addresses;
+                                try {
+                                    addresses = gcd.getFromLocation(mLatitude, mLongitude, 1);
+                                    if (addresses.size() > 0) {
+                                        System.out.println(addresses.get(0).getLocality());
+                                        city = addresses.get(0).getLocality();
+                                        Log.d(TAG, city);
+                                        Toast.makeText(RegisterActivity.this, city, Toast.LENGTH_SHORT).show();
                                     }
-                                    else {
-                                        try {
-                                            createUser(firstName, lastName, username, email, password);
-                                        } catch (ParseException e) {
-                                            e.printStackTrace();
-                                        }
-                                    }
+                                } catch (IOException e) {
+                                    e.printStackTrace();
                                 }
-                            });
+
+                                try {
+                                    createUser(firstName, lastName, username, email, password, location);
+                                } catch (ParseException e) {
+                                    e.printStackTrace();
+                                }
+                            }
+                            else {
+                                try {
+                                    createUser(firstName, lastName, username, email, password);
+                                } catch (ParseException e) {
+                                    e.printStackTrace();
+                                }
+                            }
+                        }
+                    });
                 }
                 else {
                     Toast.makeText(RegisterActivity.this, "Passwords don't match!", Toast.LENGTH_SHORT).show();
@@ -165,9 +166,25 @@ public class RegisterActivity extends AppCompatActivity {
         newUser.put("username", username);
         newUser.put("email", email);
         newUser.put("password", password);
-        newUser.signUp();
-        navigateToInterestsActivity();
-        Log.d(TAG, "New Parse user created (with no location)!");
+        newUser.signUpInBackground(new SignUpCallback() {
+            @Override
+            public void done(ParseException e) {
+                if (e == null){
+                    Log.d(TAG, "New Parse user created (with no location)!");
+                    navigateToInterestsActivity();
+                } else {
+                    switch(e.getCode()){
+                        case ParseException.USERNAME_TAKEN:
+                            Toast.makeText(RegisterActivity.this, "Username Taken!", Toast.LENGTH_SHORT).show();
+                            break;
+                        case ParseException.EMAIL_TAKEN:
+                            Toast.makeText(RegisterActivity.this, "Email Taken!", Toast.LENGTH_SHORT).show();
+                        default:
+                            Toast.makeText(RegisterActivity.this, "Could not make account", Toast.LENGTH_SHORT).show();
+                    }
+                }
+            }
+        });
     }
 
     // Create user account with location
@@ -181,9 +198,25 @@ public class RegisterActivity extends AppCompatActivity {
         newUser.put("email", email);
         newUser.put("password", password);
         newUser.put("location", geoPoint);
-        newUser.signUp();
-        navigateToInterestsActivity();
-        Log.d(TAG, "New Parse user created (with location)!");
+        newUser.signUpInBackground(new SignUpCallback() {
+            @Override
+            public void done(ParseException e) {
+                if (e == null){
+                    Log.d(TAG, "New Parse user created (with location)!");
+                    navigateToInterestsActivity();
+                } else {
+                    switch(e.getCode()){
+                        case ParseException.USERNAME_TAKEN:
+                            Toast.makeText(RegisterActivity.this, "Username Taken!", Toast.LENGTH_SHORT).show();
+                            break;
+                        case ParseException.EMAIL_TAKEN:
+                            Toast.makeText(RegisterActivity.this, "Email Taken!", Toast.LENGTH_SHORT).show();
+                        default:
+                            Toast.makeText(RegisterActivity.this, "Could not make account", Toast.LENGTH_SHORT).show();
+                    }
+                }
+            }
+        });
     }
 
     // Start new intent to navigate to the interests activity
