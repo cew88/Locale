@@ -141,9 +141,9 @@ public class ProfileFragment extends Fragment {
             public void onClick(View v) {
                 Bundle bundle = new Bundle();
                 bundle.putParcelable("User", mUser);
-
                 FragmentManager mFragmentManager = getParentFragmentManager();
                 Fragment fragment = new EditProfileFragment();
+                fragment.setArguments(bundle);
                 mFragmentManager.beginTransaction().replace(R.id.flContainer, fragment).commit();
             }
         });

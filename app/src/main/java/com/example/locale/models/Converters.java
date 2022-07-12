@@ -56,7 +56,6 @@ public class Converters {
         HashMap<String, byte[]> locationByteHashMap = new HashMap<String, byte[]>();
         for (int i=0; i<jsonObjects.size(); i++) {
             JSONObject jsonObject = jsonObjects.get(i);
-            Log.d("here 2", jsonObject.getString("photo"));
             String byteArrayString = jsonObject.getString("photo");
             byte[] byteArray = byteArrayString.getBytes();
 

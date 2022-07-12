@@ -18,6 +18,11 @@ import android.widget.TextView;
 import androidx.annotation.NonNull;
 import androidx.recyclerview.widget.RecyclerView;
 
+import com.bumptech.glide.Glide;
+import com.bumptech.glide.load.resource.bitmap.CenterCrop;
+import com.bumptech.glide.load.resource.bitmap.GranularRoundedCorners;
+import com.bumptech.glide.load.resource.bitmap.RoundedCorners;
+import com.bumptech.glide.request.RequestOptions;
 import com.codepath.asynchttpclient.AsyncHttpClient;
 import com.codepath.asynchttpclient.callback.JsonHttpResponseHandler;
 import com.example.locale.BuildConfig;
@@ -118,7 +123,7 @@ public class HomeLandmarksAdapter extends RecyclerView.Adapter<HomeLandmarksAdap
             tvLandmarkName.setText(landmark.getName());
             tvVicinity.setText(landmark.getVicinity());
 
-            // Get photo from place ID and display the photo; code below provied by Google documentation
+            // Get photo from place ID and display the photo; code below proviedd by Google documentation
 
             // Define a Place ID
             final String placeId = landmark.getPlaceId();
@@ -140,6 +145,7 @@ public class HomeLandmarksAdapter extends RecyclerView.Adapter<HomeLandmarksAdap
                 final List<PhotoMetadata> metadata = place.getPhotoMetadatas();
                 if (metadata == null || metadata.isEmpty()) {
                     Log.w(TAG, "No photo metadata.");
+                    ivLandmarkImage.setVisibility(View.GONE);
                     return;
                 }
                 final PhotoMetadata photoMetadata = metadata.get(0);
@@ -152,8 +158,11 @@ public class HomeLandmarksAdapter extends RecyclerView.Adapter<HomeLandmarksAdap
                         .setMaxWidth(itemView.getMeasuredWidth())
                         .build();
                 placesClient.fetchPhoto(photoRequest).addOnSuccessListener((fetchPhotoResponse) -> {
+                    ivLandmarkImage.setVisibility(View.VISIBLE);
                     Bitmap bitmap = fetchPhotoResponse.getBitmap();
-                    ivLandmarkImage.setImageBitmap(bitmap);
+                    RequestOptions requestOptions = new RequestOptions();
+                    requestOptions = requestOptions.transforms(new CenterCrop(), new GranularRoundedCorners(30, 30, 0, 0));
+                    Glide.with(mContext).asBitmap().load(bitmap).apply(requestOptions.override(itemView.getMeasuredWidth(), 400)).into(ivLandmarkImage);
                 }).addOnFailureListener((exception) -> {
                     if (exception instanceof ApiException) {
                         final ApiException apiException = (ApiException) exception;

@@ -17,12 +17,16 @@ import androidx.core.content.res.ResourcesCompat;
 import androidx.recyclerview.widget.RecyclerView;
 
 import com.bumptech.glide.Glide;
+import com.bumptech.glide.load.resource.bitmap.CenterCrop;
+import com.bumptech.glide.load.resource.bitmap.RoundedCorners;
+import com.bumptech.glide.request.RequestOptions;
 import com.example.locale.R;
 import com.example.locale.models.User;
 
 import org.json.JSONException;
 
 import java.io.ByteArrayOutputStream;
+import java.io.File;
 import java.text.ParseException;
 import java.util.ArrayList;
 import java.util.Base64;
@@ -70,18 +74,14 @@ public class VisitedLandmarksAdapter extends RecyclerView.Adapter<VisitedLandmar
         }
 
         public void bind(String landmarkName) {
-        tvVisitedLandmarkName.setText(landmarkName);
-        byte[] bitmapData = Base64.getDecoder().decode(mLocationByteHashMap.get(landmarkName));
-        Bitmap bitmap = BitmapFactory.decodeByteArray(bitmapData, 0, bitmapData.length);
-        ivVisitedLandmarkPhoto.setImageURI(getImageUri(mContext, bitmap));
-        }
-    }
+            tvVisitedLandmarkName.setText(landmarkName);
+            byte[] bitmapData = Base64.getDecoder().decode(mLocationByteHashMap.get(landmarkName));
+            Bitmap bitmap = BitmapFactory.decodeByteArray(bitmapData, 0, bitmapData.length);
 
-    public Uri getImageUri(Context inContext, Bitmap inImage) {
-        ByteArrayOutputStream bytes = new ByteArrayOutputStream();
-        inImage.compress(Bitmap.CompressFormat.JPEG, 100, bytes);
-        String path = MediaStore.Images.Media.insertImage(inContext.getContentResolver(), inImage, "Title", null);
-        return Uri.parse(path);
+            RequestOptions requestOptions = new RequestOptions();
+            requestOptions = requestOptions.transforms(new CenterCrop(), new RoundedCorners(10));
+            Glide.with(mContext).asBitmap().load(bitmap).apply(requestOptions.override(600, 300)).into(ivVisitedLandmarkPhoto);
+        }
     }
 }
 
