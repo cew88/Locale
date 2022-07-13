@@ -126,6 +126,7 @@ public class ProfileFragment extends Fragment {
                 // ParseUser currentUser = ParseUser.getCurrentUser();
                 Intent i = new Intent(getActivity().getApplicationContext(), LoginActivity.class);
                 startActivity(i);
+                getActivity().overridePendingTransition(android.R.anim.fade_in, android.R.anim.fade_out);
             }
         });
 

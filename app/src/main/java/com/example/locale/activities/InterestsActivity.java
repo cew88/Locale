@@ -417,6 +417,7 @@ public class InterestsActivity extends AppCompatActivity implements View.OnClick
                             Intent intent = new Intent(InterestsActivity.this, MainActivity.class);
                             intent.putExtra("Just Registered", true);
                             startActivity(intent);
+                            overridePendingTransition(android.R.anim.fade_in, android.R.anim.fade_out);
                             finish();
                         }
                     };
