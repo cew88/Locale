@@ -26,19 +26,24 @@ import androidx.fragment.app.DialogFragment;
 import com.example.locale.R;
 import com.example.locale.models.Converters;
 import com.example.locale.models.Location;
+import com.example.locale.models.Post;
+import com.example.locale.models.User;
 import com.parse.GetCallback;
 import com.parse.ParseException;
 import com.parse.ParseObject;
 import com.parse.ParseQuery;
+import com.parse.ParseUser;
 
 import org.json.JSONException;
 
 import java.io.ByteArrayOutputStream;
 import java.io.IOException;
 import java.io.UnsupportedEncodingException;
+import java.util.Base64;
 
 public class ReviewFragment extends DialogFragment {
     private View vUpload;
+    private User mUser;
     private String mPlaceName;
     private String mPlaceId;
     private String mObjectId;
@@ -78,6 +83,7 @@ public class ReviewFragment extends DialogFragment {
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
         // Get data passed from bundle
+        mUser = this.getArguments().getParcelable("User");
         mPlaceName = this.getArguments().getString(KEY_PLACE_NAME);
         mPlaceId = this.getArguments().getString(KEY_PLACE_ID);
         mObjectId = this.getArguments().getString(KEY_OBJECT_ID);
@@ -113,18 +119,25 @@ public class ReviewFragment extends DialogFragment {
 
             @Override
             public void onClick(View v) {
-
                 // Save photos and reviews to the Parse location object
                 ParseQuery<ParseObject> query = ParseQuery.getQuery("Location");
                 query.whereEqualTo(KEY_OBJECT_ID, mObjectId);
                 query.getFirstInBackground(new GetCallback<ParseObject>() {
                     public void done(ParseObject object, ParseException parseException) {
                         if (parseException == null) {
+                            Post newPost = new Post();
+                            newPost.setUsername(mUser.getUserName());
+                            newPost.setPlaceId(mPlaceId);
+                            newPost.setPlaceName(mPlaceName);
+
                             try {
                                 mAddPhotoListener.addPhoto(mObjectId, mPlaceId, mPlaceName, mByteArray);
 
                                 if (mByteArray != null){
                                     object.add(KEY_PHOTOS_LIST, mByteArray);
+
+                                    String encodedImage = Base64.getEncoder().encodeToString(mByteArray);
+                                    newPost.setPhoto(encodedImage);
                                 }
                             } catch (JSONException | UnsupportedEncodingException exception) {
                                 exception.printStackTrace();
@@ -135,7 +148,10 @@ public class ReviewFragment extends DialogFragment {
 
                             if (!review.isEmpty()){
                                 object.add(KEY_REVIEWS_LIST, review);
+                                newPost.setReview(review);
                             }
+
+                            newPost.saveInBackground();
                         }
                         object.saveInBackground();
                     }

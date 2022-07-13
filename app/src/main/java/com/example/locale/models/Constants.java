@@ -35,13 +35,15 @@ public class Constants {
     public static final String KEY_PHOTOS_LIST = "photos";
     public static final String KEY_REVIEWS_LIST = "reviews";
 
+    // Set constants for posts
+    public static final String KEY_REVIEW = "review";
+
     // Set constants for Parse for users
     public static final String KEY_FIRST_NAME = "first_name";
     public static final String KEY_LAST_NAME = "last_name";
     public static final String KEY_USERNAME = "username";
     public static final String KEY_EMAIL = "email";
     public static final String KEY_PASSWORD = "password";
-    public static final String KEY_USER_LOCATION = "location";
 
 
     // Other constants for JSON objects

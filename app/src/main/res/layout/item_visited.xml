@@ -24,7 +24,6 @@
         android:src="@drawable/image_gallery"
         android:layout_marginTop="10dp"
         app:layout_constraintStart_toStartOf="@id/tvVisitedLandmarkName"
-        app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintTop_toBottomOf="@id/tvVisitedLandmarkName"/>
 
 </androidx.constraintlayout.widget.ConstraintLayout>

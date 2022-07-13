@@ -54,5 +54,16 @@ public class Location extends ParseObject {
     public void setCoordinates(ParseGeoPoint geoPoint){
         put(KEY_COORDINATES, geoPoint);
     }
+
+    public JSONArray getPhotos(){
+        return getJSONArray(KEY_PHOTOS_LIST);
+    }
+
+    public void setPhotos(JSONArray photos){
+        put(KEY_PHOTOS_LIST, photos);
+    }
+
+
+
 }
 

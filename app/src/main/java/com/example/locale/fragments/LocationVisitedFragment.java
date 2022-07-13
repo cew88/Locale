@@ -15,8 +15,10 @@ import androidx.annotation.Nullable;
 import androidx.fragment.app.DialogFragment;
 
 import com.example.locale.R;
+import com.example.locale.models.User;
 
 public class LocationVisitedFragment extends DialogFragment {
+    private User mUser;
     private String mPlaceName;
     private String mPlaceId;
     private String mObjectId;
@@ -35,6 +37,7 @@ public class LocationVisitedFragment extends DialogFragment {
     public View onCreateView(LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
 
         // Get data passed from bundle
+        mUser = this.getArguments().getParcelable("User");
         mPlaceName = this.getArguments().getString(KEY_PLACE_NAME);
         mPlaceId = this.getArguments().getString(KEY_PLACE_ID);
         mObjectId = this.getArguments().getString( KEY_OBJECT_ID);
@@ -56,6 +59,7 @@ public class LocationVisitedFragment extends DialogFragment {
 
                 ReviewFragment reviewFragment = new ReviewFragment();
                 Bundle locationBundle = new Bundle();
+                locationBundle.putParcelable("User", mUser);
                 locationBundle.putString(KEY_PLACE_NAME, mPlaceName);
                 locationBundle.putString(KEY_PLACE_ID, mPlaceId);
                 locationBundle.putString(KEY_OBJECT_ID, mObjectId);

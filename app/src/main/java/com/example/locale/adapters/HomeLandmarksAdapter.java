@@ -5,13 +5,10 @@ locations as visited.
 
 package com.example.locale.adapters;
 
-import static com.example.locale.models.Constants.*;
-import static com.parse.Parse.getApplicationContext;
+import static com.example.locale.models.Constants.HOME_FRAGMENT_TAG;
 
-import android.content.AsyncQueryHandler;
 import android.content.Context;
 import android.graphics.Bitmap;
-import android.os.Bundle;
 import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
@@ -20,23 +17,15 @@ import android.widget.ImageView;
 import android.widget.TextView;
 
 import androidx.annotation.NonNull;
-import androidx.fragment.app.FragmentManager;
 import androidx.recyclerview.widget.RecyclerView;
 
 import com.bumptech.glide.Glide;
 import com.bumptech.glide.load.resource.bitmap.CenterCrop;
 import com.bumptech.glide.load.resource.bitmap.GranularRoundedCorners;
-import com.bumptech.glide.load.resource.bitmap.RoundedCorners;
 import com.bumptech.glide.request.RequestOptions;
-import com.codepath.asynchttpclient.AsyncHttpClient;
-import com.codepath.asynchttpclient.callback.JsonHttpResponseHandler;
 import com.example.locale.BuildConfig;
 import com.example.locale.R;
-import com.example.locale.applications.DatabaseApplication;
-import com.example.locale.fragments.LocationVisitedFragment;
-import com.example.locale.models.Converters;
 import com.example.locale.models.Location;
-import com.example.locale.models.User;
 import com.google.android.gms.common.api.ApiException;
 import com.google.android.libraries.places.api.Places;
 import com.google.android.libraries.places.api.model.PhotoMetadata;
@@ -44,23 +33,16 @@ import com.google.android.libraries.places.api.model.Place;
 import com.google.android.libraries.places.api.net.FetchPhotoRequest;
 import com.google.android.libraries.places.api.net.FetchPlaceRequest;
 import com.google.android.libraries.places.api.net.PlacesClient;
-import com.parse.ParseUser;
 
-import org.json.JSONArray;
 import org.json.JSONException;
-import org.json.JSONObject;
 
 import java.util.ArrayList;
-import java.util.Calendar;
 import java.util.Collections;
-import java.util.Date;
 import java.util.List;
 
-import okhttp3.Headers;
 
+public class HomeLandmarksAdapter extends RecyclerView.Adapter<HomeLandmarksAdapter.ViewHolder>{
 
-public class HomeLandmarksAdapter extends RecyclerView.Adapter<HomeLandmarksAdapter.ViewHolder> {
-    private ParseUser mCurrentUser = ParseUser.getCurrentUser();
     private Context mContext;
     private ArrayList<Location> mLandmarks;
     private OnLocationVisitedListener mLocationVisitedListener;

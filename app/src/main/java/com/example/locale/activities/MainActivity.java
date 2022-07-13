@@ -34,6 +34,7 @@ import com.example.locale.fragments.ReviewFragment;
 import com.example.locale.interfaces.OnLocationsLoaded;
 import com.example.locale.models.Converters;
 import com.example.locale.models.Location;
+import com.example.locale.models.Post;
 import com.example.locale.models.User;
 import com.google.android.gms.location.FusedLocationProviderClient;
 import com.google.android.gms.location.LocationServices;
@@ -80,6 +81,7 @@ public class MainActivity extends AppCompatActivity implements HomeLandmarksAdap
 
         // Register Parse Location subclass
         ParseObject.registerSubclass(Location.class);
+        ParseObject.registerSubclass(Post.class);
     }
 
     @Override
@@ -242,11 +244,10 @@ public class MainActivity extends AppCompatActivity implements HomeLandmarksAdap
     // location from the array of not visited landmarks
     @Override
     public void removeFromNotVisited(Location location) throws JSONException {
-        Log.d("RemoveFromNotVisited", "here");
-
         // Create pop up dialog
         LocationVisitedFragment locationVisitedFragment = new LocationVisitedFragment();
         Bundle locationBundle = new Bundle();
+        locationBundle.putParcelable("User", mUser);
         locationBundle.putString(KEY_PLACE_NAME, location.getName());
         locationBundle.putString(KEY_PLACE_ID, location.getPlaceId());
         locationBundle.putString(KEY_OBJECT_ID, location.getObjectId());
