@@ -7,9 +7,12 @@ package com.example.locale.activities;
 
 import static com.example.locale.models.Constants.*;
 
+import android.location.Address;
+import android.location.Geocoder;
 import android.os.Bundle;
 import android.util.Log;
 import android.view.MenuItem;
+import android.widget.Toast;
 
 import androidx.annotation.NonNull;
 import androidx.appcompat.app.ActionBar;
@@ -44,12 +47,15 @@ import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
 
+import java.io.IOException;
 import java.io.UnsupportedEncodingException;
 import java.nio.charset.StandardCharsets;
 import java.util.ArrayList;
 import java.util.Base64;
 import java.util.Calendar;
 import java.util.Date;
+import java.util.List;
+import java.util.Locale;
 
 import okhttp3.Headers;
 
@@ -79,84 +85,90 @@ public class MainActivity extends AppCompatActivity implements HomeLandmarksAdap
         final User.UserDao userDao = ((DatabaseApplication)getApplicationContext()).getUserDatabase().userDao();
         mUser = userDao.getByUsername(mCurrentUser.getUsername());
 
-        // Get the user's location
-        fusedLocationClient = LocationServices.getFusedLocationProviderClient(MainActivity.this);
-        fusedLocationClient.getLastLocation().addOnSuccessListener( new OnSuccessListener<android.location.Location>() {
-            @Override
-            public void onSuccess(android.location.Location location) {
-                // Got last known location. In some rare situations this can be null.
-                if (location != null) {
-                    // Logic to handle location object
-                    double latitude = location.getLatitude();
-                    double longitude = location.getLongitude();
+        // A boolean value is passed from the Interests Activity to the Main Activity when a user
+        // has created their account. If there is no extra or the user did not just create their account
+        // check the user's location against not visited landmarks
+        if (!(getIntent().hasExtra("Just Registered"))) {
+            // Get the user's location
+            fusedLocationClient = LocationServices.getFusedLocationProviderClient(MainActivity.this);
+            fusedLocationClient.getLastLocation().addOnSuccessListener( new OnSuccessListener<android.location.Location>() {
+                @Override
+                public void onSuccess(android.location.Location location) {
+                    // Got last known location. In some rare situations this can be null.
+                    if (location != null) {
+                        // Logic to handle location object
+                        double latitude = location.getLatitude();
+                        double longitude = location.getLongitude();
 
-                    // Filters landmarks based on the user's selected interests
-                    for (int i=0; i<mUser.getInterests().size(); i++) {
-                        String url = "https://maps.googleapis.com/maps/api/place/nearbysearch/json?location=" + latitude + "%2C" + longitude + "&radius=500&type=" + mUser.getInterests().get(i) + "&key=" + BuildConfig.MAPS_API_KEY;
-                        AsyncHttpClient client = new AsyncHttpClient();
-                        client.get(url, new JsonHttpResponseHandler() {
-                            @Override
-                            public void onSuccess(int statusCode, Headers headers, JSON json) {
-                                JSONObject jsonObject = json.jsonObject;
-                                try {
-                                    JSONArray jsonArray = jsonObject.getJSONArray("results");
-                                    for (int j = 0; j < mUser.getUserPace() / mUser.getInterests().size(); j++) {
+                        // Filters landmarks based on the user's selected interests
+                        for (int i=0; i<mUser.getInterests().size(); i++) {
+                            String url = "https://maps.googleapis.com/maps/api/place/nearbysearch/json?location=" + latitude + "%2C" + longitude + "&radius=500&type=" + mUser.getInterests().get(i) + "&key=" + BuildConfig.MAPS_API_KEY;
+                            AsyncHttpClient client = new AsyncHttpClient();
+                            client.get(url, new JsonHttpResponseHandler() {
+                                @Override
+                                public void onSuccess(int statusCode, Headers headers, JSON json) {
+                                    JSONObject jsonObject = json.jsonObject;
 
-                                        JSONObject locationObject = jsonArray.getJSONObject(j);
-                                        String placeId = locationObject.getString(KEY_PLACE_ID);
+                                    try {
+                                        JSONArray jsonArray = jsonObject.getJSONArray("results");
+                                        for (int j = 0; j < mUser.getUserPace() / mUser.getInterests().size(); j++) {
 
-                                        if (mUser.getNotVisitedPlaceIds().contains(placeId)){
-                                            for (Location location: mUser.getNotVisited()){
-                                                if (location.getPlaceId().equals(placeId)){
+                                            JSONObject locationObject = jsonArray.getJSONObject(j);
+                                            String placeId = locationObject.getString(KEY_PLACE_ID);
 
-                                                    try {
-                                                        // Remove the visited landmark from the list of not visited landmarks
-                                                        ArrayList<Location> updatedNotVisited = removeFromNotVisited(location);
+                                            if (mUser.getNotVisitedPlaceIds().contains(placeId)){
+                                                for (Location location: mUser.getNotVisited()){
+                                                    if (location.getPlaceId().equals(placeId)){
 
-                                                        // Updated mUser
-                                                        updateLandmarks();
+                                                        try {
+                                                            // Remove the visited landmark from the list of not visited landmarks
+                                                            ArrayList<Location> updatedNotVisited = removeFromNotVisited(location);
 
-                                                        // Create pop up dialog
-                                                        LocationVisitedFragment locationVisitedFragment = new LocationVisitedFragment();
-                                                        Bundle locationBundle = new Bundle();
-                                                        locationBundle.putString(KEY_PLACE_NAME, location.getName());
-                                                        locationBundle.putString(KEY_PLACE_ID, location.getPlaceId());
-                                                        locationBundle.putString(KEY_OBJECT_ID, location.getObjectId());
+                                                            // Updated mUser
+                                                            updateLandmarks();
 
-                                                        locationVisitedFragment.setArguments(locationBundle);
-                                                        locationVisitedFragment.show(mFragmentManager, "visited dialog");
+                                                            // Create pop up dialog
+                                                            LocationVisitedFragment locationVisitedFragment = new LocationVisitedFragment();
+                                                            Bundle locationBundle = new Bundle();
+                                                            locationBundle.putString(KEY_PLACE_NAME, location.getName());
+                                                            locationBundle.putString(KEY_PLACE_ID, location.getPlaceId());
+                                                            locationBundle.putString(KEY_OBJECT_ID, location.getObjectId());
 
-                                                        // Update the Room local database
-                                                        String notVisitedLandmarks = Converters.fromLocationArrayList(updatedNotVisited);
-                                                        mUser.setNotVisitedString(notVisitedLandmarks);
-                                                        userDao.updateUser(mUser);
+                                                            locationVisitedFragment.setArguments(locationBundle);
+                                                            locationVisitedFragment.show(mFragmentManager, "visited dialog");
 
-                                                        // Recreate the Home fragment so that the visited landmark no longer appears on the screen
-                                                        Fragment defaultFragment = new HomeFragment();
-                                                        defaultFragment.setArguments(mBundle);
-                                                        mFragmentManager.beginTransaction().replace(R.id.flContainer, defaultFragment).commit();
+                                                            // Update the Room local database
+                                                            String notVisitedLandmarks = Converters.fromLocationArrayList(updatedNotVisited);
+                                                            mUser.setNotVisitedString(notVisitedLandmarks);
+                                                            userDao.updateUser(mUser);
 
-                                                    } catch (JSONException ex) {
-                                                        ex.printStackTrace();
+                                                            // Recreate the Home fragment so that the visited landmark no longer appears on the screen
+                                                            Fragment defaultFragment = new HomeFragment();
+                                                            defaultFragment.setArguments(mBundle);
+                                                            mFragmentManager.beginTransaction().replace(R.id.flContainer, defaultFragment).commit();
+
+                                                        } catch (JSONException ex) {
+                                                            ex.printStackTrace();
+                                                        }
                                                     }
                                                 }
                                             }
                                         }
-                                    }
 
-                                } catch (JSONException e) {
-                                    e.printStackTrace();
+                                    } catch (JSONException e) {
+                                        e.printStackTrace();
+                                    }
                                 }
-                            }
-                            @Override
-                            public void onFailure(int statusCode, Headers headers, String response, Throwable throwable) {
-                                Log.d(MAIN_ACTIVITY_TAG, "onFailure: " + response);
-                            }
-                        });
+                                @Override
+                                public void onFailure(int statusCode, Headers headers, String response, Throwable throwable) {
+                                    Log.d(MAIN_ACTIVITY_TAG, "onFailure: " + response);
+                                }
+                            });
+                        }
                     }
                 }
-            }
-        });
+            });
+        }
 
         // Access stored user information when the Main activity is opened and pass the data to the
         // Fragments via Bundle

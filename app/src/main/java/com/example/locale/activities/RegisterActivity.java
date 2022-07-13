@@ -203,10 +203,13 @@ public class RegisterActivity extends AppCompatActivity {
         newUser.signUpInBackground(new SignUpCallback() {
             @Override
             public void done(ParseException e) {
+                // Only navigate to Interests Activity if a new user is successfully created
                 if (e == null){
                     Log.d(REGISTER_ACTIVITY_TAG, "New Parse user created (with location)!");
                     navigateToInterestsActivity();
-                } else {
+                }
+                // Handle what happens when an error is thrown and notify the user
+                else {
                     switch(e.getCode()){
                         case ParseException.USERNAME_TAKEN:
                             Toast.makeText(RegisterActivity.this, "Username Taken!", Toast.LENGTH_SHORT).show();

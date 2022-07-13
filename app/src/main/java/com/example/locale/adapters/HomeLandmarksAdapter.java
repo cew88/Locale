@@ -224,7 +224,6 @@ public class HomeLandmarksAdapter extends RecyclerView.Adapter<HomeLandmarksAdap
     // If a user long clicks on a list item, the following function marks the location as visited
     // in the Parse database by adding the location to an array of visited landmarks; the location
     // is first incorporated into a JSON Object to store the date when the location was visited
-
     public void clear() {
         mLandmarks.clear();
         notifyDataSetChanged();

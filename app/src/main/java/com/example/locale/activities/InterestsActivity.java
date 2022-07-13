@@ -45,14 +45,14 @@ import org.json.JSONObject;
 
 import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
+import java.util.Set;
 
 import okhttp3.Headers;
 
 public class InterestsActivity extends AppCompatActivity implements View.OnClickListener{
-    // Set constants
-
     private Map<String, ArrayList<Integer>> mInterests = new HashMap<String, ArrayList<Integer>>() {
         {
             put(KEY_AMUSEMENT_PARK, new ArrayList<Integer>(
@@ -227,8 +227,6 @@ public class InterestsActivity extends AppCompatActivity implements View.OnClick
 
     // Add new interest to the screen
     public void createNewInterest(String name){
-
-
         // Get the name of the landmark and capitalize letters
         String interestName = name.replaceAll("_", " ");
         interestName = interestName.substring(0, 1).toUpperCase() + interestName.substring(1).toLowerCase();
@@ -274,7 +272,6 @@ public class InterestsActivity extends AppCompatActivity implements View.OnClick
 
         mFlexboxLayout.addView(interestLayout);
     }
-
     // Save the queried locations to the Location class in the Parse Database
     // Check for duplicate place_id's before adding
     private void saveLocation(Location location, String place_id) throws JSONException {
@@ -326,6 +323,7 @@ public class InterestsActivity extends AppCompatActivity implements View.OnClick
 
     // Query the Places API
     private void queryAPI(double latitude, double longitude){
+        Set<String> locationsAdded = new HashSet<>();
 
         // Filters landmarks based on the user's selected interests
         for (int i=0; i<mUserInterests.size(); i++){
@@ -337,33 +335,43 @@ public class InterestsActivity extends AppCompatActivity implements View.OnClick
                     JSONObject jsonObject = json.jsonObject;
                     try {
                         JSONArray jsonArray = jsonObject.getJSONArray("results");
-
+                        int totalLandmarksToAdd = mUserPace/mUserInterests.size();
                         // Add landmarks based on the user's pace
                         // Add 5 landmarks if the user selects "relaxed", add 10 landmarks if the user
                         // selects "moderate", add 20 landmarks if the user selects "intense"; if the
                         // user does not select an intensity, the app default adds 10 landmarks for the
                         // user
-                        for (int j=0; j<mUserPace/mUserInterests.size(); j++) {
+                        for (int j=0; j<totalLandmarksToAdd; j++) {
 
                             JSONObject locationObject = jsonArray.getJSONObject(j);
-                            // Check if the location is not already in the array of all landmarks
-                            if (!currentUser.getJSONArray(KEY_ALL_LANDMARKS).toString().contains(locationObject.getString(KEY_PLACE_ID))){
-                                // Create a new location object
-                                Location newLocation = new Location();
-                                newLocation.setName(locationObject.getString(KEY_NAME_GOOGLE));
-                                newLocation.setPlaceId(locationObject.getString(KEY_PLACE_ID));
-                                newLocation.setTypes(locationObject.getJSONArray(KEY_TYPES));
-                                newLocation.setVicinity(locationObject.getString(KEY_VICINITY));
-                                JSONObject coordinates = locationObject.getJSONObject(KEY_GEOMETRY).getJSONObject(KEY_LOCATION);
-                                double lat = coordinates.getDouble(KEY_LAT);
-                                double lng = coordinates.getDouble(KEY_LNG);
-                                newLocation.setCoordinates(new ParseGeoPoint(lat, lng));
 
-                                //Update the Parse database with the user's nearby landmarks
+                            // Check if the location is not already in the array of all landmarks
+
+                            // Create a new location object
+                            Location newLocation = new Location();
+                            newLocation.setName(locationObject.getString(KEY_NAME_GOOGLE));
+                            newLocation.setPlaceId(locationObject.getString(KEY_PLACE_ID));
+                            newLocation.setTypes(locationObject.getJSONArray(KEY_TYPES));
+                            newLocation.setVicinity(locationObject.getString(KEY_VICINITY));
+                            JSONObject coordinates = locationObject.getJSONObject(KEY_GEOMETRY).getJSONObject(KEY_LOCATION);
+                            double lat = coordinates.getDouble(KEY_LAT);
+                            double lng = coordinates.getDouble(KEY_LNG);
+                            newLocation.setCoordinates(new ParseGeoPoint(lat, lng));
+
+                            if (locationsAdded.isEmpty()){
+                                locationsAdded.add(locationObject.getString(KEY_PLACE_ID));
                                 saveLocation(newLocation, locationObject.getString(KEY_PLACE_ID));
                             }
                             else {
-                                j--;
+                                if (!locationsAdded.contains(locationObject.getString(KEY_PLACE_ID))){
+                                    locationsAdded.add(locationObject.getString(KEY_PLACE_ID));
+
+                                    //Update the Parse database with the user's nearby landmarks
+                                    saveLocation(newLocation, locationObject.getString(KEY_PLACE_ID));
+                                }
+                                else{
+                                    totalLandmarksToAdd++;
+                                }
                             }
                         }
 
@@ -407,6 +415,7 @@ public class InterestsActivity extends AppCompatActivity implements View.OnClick
                             userDao.updateAll(allString);
 
                             Intent intent = new Intent(InterestsActivity.this, MainActivity.class);
+                            intent.putExtra("Just Registered", true);
                             startActivity(intent);
                             finish();
                         }
