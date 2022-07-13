@@ -80,6 +80,11 @@ public class MainActivity extends AppCompatActivity implements HomeLandmarksAdap
 
         // Register Parse Location subclass
         ParseObject.registerSubclass(Location.class);
+    }
+
+    @Override
+    protected void onResume() {
+        super.onResume();
 
         // Access user data from the Room Database
         final User.UserDao userDao = ((DatabaseApplication)getApplicationContext()).getUserDatabase().userDao();
@@ -88,6 +93,7 @@ public class MainActivity extends AppCompatActivity implements HomeLandmarksAdap
         // A boolean value is passed from the Interests Activity to the Main Activity when a user
         // has created their account. If there is no extra or the user did not just create their account
         // check the user's location against not visited landmarks
+
         if (!(getIntent().hasExtra("Just Registered"))) {
             // Get the user's location
             fusedLocationClient = LocationServices.getFusedLocationProviderClient(MainActivity.this);
@@ -102,7 +108,7 @@ public class MainActivity extends AppCompatActivity implements HomeLandmarksAdap
 
                         // Filters landmarks based on the user's selected interests
                         for (int i=0; i<mUser.getInterests().size(); i++) {
-                            String url = "https://maps.googleapis.com/maps/api/place/nearbysearch/json?location=" + latitude + "%2C" + longitude + "&radius=500&type=" + mUser.getInterests().get(i) + "&key=" + BuildConfig.MAPS_API_KEY;
+                            String url = "https://maps.googleapis.com/maps/api/place/nearbysearch/json?location=" + latitude + "%2C" + longitude + "&radius=30&type=" + mUser.getInterests().get(i) + "&key=" + BuildConfig.MAPS_API_KEY;
                             AsyncHttpClient client = new AsyncHttpClient();
                             client.get(url, new JsonHttpResponseHandler() {
                                 @Override
@@ -111,7 +117,7 @@ public class MainActivity extends AppCompatActivity implements HomeLandmarksAdap
 
                                     try {
                                         JSONArray jsonArray = jsonObject.getJSONArray("results");
-                                        for (int j = 0; j < mUser.getUserPace() / mUser.getInterests().size(); j++) {
+                                        for (int j = 0; j < mUser.getUserPace(); j++) {
 
                                             JSONObject locationObject = jsonArray.getJSONObject(j);
                                             String placeId = locationObject.getString(KEY_PLACE_ID);
@@ -251,7 +257,7 @@ public class MainActivity extends AppCompatActivity implements HomeLandmarksAdap
     // The following function marks the location as visited in the Parse database by removing the
     // location from the array of not visited landmarks
     public ArrayList<Location> removeFromNotVisited(Location location) throws JSONException {
-        ArrayList<Location> updatedNotVisited =  new ArrayList<Location>();
+        ArrayList<Location> updatedNotVisited =  new ArrayList<>();
         for (Location notVisitedLocation : mUser.getNotVisited()){
             if (!notVisitedLocation.getPlaceId().equals(location.getPlaceId())){
                 updatedNotVisited.add(notVisitedLocation);
