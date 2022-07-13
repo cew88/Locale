@@ -6,10 +6,12 @@ locations as visited.
 package com.example.locale.adapters;
 
 import static com.example.locale.models.Constants.*;
+import static com.parse.Parse.getApplicationContext;
 
 import android.content.AsyncQueryHandler;
 import android.content.Context;
 import android.graphics.Bitmap;
+import android.os.Bundle;
 import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
@@ -18,6 +20,7 @@ import android.widget.ImageView;
 import android.widget.TextView;
 
 import androidx.annotation.NonNull;
+import androidx.fragment.app.FragmentManager;
 import androidx.recyclerview.widget.RecyclerView;
 
 import com.bumptech.glide.Glide;
@@ -29,8 +32,11 @@ import com.codepath.asynchttpclient.AsyncHttpClient;
 import com.codepath.asynchttpclient.callback.JsonHttpResponseHandler;
 import com.example.locale.BuildConfig;
 import com.example.locale.R;
+import com.example.locale.applications.DatabaseApplication;
+import com.example.locale.fragments.LocationVisitedFragment;
 import com.example.locale.models.Converters;
 import com.example.locale.models.Location;
+import com.example.locale.models.User;
 import com.google.android.gms.common.api.ApiException;
 import com.google.android.libraries.places.api.Places;
 import com.google.android.libraries.places.api.model.PhotoMetadata;
@@ -63,6 +69,7 @@ public class HomeLandmarksAdapter extends RecyclerView.Adapter<HomeLandmarksAdap
     // Parse database has been made
     public interface OnLocationVisitedListener {
         public void updateLandmarks();
+        public void removeFromNotVisited(Location location) throws JSONException;
     }
 
     // Pass in the context and the list of landmarks
@@ -170,19 +177,19 @@ public class HomeLandmarksAdapter extends RecyclerView.Adapter<HomeLandmarksAdap
                 @Override
                 public boolean onLongClick(View v) {
                     // Toast.makeText(v.getContext(), "Location long clicked!", Toast.LENGTH_SHORT).show();
-                    // Remove the landmark that was just marked as visited from the array of not visited locations
-                    removeFromNotVisited(landmark);
 
-                    // Add the landmark that was just marked as visited to an array of visited locations
-                    try {
-                        addToVisited(landmark);
-                    } catch (JSONException e) {
-                        e.printStackTrace();
-                    }
+                    // Remove the landmark that was just marked as visited from the array of not visited locations
+                    mLandmarks.remove(landmark);
+                    notifyDataSetChanged();
 
                     if (mContext instanceof OnLocationVisitedListener) {
                         mLocationVisitedListener = (OnLocationVisitedListener) mContext;
-                        mLocationVisitedListener.updateLandmarks();
+                        try {
+                            mLocationVisitedListener.removeFromNotVisited(landmark);
+                            mLocationVisitedListener.updateLandmarks();
+                        } catch (JSONException e) {
+                            e.printStackTrace();
+                        }
                     }
                     else {
                         throw new ClassCastException(mContext.toString());
@@ -191,34 +198,6 @@ public class HomeLandmarksAdapter extends RecyclerView.Adapter<HomeLandmarksAdap
                 }
             });
         }
-    }
-
-    // If a user long clicks on a list item, the following function marks the location as visited
-    // in the Parse database by removing the location from the array of not visited landmarks
-    public void removeFromNotVisited(Location location) {
-        ArrayList<Location> notVisited = mLandmarks;
-        notVisited.remove(location);
-
-        // Overwrite what is currently saved under the user's not visited landmarks
-        mCurrentUser.put(KEY_NOT_VISITED_LANDMARKS, notVisited);
-        mCurrentUser.saveInBackground();
-
-        this.mLandmarks = notVisited;
-        notifyDataSetChanged();
-    }
-
-    // The following function adds the location to a JSON Array of visited locations
-    public void addToVisited(Location location) throws JSONException {
-        Date currentTime = Calendar.getInstance().getTime();
-        JSONObject jsonObject = new JSONObject();
-        jsonObject.put(location.getObjectId(), currentTime);
-        jsonObject.put(KEY_OBJECT_ID, location.getObjectId());
-        jsonObject.put(KEY_PLACE_ID, location.getPlaceId());
-        jsonObject.put(KEY_PLACE_NAME, location.getName());
-        jsonObject.put(KEY_DATE_VISITED, currentTime);
-
-        mCurrentUser.add(KEY_VISITED_LANDMARKS, String.valueOf(jsonObject));
-        mCurrentUser.saveInBackground();
     }
 
     // If a user long clicks on a list item, the following function marks the location as visited

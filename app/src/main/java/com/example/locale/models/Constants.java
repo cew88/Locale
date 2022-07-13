@@ -32,6 +32,8 @@ public class Constants {
     public static final String KEY_PACE = "pace";
     public static final String KEY_LOCATION = "location";
     public static final String KEY_COORDINATES = "coordinates";
+    public static final String KEY_PHOTOS_LIST = "photos";
+    public static final String KEY_REVIEWS_LIST = "reviews";
 
     // Set constants for Parse for users
     public static final String KEY_FIRST_NAME = "first_name";
@@ -40,6 +42,7 @@ public class Constants {
     public static final String KEY_EMAIL = "email";
     public static final String KEY_PASSWORD = "password";
     public static final String KEY_USER_LOCATION = "location";
+
 
     // Other constants for JSON objects
     public static final String KEY_DATE_VISITED = "date_visited";

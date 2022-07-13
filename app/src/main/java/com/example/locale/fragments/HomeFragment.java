@@ -53,7 +53,7 @@ public class HomeFragment extends Fragment {
         super.onViewCreated(view, savedInstanceState);
 
         // Initialize the list of landmarks and adapter
-        mLandmarks = new ArrayList<Location>();
+        mLandmarks = new ArrayList<>();
         mAdapter = new HomeLandmarksAdapter(getContext(), mLandmarks);
 
         // Recycler view setup: layout manager and the adapter

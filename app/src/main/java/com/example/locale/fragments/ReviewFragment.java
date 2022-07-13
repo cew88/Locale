@@ -13,6 +13,7 @@ import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.Button;
+import android.widget.EditText;
 import android.widget.ImageView;
 import android.widget.LinearLayout;
 import android.widget.TextView;
@@ -23,7 +24,12 @@ import androidx.annotation.Nullable;
 import androidx.fragment.app.DialogFragment;
 
 import com.example.locale.R;
+import com.example.locale.models.Converters;
 import com.example.locale.models.Location;
+import com.parse.GetCallback;
+import com.parse.ParseException;
+import com.parse.ParseObject;
+import com.parse.ParseQuery;
 
 import org.json.JSONException;
 
@@ -37,6 +43,7 @@ public class ReviewFragment extends DialogFragment {
     private String mPlaceId;
     private String mObjectId;
     private TextView mTvLocationName;
+    private TextView mTvReview;
     private ImageView mIvImage;
     private Button mBtnSubmit;
     private LinearLayout mLlUpload;
@@ -93,7 +100,6 @@ public class ReviewFragment extends DialogFragment {
 
         vUpload = view.findViewById(R.id.vUpload);
         vUpload.setOnClickListener(new View.OnClickListener(){
-
             @Override
             public void onClick(View v) {
                 Intent imageGallery = new Intent(Intent.ACTION_PICK);
@@ -107,13 +113,31 @@ public class ReviewFragment extends DialogFragment {
 
             @Override
             public void onClick(View v) {
-                try {
-                    if (getmByteArray() != null){
-                        mAddPhotoListener.addPhoto(mObjectId, mPlaceId, mPlaceName, getmByteArray());
+                ParseQuery<ParseObject> query = ParseQuery.getQuery("Location");
+                query.whereEqualTo(KEY_OBJECT_ID, mObjectId);
+                query.getFirstInBackground(new GetCallback<ParseObject>() {
+                    public void done(ParseObject object, ParseException parseException) {
+                        if (parseException == null) {
+                            try {
+                                if (mByteArray != null){
+                                    mAddPhotoListener.addPhoto(mObjectId, mPlaceId, mPlaceName, mByteArray);
+                                    object.add(KEY_PHOTOS_LIST, mByteArray);
+                                }
+                            } catch (JSONException | UnsupportedEncodingException exception) {
+                                exception.printStackTrace();
+                            }
+
+                            mTvReview = view.findViewById(R.id.etReview);
+                            String review = mTvReview.getText().toString();
+
+                            if (!review.isEmpty()){
+                                object.add(KEY_REVIEWS_LIST, review);
+                            }
+                        }
+                        object.saveInBackground();
                     }
-                } catch (JSONException | UnsupportedEncodingException e) {
-                    e.printStackTrace();
-                }
+                });
+
                 dismiss();
             }
         });
@@ -143,7 +167,4 @@ public class ReviewFragment extends DialogFragment {
         }
     }
 
-    public byte[] getmByteArray(){
-        return mByteArray;
-    }
 }

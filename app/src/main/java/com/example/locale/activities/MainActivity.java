@@ -97,7 +97,7 @@ public class MainActivity extends AppCompatActivity implements HomeLandmarksAdap
         if (!(getIntent().hasExtra("Just Registered"))) {
             // Get the user's location
             fusedLocationClient = LocationServices.getFusedLocationProviderClient(MainActivity.this);
-            fusedLocationClient.getLastLocation().addOnSuccessListener( new OnSuccessListener<android.location.Location>() {
+            fusedLocationClient.getLastLocation().addOnSuccessListener( new OnSuccessListener<>() {
                 @Override
                 public void onSuccess(android.location.Location location) {
                     // Got last known location. In some rare situations this can be null.
@@ -108,7 +108,7 @@ public class MainActivity extends AppCompatActivity implements HomeLandmarksAdap
 
                         // Filters landmarks based on the user's selected interests
                         for (int i=0; i<mUser.getInterests().size(); i++) {
-                            String url = "https://maps.googleapis.com/maps/api/place/nearbysearch/json?location=" + latitude + "%2C" + longitude + "&radius=30&type=" + mUser.getInterests().get(i) + "&key=" + BuildConfig.MAPS_API_KEY;
+                            String url = "https://maps.googleapis.com/maps/api/place/nearbysearch/json?location=" + latitude + "%2C" + longitude + "&radius=50&type=" + mUser.getInterests().get(i) + "&key=" + BuildConfig.MAPS_API_KEY;
                             AsyncHttpClient client = new AsyncHttpClient();
                             client.get(url, new JsonHttpResponseHandler() {
                                 @Override
@@ -128,25 +128,10 @@ public class MainActivity extends AppCompatActivity implements HomeLandmarksAdap
 
                                                         try {
                                                             // Remove the visited landmark from the list of not visited landmarks
-                                                            ArrayList<Location> updatedNotVisited = removeFromNotVisited(location);
+                                                            removeFromNotVisited(location);
 
                                                             // Updated mUser
                                                             updateLandmarks();
-
-                                                            // Create pop up dialog
-                                                            LocationVisitedFragment locationVisitedFragment = new LocationVisitedFragment();
-                                                            Bundle locationBundle = new Bundle();
-                                                            locationBundle.putString(KEY_PLACE_NAME, location.getName());
-                                                            locationBundle.putString(KEY_PLACE_ID, location.getPlaceId());
-                                                            locationBundle.putString(KEY_OBJECT_ID, location.getObjectId());
-
-                                                            locationVisitedFragment.setArguments(locationBundle);
-                                                            locationVisitedFragment.show(mFragmentManager, "visited dialog");
-
-                                                            // Update the Room local database
-                                                            String notVisitedLandmarks = Converters.fromLocationArrayList(updatedNotVisited);
-                                                            mUser.setNotVisitedString(notVisitedLandmarks);
-                                                            userDao.updateUser(mUser);
 
                                                             // Recreate the Home fragment so that the visited landmark no longer appears on the screen
                                                             Fragment defaultFragment = new HomeFragment();
@@ -218,7 +203,6 @@ public class MainActivity extends AppCompatActivity implements HomeLandmarksAdap
     // Query Parse for updated user data in response to marking a location visited in the Landmark adapter
     @Override
     public void updateLandmarks() {
-
         // Get the DAO
         final User.UserDao userDao = ((DatabaseApplication) getApplicationContext()).getUserDatabase().userDao();
         ((DatabaseApplication) getApplicationContext()).getUserDatabase().runInTransaction(new Runnable() {
@@ -256,7 +240,21 @@ public class MainActivity extends AppCompatActivity implements HomeLandmarksAdap
 
     // The following function marks the location as visited in the Parse database by removing the
     // location from the array of not visited landmarks
-    public ArrayList<Location> removeFromNotVisited(Location location) throws JSONException {
+    @Override
+    public void removeFromNotVisited(Location location) throws JSONException {
+        Log.d("RemoveFromNotVisited", "here");
+
+        // Create pop up dialog
+        LocationVisitedFragment locationVisitedFragment = new LocationVisitedFragment();
+        Bundle locationBundle = new Bundle();
+        locationBundle.putString(KEY_PLACE_NAME, location.getName());
+        locationBundle.putString(KEY_PLACE_ID, location.getPlaceId());
+        locationBundle.putString(KEY_OBJECT_ID, location.getObjectId());
+
+        locationVisitedFragment.setArguments(locationBundle);
+        locationVisitedFragment.show(mFragmentManager, "visited dialog");
+
+        // Update the list of not visited landmarks
         ArrayList<Location> updatedNotVisited =  new ArrayList<>();
         for (Location notVisitedLocation : mUser.getNotVisited()){
             if (!notVisitedLocation.getPlaceId().equals(location.getPlaceId())){
@@ -267,11 +265,17 @@ public class MainActivity extends AppCompatActivity implements HomeLandmarksAdap
         // Overwrite what is currently saved under the user's not visited landmarks
         mCurrentUser.put(KEY_NOT_VISITED_LANDMARKS, updatedNotVisited);
         mCurrentUser.saveInBackground();
-        return updatedNotVisited;
+
+        // Update the Room local database
+        String notVisitedLandmarks = Converters.fromLocationArrayList(updatedNotVisited);
+        mUser.setNotVisitedString(notVisitedLandmarks);
+        User.UserDao userDao = ((DatabaseApplication)getApplicationContext()).getUserDatabase().userDao();
+        userDao.updateUser(mUser);
+        updateLandmarks();
     }
 
     // The following function adds the location to a JSON Array of visited locations
-    public void addToVisited(String objectId, String placeId, String placeName, byte[] image) throws JSONException, UnsupportedEncodingException {
+    public void addToVisited(String objectId, String placeId, String placeName, byte[] image) throws JSONException {
         // Check to make sure that the location is not already in the list of visited landmarks
         if (!String.valueOf(mCurrentUser.getJSONArray(KEY_VISITED_LANDMARKS)).contains(placeId)){
             Date currentTime = Calendar.getInstance().getTime();
@@ -297,8 +301,5 @@ public class MainActivity extends AppCompatActivity implements HomeLandmarksAdap
     public void addPhoto(String objectId, String placeId, String placeName, byte[] image) throws JSONException, UnsupportedEncodingException {
         // Add the location to the visited landmarks
         addToVisited(objectId, placeId, placeName, image);
-
-        // Update mUser
-        updateLandmarks();
     }
 }
