@@ -75,12 +75,15 @@ public class VisitedLandmarksAdapter extends RecyclerView.Adapter<VisitedLandmar
 
         public void bind(String landmarkName) {
             tvVisitedLandmarkName.setText(landmarkName);
-            byte[] bitmapData = Base64.getDecoder().decode(mLocationByteHashMap.get(landmarkName));
-            Bitmap bitmap = BitmapFactory.decodeByteArray(bitmapData, 0, bitmapData.length);
+            byte[] image = mLocationByteHashMap.get(landmarkName);
+            if (image.length != 0){
+                byte[] bitmapData = Base64.getDecoder().decode(image);
+                Bitmap bitmap = BitmapFactory.decodeByteArray(bitmapData, 0, bitmapData.length);
 
-            RequestOptions requestOptions = new RequestOptions();
-            requestOptions = requestOptions.transforms(new CenterCrop(), new RoundedCorners(10));
-            Glide.with(mContext).asBitmap().load(bitmap).apply(requestOptions.override(600, 300)).into(ivVisitedLandmarkPhoto);
+                RequestOptions requestOptions = new RequestOptions();
+                requestOptions = requestOptions.transforms(new CenterCrop(), new RoundedCorners(10));
+                Glide.with(mContext).asBitmap().load(bitmap).apply(requestOptions.override(600, 300)).into(ivVisitedLandmarkPhoto);
+            }
         }
     }
 }

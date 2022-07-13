@@ -4,6 +4,7 @@ import static com.example.locale.models.Constants.KEY_DATE_VISITED;
 import static com.example.locale.models.Constants.KEY_PLACE_NAME;
 
 import android.content.Context;
+import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -85,6 +86,7 @@ public class DateAdapter extends RecyclerView.Adapter<DateAdapter.ViewHolder> {
                     mVisitedLandmarksNames.add(landmark.getString(KEY_PLACE_NAME));
                 }
             }
+            Log.d("Visited Landmarks", String.valueOf(mVisitedLandmarksNames));
 
             // Recycler view setup: layout manager and the adapter
             mVisitedLandmarksAdapter = new VisitedLandmarksAdapter(itemView.getContext(), mVisitedLandmarksNames, mUser);

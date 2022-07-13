@@ -21,6 +21,7 @@
         android:layout_height="wrap_content"
         android:scaleType="centerCrop"
         tools:srcCompat="@tools:sample/avatars"
+        android:src="@drawable/image_gallery"
         android:layout_marginTop="10dp"
         app:layout_constraintStart_toStartOf="@id/tvVisitedLandmarkName"
         app:layout_constraintEnd_toEndOf="parent"

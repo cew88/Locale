@@ -57,7 +57,7 @@ public class Converters {
 
             locationByteHashMap.put(jsonObject.getString(KEY_PLACE_NAME), byteArray);
         }
-            return locationByteHashMap;
+        return locationByteHashMap;
     }
 
 

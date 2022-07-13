@@ -113,14 +113,17 @@ public class ReviewFragment extends DialogFragment {
 
             @Override
             public void onClick(View v) {
+
+                // Save photos and reviews to the Parse location object
                 ParseQuery<ParseObject> query = ParseQuery.getQuery("Location");
                 query.whereEqualTo(KEY_OBJECT_ID, mObjectId);
                 query.getFirstInBackground(new GetCallback<ParseObject>() {
                     public void done(ParseObject object, ParseException parseException) {
                         if (parseException == null) {
                             try {
+                                mAddPhotoListener.addPhoto(mObjectId, mPlaceId, mPlaceName, mByteArray);
+
                                 if (mByteArray != null){
-                                    mAddPhotoListener.addPhoto(mObjectId, mPlaceId, mPlaceName, mByteArray);
                                     object.add(KEY_PHOTOS_LIST, mByteArray);
                                 }
                             } catch (JSONException | UnsupportedEncodingException exception) {

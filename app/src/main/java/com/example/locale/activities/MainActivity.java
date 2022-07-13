@@ -286,8 +286,13 @@ public class MainActivity extends AppCompatActivity implements HomeLandmarksAdap
             jsonObject.put(KEY_PLACE_NAME, placeName);
             jsonObject.put(KEY_DATE_VISITED, currentTime);
 
-            String encodedImage = Base64.getEncoder().encodeToString(image);
-            jsonObject.put(KEY_PHOTO, encodedImage);
+            if (image == null){
+                jsonObject.put(KEY_PHOTO, "");
+            }
+            else {
+                String encodedImage = Base64.getEncoder().encodeToString(image);
+                jsonObject.put(KEY_PHOTO, encodedImage);
+            }
 
             mCurrentUser.add(KEY_VISITED_LANDMARKS, String.valueOf(jsonObject));
             mCurrentUser.saveInBackground();
