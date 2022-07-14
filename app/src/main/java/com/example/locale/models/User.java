@@ -20,6 +20,7 @@ import androidx.room.PrimaryKey;
 import androidx.room.Query;
 import androidx.room.Update;
 
+import com.example.locale.fragments.HomeFragment;
 import com.example.locale.interfaces.OnLocationsLoaded;
 import com.parse.GetCallback;
 import com.parse.ParseException;
@@ -33,6 +34,7 @@ import org.json.JSONException;
 import org.json.JSONObject;
 import org.parceler.Parcel;
 
+import java.sql.Array;
 import java.util.ArrayList;
 import java.util.Date;
 import java.util.HashMap;
@@ -73,6 +75,9 @@ public class User implements Parcelable{
     @ColumnInfo
     private String mAllString;
 
+    @ColumnInfo
+    private String mRecommendedString;
+
     public User(){}
 
     public User(ParseUser user, OnLocationsLoaded onLocationsLoaded) throws JSONException, InterruptedException {
@@ -88,12 +93,8 @@ public class User implements Parcelable{
         this.mLatitude = location.getLatitude();
         this.mLongitude = location.getLongitude();
 
-        ArrayList<String> mInterests = new ArrayList<>();
-        HashMap<JSONObject, Date> mVisited= new HashMap<>(){};
-        ArrayList<Location> mNotVisited = new ArrayList<>();
-        ArrayList<Location> mAll = new ArrayList<>();
-
         // Iterate through the JSON Array of user interests returned by Parse and add to an ArrayList
+        ArrayList<String> mInterests = new ArrayList<>();
         JSONArray userInterests = user.getJSONArray(KEY_INTERESTS);
         for (int i=0; i<userInterests.length(); i++){
             mInterests.add((String) userInterests.get(i));
@@ -101,6 +102,7 @@ public class User implements Parcelable{
         this.mInterestsString = Converters.fromStringArrayList(mInterests);
 
         // Iterate through the JSON Array of not visited landmarks returned by Parse and add to an ArrayList
+        ArrayList<Location> mNotVisited = new ArrayList<>();
         JSONArray notVisitedLandmarks = user.getJSONArray(KEY_NOT_VISITED_LANDMARKS);
         for (int j=0; j<notVisitedLandmarks.length(); j++){
             JSONObject jsonObject;
@@ -131,13 +133,13 @@ public class User implements Parcelable{
             }
         }
 
-        // Iterate through JSON Array of visited landmarks returned by Parse and add to HashMap
+        // Iterate through JSON Array of visited landmarks returned by Parse
         JSONArray visitedLandmarks = user.getJSONArray(KEY_VISITED_LANDMARKS);
         setVisitedString(String.valueOf(visitedLandmarks));
         mOnLocationsLoaded.updateVisited(String.valueOf(visitedLandmarks));
 
-
         // Iterate through the JSON Array of all landmarks returned by Parse and add to an ArrayList
+        ArrayList<Location> mAll = new ArrayList<>();
         JSONArray allLandmarks = user.getJSONArray(KEY_ALL_LANDMARKS);
         for (int l=0; l<allLandmarks.length(); l++){
             JSONObject jsonObject = (JSONObject) notVisitedLandmarks.get(l);
@@ -163,6 +165,32 @@ public class User implements Parcelable{
             });
         }
         this.mUserPace = user.getInt(KEY_PACE);
+
+        // Iterate through the JSON Array of recommended landmarks returned by Parse and add to an ArrayList
+        ArrayList<Location> mRecommendedArrayList = new ArrayList<>();
+        JSONArray recommendedLandmarks = user.getJSONArray(KEY_RECOMMENDED_LANDMARKS);
+        for (int l=0; l<recommendedLandmarks.length(); l++){
+            JSONObject jsonObject = (JSONObject) recommendedLandmarks.get(l);
+            String objectId = jsonObject.getString(KEY_OBJECT_ID);
+
+            ParseQuery<ParseObject> query = ParseQuery.getQuery("Location");
+            query.whereEqualTo(KEY_OBJECT_ID, objectId);
+            query.getFirstInBackground(new GetCallback<>() {
+                public void done(ParseObject object, ParseException e) {
+                    if (e == null) {
+                        mRecommendedArrayList.add((Location) object);
+                        if (mRecommendedArrayList.size() == recommendedLandmarks.length()){
+                            try {
+                                String recString = Converters.fromLocationArrayList(mRecommendedArrayList);
+                                setRecommendedString(recString);
+                            } catch (JSONException ex) {
+                                ex.printStackTrace();
+                            }
+                        }
+                    }
+                }
+            });
+        }
     }
 
     @Override
@@ -315,6 +343,21 @@ public class User implements Parcelable{
 
     public void setUserPace(int userPace){
         this.mUserPace = userPace;
+    }
+
+    public String getRecommendedString(){
+        return this.mRecommendedString;
+    }
+
+    public void setRecommendedString(String recommended) {
+        this.mRecommendedString = recommended;
+    }
+
+    public ArrayList<Location> getRecommended() throws JSONException {
+        if (getRecommendedString() != null){
+            return Converters.fromStringtoLocationArrayList(getRecommendedString());
+        }
+        return new ArrayList<>();
     }
 
     @Dao

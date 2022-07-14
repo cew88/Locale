@@ -16,6 +16,7 @@ import android.widget.Button;
 import android.widget.EditText;
 import android.widget.ImageView;
 import android.widget.LinearLayout;
+import android.widget.RatingBar;
 import android.widget.TextView;
 import android.widget.Toast;
 
@@ -48,6 +49,7 @@ public class ReviewFragment extends DialogFragment {
     private String mPlaceId;
     private String mObjectId;
     private TextView mTvLocationName;
+    private RatingBar mRatingBar;
     private TextView mTvReview;
     private ImageView mIvImage;
     private Button mBtnSubmit;
@@ -125,6 +127,17 @@ public class ReviewFragment extends DialogFragment {
                 query.getFirstInBackground(new GetCallback<ParseObject>() {
                     public void done(ParseObject object, ParseException parseException) {
                         if (parseException == null) {
+                            Location location = (Location) object;
+
+                            // Get the user rating for the location
+                            mRatingBar = view.findViewById(R.id.ratingBar);
+                            double rating = mRatingBar.getRating();
+                            location.setTotalRating(location.getTotalRating() + rating);
+
+                            // Increase the visited count for the location
+                            location.setVisitedCount(location.getVisitedCount()+1);
+
+                            // Create a new post
                             Post newPost = new Post();
                             newPost.setUsername(mUser.getUserName());
                             newPost.setPlaceId(mPlaceId);
@@ -134,7 +147,7 @@ public class ReviewFragment extends DialogFragment {
                                 mAddPhotoListener.addPhoto(mObjectId, mPlaceId, mPlaceName, mByteArray);
 
                                 if (mByteArray != null){
-                                    object.add(KEY_PHOTOS_LIST, mByteArray);
+                                    location.add(KEY_PHOTOS_LIST, mByteArray);
 
                                     String encodedImage = Base64.getEncoder().encodeToString(mByteArray);
                                     newPost.setPhoto(encodedImage);
@@ -147,7 +160,7 @@ public class ReviewFragment extends DialogFragment {
                             String review = mTvReview.getText().toString();
 
                             if (!review.isEmpty()){
-                                object.add(KEY_REVIEWS_LIST, review);
+                                location.add(KEY_REVIEWS_LIST, review);
                                 newPost.setReview(review);
                             }
 

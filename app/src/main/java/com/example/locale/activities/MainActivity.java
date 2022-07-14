@@ -40,9 +40,14 @@ import com.google.android.gms.location.FusedLocationProviderClient;
 import com.google.android.gms.location.LocationServices;
 import com.google.android.gms.tasks.OnSuccessListener;
 import com.google.android.material.bottomnavigation.BottomNavigationView;
+import com.parse.GetCallback;
 import com.parse.PLog;
+import com.parse.ParseException;
+import com.parse.ParseGeoPoint;
 import com.parse.ParseObject;
+import com.parse.ParseQuery;
 import com.parse.ParseUser;
+import com.parse.SaveCallback;
 
 import org.json.JSONArray;
 import org.json.JSONException;
@@ -54,7 +59,9 @@ import java.nio.charset.StandardCharsets;
 import java.util.ArrayList;
 import java.util.Base64;
 import java.util.Calendar;
+import java.util.Collections;
 import java.util.Date;
+import java.util.HashMap;
 import java.util.List;
 import java.util.Locale;
 
@@ -67,6 +74,8 @@ public class MainActivity extends AppCompatActivity implements HomeLandmarksAdap
     ParseUser mCurrentUser = ParseUser.getCurrentUser();
     User mUser;
     Bundle mBundle;
+    HashMap<Location, Double> locationRanking = new HashMap<>();
+    private BottomNavigationView bottomNavigationView;
 
     private FusedLocationProviderClient fusedLocationClient;
 
@@ -92,6 +101,9 @@ public class MainActivity extends AppCompatActivity implements HomeLandmarksAdap
         final User.UserDao userDao = ((DatabaseApplication)getApplicationContext()).getUserDatabase().userDao();
         mUser = userDao.getByUsername(mCurrentUser.getUsername());
 
+        mUser.setRecommendedString("");
+        mCurrentUser.remove(KEY_RECOMMENDED_LANDMARKS);
+
         // A boolean value is passed from the Interests Activity to the Main Activity when a user
         // has created their account. If there is no extra or the user did not just create their account
         // check the user's location against not visited landmarks
@@ -102,7 +114,8 @@ public class MainActivity extends AppCompatActivity implements HomeLandmarksAdap
             fusedLocationClient.getLastLocation().addOnSuccessListener( new OnSuccessListener<>() {
                 @Override
                 public void onSuccess(android.location.Location location) {
-                    // Got last known location. In some rare situations this can be null.
+                    // Got last known location; in some rare situations this can be null
+                    // Check if the current location matches any locations that are in the user's list to visit
                     if (location != null) {
                         // Logic to handle location object
                         double latitude = location.getLatitude();
@@ -119,7 +132,7 @@ public class MainActivity extends AppCompatActivity implements HomeLandmarksAdap
 
                                     try {
                                         JSONArray jsonArray = jsonObject.getJSONArray("results");
-                                        for (int j = 0; j < mUser.getUserPace(); j++) {
+                                        for (int j = 0; j < jsonArray.length(); j++) {
 
                                             JSONObject locationObject = jsonArray.getJSONObject(j);
                                             String placeId = locationObject.getString(KEY_PLACE_ID);
@@ -158,6 +171,61 @@ public class MainActivity extends AppCompatActivity implements HomeLandmarksAdap
                                 }
                             });
                         }
+
+
+                        // Generate list of recommended landmarks
+                        ArrayList<String> mUserInterests = mUser.getInterests();
+                        for (int i=0; i<mUserInterests.size(); i++){
+                            String url = "https://maps.googleapis.com/maps/api/place/nearbysearch/json?location=" + latitude +  "%2C" + longitude + "&radius=30000&type=" + mUserInterests.get(i) + "&key=" + BuildConfig.MAPS_API_KEY;
+                            AsyncHttpClient client = new AsyncHttpClient();
+                            int finalI = i;
+                            client.get(url, new JsonHttpResponseHandler() {
+                                @Override
+                                public void onSuccess(int statusCode, Headers headers, JSON json) {
+                                    try {
+                                        JSONObject jsonObject = json.jsonObject;
+                                        JSONArray jsonArray = jsonObject.getJSONArray("results");
+                                        for (int j = 0; j < jsonArray.length(); j++) {
+                                            JSONObject locationObject = jsonArray.getJSONObject(j);
+
+                                            String placeId = locationObject.getString(KEY_PLACE_ID);
+                                            // Rank locations based on other user's recommendations
+                                            ParseQuery<ParseObject> placeIdQuery = ParseQuery.getQuery("Location");
+                                            placeIdQuery.whereEqualTo(KEY_PLACE_ID, placeId);
+                                            int finalJ = j;
+                                            placeIdQuery.getFirstInBackground(new GetCallback<ParseObject>() {
+                                                @Override
+                                                public void done(ParseObject object, ParseException e) {
+                                                    if (object != null){
+                                                        Location existingLocation = (Location) object;
+                                                        int totalVisited = existingLocation.getVisitedCount();
+                                                        double averageRating = existingLocation.getTotalRating()/totalVisited;
+                                                        double rank = (totalVisited * 0.5) + (averageRating * 0.5);
+                                                        locationRanking.put(existingLocation, rank);
+                                                        Log.d("here", "here");
+                                                    }
+
+                                                    if (finalJ == jsonArray.length()-1){
+                                                        try {
+                                                            addRecommended();
+                                                        } catch (JSONException ex) {
+                                                            ex.printStackTrace();
+                                                        }
+                                                    }
+                                                }
+                                            });
+                                        }
+                                    } catch (JSONException e) {
+                                        e.printStackTrace();
+                                    }
+                                }
+
+                                @Override
+                                public void onFailure(int statusCode, Headers headers, String response, Throwable throwable) {
+                                    Log.d(MAIN_ACTIVITY_TAG, "onFailure: " + response);
+                                }
+                            });
+                        }
                     }
                 }
             });
@@ -167,13 +235,8 @@ public class MainActivity extends AppCompatActivity implements HomeLandmarksAdap
         // Fragments via Bundle
         mBundle = new Bundle();
         mBundle.putParcelable("User", mUser);
-        BottomNavigationView bottomNavigationView = findViewById(R.id.bottom_navigation);
+        bottomNavigationView = findViewById(R.id.bottom_navigation);
 
-        // Set the default fragment as HomeFragment
-        Fragment defaultFragment = new HomeFragment();
-        defaultFragment.setArguments(mBundle);
-        mFragmentManager.beginTransaction().replace(R.id.flContainer, defaultFragment).commit();
-        bottomNavigationView.setSelectedItemId(R.id.action_home);
 
         // Handle clicks on the bottom navigation bar
         bottomNavigationView.setOnItemSelectedListener(new BottomNavigationView.OnNavigationItemSelectedListener() {
@@ -308,4 +371,38 @@ public class MainActivity extends AppCompatActivity implements HomeLandmarksAdap
         // Add the location to the visited landmarks
         addToVisited(objectId, placeId, placeName, image);
     }
+
+    public void addRecommended() throws JSONException {
+        ArrayList<Location> recLoc =  new ArrayList<>();
+        if (!locationRanking.isEmpty()){
+            double maxValue = Collections.max(locationRanking.values());
+            for (Location dictKey : locationRanking.keySet()){
+                if (locationRanking.get(dictKey) == maxValue || Double.isNaN(maxValue)){
+
+                    if (!(mUser.getAllString().contains(dictKey.getPlaceId()))){
+                        recLoc.add(dictKey);
+
+                        mCurrentUser.add(KEY_RECOMMENDED_LANDMARKS, dictKey);
+                        mCurrentUser.saveInBackground();
+                    }
+                }
+            }
+        }
+
+        // Update the Room local database
+        String notVisitedLandmarks = Converters.fromLocationArrayList(recLoc);
+        mUser.setRecommendedString(notVisitedLandmarks);
+        User.UserDao userDao = ((DatabaseApplication)getApplicationContext()).getUserDatabase().userDao();
+        userDao.updateUser(mUser);
+        mBundle.putParcelable("User", mUser);
+
+        Log.d("here", String.valueOf(mUser.getRecommended()));
+
+        // Set the default fragment as HomeFragment
+        Fragment defaultFragment = new HomeFragment();
+        defaultFragment.setArguments(mBundle);
+        mFragmentManager.beginTransaction().replace(R.id.flContainer, defaultFragment).commit();
+        bottomNavigationView.setSelectedItemId(R.id.action_home);
+    }
+
 }

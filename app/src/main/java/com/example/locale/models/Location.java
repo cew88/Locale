@@ -63,7 +63,20 @@ public class Location extends ParseObject {
         put(KEY_PHOTOS_LIST, photos);
     }
 
+    public int getVisitedCount(){
+        return getInt(KEY_VISITED_COUNT);
+    }
 
+    public void setVisitedCount(int visitedCount){
+        put(KEY_VISITED_COUNT, visitedCount);
+    }
 
+    public double getTotalRating(){
+        return getDouble(KEY_RATING_TOTAL);
+    }
+
+    public void setTotalRating(double totalRating){
+        put(KEY_RATING_TOTAL, totalRating);
+    }
 }
 

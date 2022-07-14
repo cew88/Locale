@@ -345,8 +345,6 @@ public class InterestsActivity extends AppCompatActivity implements View.OnClick
 
                             JSONObject locationObject = jsonArray.getJSONObject(j);
 
-                            // Check if the location is not already in the array of all landmarks
-
                             // Create a new location object
                             Location newLocation = new Location();
                             newLocation.setName(locationObject.getString(KEY_NAME_GOOGLE));

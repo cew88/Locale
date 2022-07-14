@@ -34,6 +34,9 @@ public class Constants {
     public static final String KEY_COORDINATES = "coordinates";
     public static final String KEY_PHOTOS_LIST = "photos";
     public static final String KEY_REVIEWS_LIST = "reviews";
+    public static final String KEY_VISITED_COUNT = "times_visited";
+    public static final String KEY_RATING_TOTAL = "total_rating";
+    public static final String KEY_RECOMMENDED_LANDMARKS = "recommended_landmarks";
 
     // Set constants for posts
     public static final String KEY_REVIEW = "review";
@@ -44,7 +47,6 @@ public class Constants {
     public static final String KEY_USERNAME = "username";
     public static final String KEY_EMAIL = "email";
     public static final String KEY_PASSWORD = "password";
-
 
     // Other constants for JSON objects
     public static final String KEY_DATE_VISITED = "date_visited";
