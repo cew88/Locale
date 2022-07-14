@@ -375,12 +375,16 @@ public class MainActivity extends AppCompatActivity implements HomeLandmarksAdap
 
     public void addRecommended() throws JSONException {
         ArrayList<Location> recLoc =  new ArrayList<>();
+        // If there are locations near the current location that have a ranking
         if (!locationRanking.isEmpty()){
+            // Get the maximum ranking score
             double maxValue = Collections.max(locationRanking.values());
+            // Iterate through the mapping and find the locations with the highest rankings
             for (Location dictKey : locationRanking.keySet()){
                 if (locationRanking.get(dictKey) == maxValue){
 
-                    if (!(mUser.getAllString().contains(dictKey.getPlaceId()))){
+                    // Check to make sure that the recommended location is not already included with the user's landmarks
+                    if (!(mUser.getAllString().contains(dictKey.getPlaceId())) && !(mUser.getRecommendedString().contains(dictKey.getPlaceId()))){
                         recLoc.add(dictKey);
 
                         mCurrentUser.add(KEY_RECOMMENDED_LANDMARKS, dictKey);
@@ -388,14 +392,13 @@ public class MainActivity extends AppCompatActivity implements HomeLandmarksAdap
                     }
                 }
             }
+            // Update the Room local database
+            String notVisitedLandmarks = Converters.fromLocationArrayList(recLoc);
+            mUser.setRecommendedString(notVisitedLandmarks);
+            User.UserDao userDao = ((DatabaseApplication)getApplicationContext()).getUserDatabase().userDao();
+            userDao.updateUser(mUser);
+            mBundle.putParcelable("User", mUser);
         }
-
-        // Update the Room local database
-        String notVisitedLandmarks = Converters.fromLocationArrayList(recLoc);
-        mUser.setRecommendedString(notVisitedLandmarks);
-        User.UserDao userDao = ((DatabaseApplication)getApplicationContext()).getUserDatabase().userDao();
-        userDao.updateUser(mUser);
-        mBundle.putParcelable("User", mUser);
 
         // Set the default fragment as HomeFragment
         Fragment defaultFragment = new HomeFragment();
