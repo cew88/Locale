@@ -201,8 +201,9 @@ public class MainActivity extends AppCompatActivity implements HomeLandmarksAdap
                                                         int totalVisited = existingLocation.getVisitedCount();
                                                         double averageRating = existingLocation.getTotalRating()/totalVisited;
                                                         double rank = (totalVisited * 0.5) + (averageRating * 0.5);
-                                                        locationRanking.put(existingLocation, rank);
-                                                        Log.d("here", "here");
+                                                        if (!Double.isNaN(rank)){
+                                                            locationRanking.put(existingLocation, rank);
+                                                        }
                                                     }
 
                                                     if (finalJ == jsonArray.length()-1){
@@ -377,7 +378,7 @@ public class MainActivity extends AppCompatActivity implements HomeLandmarksAdap
         if (!locationRanking.isEmpty()){
             double maxValue = Collections.max(locationRanking.values());
             for (Location dictKey : locationRanking.keySet()){
-                if (locationRanking.get(dictKey) == maxValue || Double.isNaN(maxValue)){
+                if (locationRanking.get(dictKey) == maxValue){
 
                     if (!(mUser.getAllString().contains(dictKey.getPlaceId()))){
                         recLoc.add(dictKey);
@@ -395,8 +396,6 @@ public class MainActivity extends AppCompatActivity implements HomeLandmarksAdap
         User.UserDao userDao = ((DatabaseApplication)getApplicationContext()).getUserDatabase().userDao();
         userDao.updateUser(mUser);
         mBundle.putParcelable("User", mUser);
-
-        Log.d("here", String.valueOf(mUser.getRecommended()));
 
         // Set the default fragment as HomeFragment
         Fragment defaultFragment = new HomeFragment();
