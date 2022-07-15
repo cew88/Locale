@@ -2,6 +2,8 @@ package com.example.locale.models;
 
 import static com.example.locale.models.Constants.*;
 
+import android.util.Log;
+
 import androidx.room.TypeConverter;
 
 import com.google.gson.Gson;
@@ -26,7 +28,6 @@ public class Converters {
     @TypeConverter
     public static ArrayList<Location> fromStringtoLocationArrayList(String value) throws JSONException {
         ArrayList<Location> locationArrayList = new ArrayList<Location>();
-
         JSONArray jsonArray = new JSONArray(value);
         for (int i=0; i<jsonArray.length(); i++){
             JSONObject jsonObject = jsonArray.getJSONObject(i);

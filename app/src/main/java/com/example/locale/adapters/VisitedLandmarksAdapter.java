@@ -3,9 +3,6 @@ package com.example.locale.adapters;
 import android.content.Context;
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
-import android.net.Uri;
-import android.provider.MediaStore;
-import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -13,7 +10,6 @@ import android.widget.ImageView;
 import android.widget.TextView;
 
 import androidx.annotation.NonNull;
-import androidx.core.content.res.ResourcesCompat;
 import androidx.recyclerview.widget.RecyclerView;
 
 import com.bumptech.glide.Glide;
@@ -25,8 +21,6 @@ import com.example.locale.models.User;
 
 import org.json.JSONException;
 
-import java.io.ByteArrayOutputStream;
-import java.io.File;
 import java.text.ParseException;
 import java.util.ArrayList;
 import java.util.Base64;
@@ -48,7 +42,7 @@ public class VisitedLandmarksAdapter extends RecyclerView.Adapter<VisitedLandmar
     @NonNull
     @Override
     public ViewHolder onCreateViewHolder(@NonNull ViewGroup parent, int viewType) {
-        View view = LayoutInflater.from(mContext).inflate(R.layout.item_visited, parent, false);
+        View view = LayoutInflater.from(mContext).inflate(R.layout.item_visited_landmark, parent, false);
         return new ViewHolder(view);
     }
 

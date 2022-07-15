@@ -14,6 +14,7 @@ import android.util.Log;
 import android.view.MenuItem;
 import android.widget.Toast;
 
+import androidx.annotation.LongDef;
 import androidx.annotation.NonNull;
 import androidx.appcompat.app.ActionBar;
 import androidx.appcompat.app.AppCompatActivity;
@@ -25,6 +26,7 @@ import com.codepath.asynchttpclient.callback.JsonHttpResponseHandler;
 import com.example.locale.BuildConfig;
 import com.example.locale.R;
 import com.example.locale.adapters.HomeLandmarksAdapter;
+import com.example.locale.adapters.RecommendedLandmarksAdapter;
 import com.example.locale.applications.DatabaseApplication;
 import com.example.locale.fragments.HomeFragment;
 import com.example.locale.fragments.LocationVisitedFragment;
@@ -40,6 +42,7 @@ import com.google.android.gms.location.FusedLocationProviderClient;
 import com.google.android.gms.location.LocationServices;
 import com.google.android.gms.tasks.OnSuccessListener;
 import com.google.android.material.bottomnavigation.BottomNavigationView;
+import com.google.gson.JsonParser;
 import com.parse.GetCallback;
 import com.parse.PLog;
 import com.parse.ParseException;
@@ -62,22 +65,25 @@ import java.util.Calendar;
 import java.util.Collections;
 import java.util.Date;
 import java.util.HashMap;
+import java.util.HashSet;
 import java.util.List;
 import java.util.Locale;
+import java.util.Set;
 
 import okhttp3.Headers;
 
-public class MainActivity extends AppCompatActivity implements HomeLandmarksAdapter.OnLocationVisitedListener, ReviewFragment.AddPhoto {
+public class MainActivity extends AppCompatActivity implements HomeLandmarksAdapter.OnLocationVisitedListener, ReviewFragment.AddPhoto, RecommendedLandmarksAdapter.OnRecommendedSelectedListener {
     final FragmentManager mFragmentManager = getSupportFragmentManager();
-
     // Get the user that is currently logged in
     ParseUser mCurrentUser = ParseUser.getCurrentUser();
     User mUser;
+
     Bundle mBundle;
-    HashMap<Location, Double> locationRanking = new HashMap<>();
     private BottomNavigationView bottomNavigationView;
 
     private FusedLocationProviderClient fusedLocationClient;
+
+    HashMap<Location, Double> locationRanking = new HashMap<>();
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -101,8 +107,17 @@ public class MainActivity extends AppCompatActivity implements HomeLandmarksAdap
         final User.UserDao userDao = ((DatabaseApplication)getApplicationContext()).getUserDatabase().userDao();
         mUser = userDao.getByUsername(mCurrentUser.getUsername());
 
+        Log.d("here merp", mUser.getNotVisitedString());
+
+        // Clear previous recommendations
         mUser.setRecommendedString("");
-        mCurrentUser.remove(KEY_RECOMMENDED_LANDMARKS);
+        userDao.updateUser(mUser);
+        mCurrentUser.put(KEY_RECOMMENDED_LANDMARKS, new ArrayList<>());
+//        try {
+//            mCurrentUser.save();
+//        } catch (ParseException e) {
+//            e.printStackTrace();
+//        }
 
         // A boolean value is passed from the Interests Activity to the Main Activity when a user
         // has created their account. If there is no extra or the user did not just create their account
@@ -172,13 +187,12 @@ public class MainActivity extends AppCompatActivity implements HomeLandmarksAdap
                             });
                         }
 
-
                         // Generate list of recommended landmarks
+                        Set<String> locationsAdded = new HashSet<>();
                         ArrayList<String> mUserInterests = mUser.getInterests();
                         for (int i=0; i<mUserInterests.size(); i++){
-                            String url = "https://maps.googleapis.com/maps/api/place/nearbysearch/json?location=" + latitude +  "%2C" + longitude + "&radius=30000&type=" + mUserInterests.get(i) + "&key=" + BuildConfig.MAPS_API_KEY;
+                            String url = "https://maps.googleapis.com/maps/api/place/nearbysearch/json?location=" + latitude +  "%2C" + longitude + "&radius=1500&type=" + mUserInterests.get(i) + "&key=" + BuildConfig.MAPS_API_KEY;
                             AsyncHttpClient client = new AsyncHttpClient();
-                            int finalI = i;
                             client.get(url, new JsonHttpResponseHandler() {
                                 @Override
                                 public void onSuccess(int statusCode, Headers headers, JSON json) {
@@ -187,7 +201,6 @@ public class MainActivity extends AppCompatActivity implements HomeLandmarksAdap
                                         JSONArray jsonArray = jsonObject.getJSONArray("results");
                                         for (int j = 0; j < jsonArray.length(); j++) {
                                             JSONObject locationObject = jsonArray.getJSONObject(j);
-
                                             String placeId = locationObject.getString(KEY_PLACE_ID);
                                             // Rank locations based on other user's recommendations
                                             ParseQuery<ParseObject> placeIdQuery = ParseQuery.getQuery("Location");
@@ -200,15 +213,39 @@ public class MainActivity extends AppCompatActivity implements HomeLandmarksAdap
                                                         Location existingLocation = (Location) object;
                                                         int totalVisited = existingLocation.getVisitedCount();
                                                         double averageRating = existingLocation.getTotalRating()/totalVisited;
-                                                        double rank = (totalVisited * 0.5) + (averageRating * 0.5);
-                                                        if (!Double.isNaN(rank)){
-                                                            locationRanking.put(existingLocation, rank);
+                                                        if (Double.isNaN(averageRating)){
+                                                            averageRating = 0;
                                                         }
+                                                        double rank = (totalVisited * 0.5) + (averageRating * 0.5);
+                                                        try {
+//                                                            Log.d("Location name", existingLocation.getName());
+//                                                            Log.d("Location rating", String.valueOf(existingLocation.getTotalRating()));
+//                                                            Log.d("Location visited count", String.valueOf(existingLocation.getVisitedCount()));
+                                                            // Avoid duplicate location entries
+                                                            if (locationsAdded.isEmpty()){
+                                                                locationsAdded.add(locationObject.getString(KEY_PLACE_ID));
+                                                                if (!Double.isNaN(rank)){
+                                                                    locationRanking.put(existingLocation, rank);
+                                                                }
+                                                            }
+                                                            else {
+                                                                if (!locationsAdded.contains(locationObject.getString(KEY_PLACE_ID))){
+                                                                    locationsAdded.add(locationObject.getString(KEY_PLACE_ID));
+                                                                    if (!Double.isNaN(rank)){
+                                                                        locationRanking.put(existingLocation, rank);
+                                                                    }
+                                                                }
+                                                            }
+                                                        } catch (JSONException jsonException) {
+                                                            jsonException.printStackTrace();
+                                                        }
+
                                                     }
 
                                                     if (finalJ == jsonArray.length()-1){
                                                         try {
-                                                            addRecommended();
+                                                            Log.d(MAIN_ACTIVITY_TAG, "addToRecommended called!");
+                                                            addRecommended(locationRanking);
                                                         } catch (JSONException ex) {
                                                             ex.printStackTrace();
                                                         }
@@ -237,7 +274,6 @@ public class MainActivity extends AppCompatActivity implements HomeLandmarksAdap
         mBundle = new Bundle();
         mBundle.putParcelable("User", mUser);
         bottomNavigationView = findViewById(R.id.bottom_navigation);
-
 
         // Handle clicks on the bottom navigation bar
         bottomNavigationView.setOnItemSelectedListener(new BottomNavigationView.OnNavigationItemSelectedListener() {
@@ -336,7 +372,7 @@ public class MainActivity extends AppCompatActivity implements HomeLandmarksAdap
         mUser.setNotVisitedString(notVisitedLandmarks);
         User.UserDao userDao = ((DatabaseApplication)getApplicationContext()).getUserDatabase().userDao();
         userDao.updateUser(mUser);
-        updateLandmarks();
+        mBundle.putParcelable("User", mUser);
     }
 
     // The following function adds the location to a JSON Array of visited locations
@@ -364,6 +400,7 @@ public class MainActivity extends AppCompatActivity implements HomeLandmarksAdap
             mUser.setVisitedString(String.valueOf(mCurrentUser.getJSONArray(KEY_VISITED_LANDMARKS)));
             User.UserDao userDao = ((DatabaseApplication)getApplicationContext()).getUserDatabase().userDao();
             userDao.updateUser(mUser);
+            mBundle.putParcelable("User", mUser);
         }
     }
 
@@ -373,18 +410,50 @@ public class MainActivity extends AppCompatActivity implements HomeLandmarksAdap
         addToVisited(objectId, placeId, placeName, image);
     }
 
-    public void addRecommended() throws JSONException {
+    public void addRecommended(HashMap<Location, Double> locationRanking) throws JSONException {
+        Log.d(MAIN_ACTIVITY_TAG, "Adding recommended locations");
+
         ArrayList<Location> recLoc =  new ArrayList<>();
         // If there are locations near the current location that have a ranking
         if (!locationRanking.isEmpty()){
+            Log.d(MAIN_ACTIVITY_TAG, "Location ranking is not empty");
             // Get the maximum ranking score
             double maxValue = Collections.max(locationRanking.values());
+//            Log.d("Maximum value", String.valueOf(maxValue));
             // Iterate through the mapping and find the locations with the highest rankings
             for (Location dictKey : locationRanking.keySet()){
+//                Log.d("Recommended Location", dictKey.getName());
                 if (locationRanking.get(dictKey) == maxValue){
 
                     // Check to make sure that the recommended location is not already included with the user's landmarks
-                    if (!(mUser.getAllString().contains(dictKey.getPlaceId())) && !(mUser.getRecommendedString().contains(dictKey.getPlaceId()))){
+                    boolean inAll;
+                    boolean inNotVisited;
+                    boolean inRecommended;
+
+                    String allString = mUser.getAllString();
+                    String notVisitedString = mUser.getNotVisitedString();
+                    String recommendedString = mUser.getRecommendedString();
+
+                    if (allString != null){ inAll = allString.contains(dictKey.getPlaceId());}
+                    else { inAll = false; }
+
+                    if (notVisitedString != null) { inNotVisited = notVisitedString.contains(dictKey.getPlaceId()); }
+                    else { inNotVisited = false; }
+
+                    if (recommendedString != null) { inRecommended = recommendedString.contains(dictKey.getPlaceId()); }
+                    else { inRecommended = false; }
+
+
+//                    boolean inAll = mUser.getAllString().contains(dictKey.getPlaceId());
+//                    boolean inNotVisited = mUser.getNotVisitedString().contains(dictKey.getPlaceId());
+//                    boolean inRecommended = mUser.getRecommendedString().contains(dictKey.getPlaceId());
+
+//                    Log.d("Location is already in all", String.valueOf(inAll));
+//                    Log.d("Location is already in notVisited", String.valueOf(inNotVisited));
+//                    Log.d("Location is already in recommended", String.valueOf(inRecommended));
+
+                    // Check to make sure that the recommended location is not already included with the user's landmarks
+                    if (!(inAll || inNotVisited || inRecommended)){
                         recLoc.add(dictKey);
 
                         mCurrentUser.add(KEY_RECOMMENDED_LANDMARKS, dictKey);
@@ -392,6 +461,7 @@ public class MainActivity extends AppCompatActivity implements HomeLandmarksAdap
                     }
                 }
             }
+
             // Update the Room local database
             String notVisitedLandmarks = Converters.fromLocationArrayList(recLoc);
             mUser.setRecommendedString(notVisitedLandmarks);
@@ -407,4 +477,67 @@ public class MainActivity extends AppCompatActivity implements HomeLandmarksAdap
         bottomNavigationView.setSelectedItemId(R.id.action_home);
     }
 
+    @Override
+    public void updateRecommended(Location location) throws JSONException {
+        // Update the list of not visited landmarks
+        ArrayList<Location> updatedRecommended =  new ArrayList<>();
+        for (Location recommendedLocation : mUser.getRecommended()){
+
+            if (!recommendedLocation.getPlaceId().equals(location.getPlaceId())){
+                updatedRecommended.add(recommendedLocation);
+            }
+        }
+
+        // Overwrite what is currently saved under the user's recommended
+        mCurrentUser.put(KEY_RECOMMENDED_LANDMARKS, updatedRecommended);
+        mCurrentUser.saveInBackground();
+
+        // Update the Room local database
+        String recommendedLandmarks = Converters.fromLocationArrayList(updatedRecommended);
+        mUser.setRecommendedString(recommendedLandmarks);
+        User.UserDao userDao = ((DatabaseApplication)getApplicationContext()).getUserDatabase().userDao();
+        userDao.updateUser(mUser);
+        mBundle.putParcelable("User", mUser);
+    }
+
+    @Override
+    public void updateNotVisited(Location location) throws JSONException {
+        // Update the list of not visited landmarks
+        ArrayList<Location> updatedNotVisited =  new ArrayList<>();
+        for (Location recommendedLocation : mUser.getNotVisited()){
+            updatedNotVisited.add(recommendedLocation);
+        }
+        updatedNotVisited.add(location);
+
+        // Overwrite what is currently saved under the user's not visited landmarks
+        mCurrentUser.put(KEY_NOT_VISITED_LANDMARKS, updatedNotVisited);
+        mCurrentUser.saveInBackground();
+
+        // Update the Room local database
+        String notVisitedLandmarks = Converters.fromLocationArrayList(updatedNotVisited);
+        mUser.setNotVisitedString(notVisitedLandmarks);
+        User.UserDao userDao = ((DatabaseApplication)getApplicationContext()).getUserDatabase().userDao();
+        userDao.updateUser(mUser);
+        mBundle.putParcelable("User", mUser);
+    }
+
+    @Override
+    public void updateAll(Location location) throws JSONException {
+        ArrayList<Location> updatedAll = new ArrayList<>();
+        for (Location recommendedLocation : mUser.getNotVisited()){
+            updatedAll.add(recommendedLocation);
+        }
+        updatedAll.add(location);
+
+        // Overwrite what is currently saved under the user's all landmarks
+        mCurrentUser.put(KEY_ALL_LANDMARKS, updatedAll);
+        mCurrentUser.saveInBackground();
+
+        // Update the Room local database
+        String allLandmarks = Converters.fromLocationArrayList(updatedAll);
+        mUser.setAllString(allLandmarks);
+        User.UserDao userDao = ((DatabaseApplication)getApplicationContext()).getUserDatabase().userDao();
+        userDao.updateUser(mUser);
+        mBundle.putParcelable("User", mUser);
+    }
 }

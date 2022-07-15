@@ -8,6 +8,7 @@ package com.example.locale.models;
 import static com.example.locale.models.Constants.*;
 
 import android.os.Parcelable;
+import android.util.Log;
 
 import androidx.annotation.NonNull;
 import androidx.room.ColumnInfo;
@@ -354,7 +355,7 @@ public class User implements Parcelable{
     }
 
     public ArrayList<Location> getRecommended() throws JSONException {
-        if (getRecommendedString() != null){
+        if (getRecommendedString() != null && !(getRecommendedString().isEmpty())){
             return Converters.fromStringtoLocationArrayList(getRecommendedString());
         }
         return new ArrayList<>();

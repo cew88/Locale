@@ -22,6 +22,7 @@ import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
 
 import com.example.locale.adapters.HomeLandmarksAdapter;
+import com.example.locale.adapters.RecommendedLandmarksAdapter;
 import com.example.locale.models.Converters;
 import com.example.locale.models.Location;
 import com.example.locale.R;
@@ -45,13 +46,8 @@ public class HomeFragment extends Fragment {
     private ArrayList<Location> mLandmarks;
     private ArrayList<Location> mRecommended;
     private HomeLandmarksAdapter mAdapter;
-    private HomeLandmarksAdapter mRecommendedAdapter;
+    private RecommendedLandmarksAdapter mRecommendedAdapter;
     private User mUser;
-    private ArrayList<Location> mRecommendedLandmarks;
-
-    public interface OnRecommendedListener {
-        public void updateRecommended();
-    }
 
     // Required empty public constructor
     public HomeFragment() {}
@@ -92,7 +88,7 @@ public class HomeFragment extends Fragment {
 
         // Initialize the list of landmarks and adapter
         mRecommended = new ArrayList<>();
-        mRecommendedAdapter = new HomeLandmarksAdapter(getContext(), mRecommended);
+        mRecommendedAdapter = new RecommendedLandmarksAdapter(getContext(), mRecommended);
 
         // Recycler view setup: layout manager and the adapter
         mRvRecommendedLandmarks = view.findViewById(R.id.rvRecommendedLandmarks);
@@ -104,7 +100,7 @@ public class HomeFragment extends Fragment {
         mRecommendedDescription = view.findViewById(R.id.tvRecommendedLandmark);
 
         try {
-            if (mUser.getRecommended() != null) {
+            if (!(mUser.getRecommended().isEmpty())) {
                try {
                    mRecommendedDescription.setVisibility(View.VISIBLE);
                    mRvRecommendedLandmarks.setVisibility(View.VISIBLE);
@@ -116,5 +112,7 @@ public class HomeFragment extends Fragment {
         } catch (JSONException e) {
             e.printStackTrace();
         }
+
+
     }
 }

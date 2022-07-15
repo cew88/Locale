@@ -1,8 +1,3 @@
-/*
-Creates the item views for each landmark listed as "unvisited" for each user. Handles marking the
-locations as visited.
- */
-
 package com.example.locale.adapters;
 
 import static com.example.locale.models.Constants.HOME_FRAGMENT_TAG;
@@ -40,22 +35,20 @@ import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
 
-
-public class HomeLandmarksAdapter extends RecyclerView.Adapter<HomeLandmarksAdapter.ViewHolder>{
-
+public class RecommendedLandmarksAdapter extends RecyclerView.Adapter<RecommendedLandmarksAdapter.ViewHolder>{
     private Context mContext;
     private ArrayList<Location> mLandmarks;
-    private OnLocationVisitedListener mLocationVisitedListener;
+    private OnRecommendedSelectedListener mOnRecommendedSelectedListener;
 
-    // Define an interface to notify the Main Activity that an update to the user information in the
-    // Parse database has been made
-    public interface OnLocationVisitedListener {
-        public void updateLandmarks();
-        public void removeFromNotVisited(Location location) throws JSONException;
+    // Create interface to check when a recommended location is added
+    public interface OnRecommendedSelectedListener {
+        public void updateRecommended(Location location) throws JSONException;
+        public void updateNotVisited(Location location) throws JSONException;
+        public void updateAll(Location location) throws JSONException;
     }
 
     // Pass in the context and the list of landmarks
-    public HomeLandmarksAdapter(Context context, ArrayList<Location> landmarks) {
+    public RecommendedLandmarksAdapter(Context context, ArrayList<Location> landmarks) {
         this.mContext = context;
         this.mLandmarks = landmarks;
     }
@@ -64,7 +57,7 @@ public class HomeLandmarksAdapter extends RecyclerView.Adapter<HomeLandmarksAdap
     @NonNull
     @Override
     public ViewHolder onCreateViewHolder(@NonNull ViewGroup parent, int viewType) {
-        View view = LayoutInflater.from(mContext).inflate(R.layout.item_landmark, parent, false);
+        View view = LayoutInflater.from(mContext).inflate(R.layout.item_recommended_landmark, parent, false);
         return new ViewHolder(view);
     }
 
@@ -92,13 +85,14 @@ public class HomeLandmarksAdapter extends RecyclerView.Adapter<HomeLandmarksAdap
         private ImageView ivLandmarkImage;
         private TextView tvLandmarkName;
         private TextView tvVicinity;
+        private ImageView ivAdd;
 
         public ViewHolder(@NonNull View itemView) {
             super(itemView);
-
             ivLandmarkImage = itemView.findViewById(R.id.ivLandmarkImage);
             tvLandmarkName = itemView.findViewById(R.id.tvLandmarkName);
             tvVicinity = itemView.findViewById(R.id.tvVicinity);
+            ivAdd = itemView.findViewById(R.id.ivAdd);
         }
 
         public void bind(Location landmark) throws JSONException {
@@ -155,20 +149,21 @@ public class HomeLandmarksAdapter extends RecyclerView.Adapter<HomeLandmarksAdap
                 });
             });
 
-            itemView.setOnLongClickListener(new View.OnLongClickListener() {
+            ivAdd.setOnClickListener(new View.OnClickListener() {
                 @Override
-                public boolean onLongClick(View v) {
-                    // Toast.makeText(v.getContext(), "Location long clicked!", Toast.LENGTH_SHORT).show();
-
+                public void onClick(View v) {
                     // Remove the landmark that was just marked as visited from the array of not visited locations
                     mLandmarks.remove(landmark);
                     notifyDataSetChanged();
 
-                    if (mContext instanceof OnLocationVisitedListener) {
-                        mLocationVisitedListener = (OnLocationVisitedListener) mContext;
+//                    ivAdd.setImageResource(R.drawable.check);
+
+                    if (mContext instanceof RecommendedLandmarksAdapter.OnRecommendedSelectedListener) {
+                        mOnRecommendedSelectedListener = (OnRecommendedSelectedListener) mContext;
                         try {
-                            mLocationVisitedListener.removeFromNotVisited(landmark);
-                            mLocationVisitedListener.updateLandmarks();
+                            mOnRecommendedSelectedListener.updateRecommended(landmark);
+                            mOnRecommendedSelectedListener.updateNotVisited(landmark);
+                            mOnRecommendedSelectedListener.updateAll(landmark);
                         } catch (JSONException e) {
                             e.printStackTrace();
                         }
@@ -176,12 +171,14 @@ public class HomeLandmarksAdapter extends RecyclerView.Adapter<HomeLandmarksAdap
                     else {
                         throw new ClassCastException(mContext.toString());
                     }
-                    return true;
                 }
             });
+
+
         }
     }
 
+    // is first incorporated into a JSON Object to store the date when the location was visited
     public void clear() {
         mLandmarks.clear();
         notifyDataSetChanged();

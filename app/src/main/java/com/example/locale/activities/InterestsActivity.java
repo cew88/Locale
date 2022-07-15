@@ -355,7 +355,10 @@ public class InterestsActivity extends AppCompatActivity implements View.OnClick
                             double lat = coordinates.getDouble(KEY_LAT);
                             double lng = coordinates.getDouble(KEY_LNG);
                             newLocation.setCoordinates(new ParseGeoPoint(lat, lng));
+                            newLocation.setVisitedCount(0);
+                            newLocation.setTotalRating(0);
 
+                            // Avoid duplicate location entries
                             if (locationsAdded.isEmpty()){
                                 locationsAdded.add(locationObject.getString(KEY_PLACE_ID));
                                 saveLocation(newLocation, locationObject.getString(KEY_PLACE_ID));
