@@ -12,9 +12,6 @@ import org.json.JSONArray;
 @ParseClassName("Location")
 public class Location extends ParseObject {
 
-    // Empty constructor needed by Parceler library
-    public Location(){}
-
     public String getName(){
         return getString(KEY_PLACE_NAME);
     }

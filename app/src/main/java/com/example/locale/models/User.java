@@ -194,6 +194,33 @@ public class User implements Parcelable{
         }
     }
 
+    protected User(android.os.Parcel in) {
+        mFirstName = in.readString();
+        mLastName = in.readString();
+        mUserName = in.readString();
+        mEmail = in.readString();
+        mLatitude = in.readDouble();
+        mLongitude = in.readDouble();
+        mUserPace = in.readInt();
+        mInterestsString = in.readString();
+        mVisitedString = in.readString();
+        mNotVisitedString = in.readString();
+        mAllString = in.readString();
+        mRecommendedString = in.readString();
+    }
+
+    public static final Creator<User> CREATOR = new Creator<User>() {
+        @Override
+        public User createFromParcel(android.os.Parcel in) {
+            return new User(in);
+        }
+
+        @Override
+        public User[] newArray(int size) {
+            return new User[size];
+        }
+    };
+
     @Override
     public int describeContents() {
         return 0;

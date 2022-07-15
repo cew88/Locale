@@ -22,6 +22,8 @@ import androidx.appcompat.app.ActionBar;
 import androidx.appcompat.app.AppCompatActivity;
 
 import com.example.locale.R;
+import com.example.locale.applications.LocaleApplication;
+import com.example.locale.models.User;
 import com.parse.LogInCallback;
 import com.parse.ParseException;
 import com.parse.ParseUser;
@@ -32,6 +34,7 @@ public class LoginActivity extends AppCompatActivity {
     private Button mLoginBtn;
     private TextView mForgetPassword;
     private TextView mCreateAccount;
+    private ParseUser mCurrentUser = ParseUser.getCurrentUser();
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -43,10 +46,15 @@ public class LoginActivity extends AppCompatActivity {
         actionBar.hide();
 
         // If the user is already logged in, skip the log in screen and navigate to the main activity
-        if (ParseUser.getCurrentUser() != null){
+        if (mCurrentUser != null){
+            // Access user data from the Room Database
+            // final User.UserDao userDao = ((DatabaseApplication)getApplicationContext()).getUserDatabase().userDao();
+            // User mUser = userDao.getByUsername(mCurrentUser.getUsername());
+
             navigateToMainActivity();
         }
 
+        // Launch pop up checking if the user has been logged in
         ActivityResultLauncher<String[]> locationPermissionRequest =
             registerForActivityResult(new ActivityResultContracts
                             .RequestMultiplePermissions(), result -> {
@@ -102,7 +110,41 @@ public class LoginActivity extends AppCompatActivity {
                             Toast.makeText(LoginActivity.this, "Invalid username/password", Toast.LENGTH_SHORT).show();
                             return;
                         }
-                        navigateToMainActivity();
+
+                        // Access user data from the Room Database
+                        final User.UserDao userDao = ((LocaleApplication)getApplicationContext()).getUserDatabase().userDao();
+                        User mUser = userDao.getByUsername(user.getUsername());
+
+                        // If the user is null but exists in Parse, create a new user entry in the local database
+                        if (mUser == null) {
+                            Toast.makeText(LoginActivity.this, "User not found locally", Toast.LENGTH_SHORT).show();
+//                            try {
+//                                OnLocationsLoaded onLocationsLoaded = new OnLocationsLoaded() {
+//                                    @Override
+//                                    public void updateNotVisited(String notVisitedString) {
+//                                        Log.d(LOGIN_ACTIVITY_TAG, "Not Visited Loaded");
+//                                        userDao.updateNotVisited(notVisitedString);
+//                                    }
+//
+//                                    @Override
+//                                    public void updateVisited(String visitedString) {
+//                                        Log.d(LOGIN_ACTIVITY_TAG, "Visited Loaded");
+//                                        userDao.updateVisited(visitedString);
+//                                    }
+//
+//                                    @Override
+//                                    public void updateAll(String allString) {
+//                                        Log.d(LOGIN_ACTIVITY_TAG, "All Loaded");
+//                                        userDao.updateAll(allString);
+//                                    }
+//                                };
+//                                User newUser = new User(ParseUser.getCurrentUser(), onLocationsLoaded);
+//                                userDao.insertUser(newUser);
+//                            } catch (JSONException | InterruptedException exception) {
+//                                exception.printStackTrace();
+//                            }
+                        }
+                         navigateToMainActivity();
                         // Toast.makeText(LoginActivity.this, "Login Successful!", Toast.LENGTH_SHORT).show();
                     }
                 });

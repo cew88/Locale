@@ -25,7 +25,7 @@ import com.codepath.asynchttpclient.AsyncHttpClient;
 import com.codepath.asynchttpclient.callback.JsonHttpResponseHandler;
 import com.example.locale.BuildConfig;
 import com.example.locale.R;
-import com.example.locale.applications.DatabaseApplication;
+import com.example.locale.applications.LocaleApplication;
 import com.example.locale.interfaces.OnLocationsLoaded;
 import com.example.locale.models.Location;
 import com.example.locale.models.User;
@@ -392,27 +392,27 @@ public class InterestsActivity extends AppCompatActivity implements View.OnClick
     // Start new intent to navigate to the main activity
     private void navigateToMainActivity() {
         // Get the DAO
-        final User.UserDao userDao = ((DatabaseApplication) getApplicationContext()).getUserDatabase().userDao();
-        ((DatabaseApplication) getApplicationContext()).getUserDatabase().runInTransaction(new Runnable() {
+        final User.UserDao userDao = ((LocaleApplication) getApplicationContext()).getUserDatabase().userDao();
+        ((LocaleApplication) getApplicationContext()).getUserDatabase().runInTransaction(new Runnable() {
             @Override
             public void run() {
                 try {
                     OnLocationsLoaded onLocationsLoaded = new OnLocationsLoaded() {
                         @Override
                         public void updateNotVisited(String notVisitedString) {
-                            Log.d("InterestsActivity", "Not Visited Loaded");
+                            Log.d(INTERESTS_ACTIVITY_TAG, "Not Visited Loaded");
                             userDao.updateNotVisited(notVisitedString);
                         }
 
                         @Override
                         public void updateVisited(String visitedString) {
-                            Log.d("InterestsActivity", "Visited Loaded");
+                            Log.d(INTERESTS_ACTIVITY_TAG, "Visited Loaded");
                             userDao.updateVisited(visitedString);
                         }
 
                         @Override
                         public void updateAll(String allString) {
-                            Log.d("InterestsActivity", "All Loaded");
+                            Log.d(INTERESTS_ACTIVITY_TAG, "All Loaded");
                             userDao.updateAll(allString);
 
                             Intent intent = new Intent(InterestsActivity.this, MainActivity.class);
