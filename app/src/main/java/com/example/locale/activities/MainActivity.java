@@ -13,8 +13,6 @@ import android.app.PendingIntent;
 import android.content.Context;
 import android.content.Intent;
 import android.icu.util.LocaleData;
-import android.media.RingtoneManager;
-import android.net.Uri;
 import android.os.Bundle;
 import android.util.Log;
 import android.view.MenuItem;
@@ -26,6 +24,9 @@ import androidx.core.app.NotificationCompat;
 import androidx.fragment.app.Fragment;
 import androidx.fragment.app.FragmentManager;
 
+import com.codepath.asynchttpclient.AsyncHttpClient;
+import com.codepath.asynchttpclient.callback.JsonHttpResponseHandler;
+import com.example.locale.BuildConfig;
 import com.example.locale.R;
 import com.example.locale.adapters.HomeLandmarksAdapter;
 import com.example.locale.adapters.RecommendedLandmarksAdapter;
@@ -41,10 +42,15 @@ import com.example.locale.models.Location;
 import com.example.locale.models.Post;
 import com.example.locale.models.User;
 import com.google.android.gms.location.FusedLocationProviderClient;
+import com.google.android.gms.location.LocationServices;
+import com.google.android.gms.tasks.OnSuccessListener;
 import com.google.android.material.bottomnavigation.BottomNavigationView;
+import com.parse.GetCallback;
 import com.parse.ParseObject;
+import com.parse.ParseQuery;
 import com.parse.ParseUser;
 
+import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
 
@@ -57,7 +63,11 @@ import java.util.Calendar;
 import java.util.Collections;
 import java.util.Date;
 import java.util.HashMap;
+import java.util.HashSet;
 import java.util.Random;
+import java.util.Set;
+
+import okhttp3.Headers;
 
 public class MainActivity extends AppCompatActivity implements HomeLandmarksAdapter.OnLocationVisitedListener, ReviewFragment.AddPhoto, RecommendedLandmarksAdapter.OnRecommendedSelectedListener {
     final FragmentManager mFragmentManager = getSupportFragmentManager();
@@ -102,151 +112,151 @@ public class MainActivity extends AppCompatActivity implements HomeLandmarksAdap
         // has created their account. If there is no extra or the user did not just create their account
         // check the user's location against not visited landmarks
 
-//        if (!(getIntent().hasExtra("Just Registered"))) {
-//            // Get the user's location
-//            fusedLocationClient = LocationServices.getFusedLocationProviderClient(MainActivity.this);
-//            fusedLocationClient.getLastLocation().addOnSuccessListener( new OnSuccessListener<>() {
-//                @Override
-//                public void onSuccess(android.location.Location location) {
-//                    // Got last known location; in some rare situations this can be null
-//                    // Check if the current location matches any locations that are in the user's list to visit
-//                    if (location != null) {
-//                        // Logic to handle location object
-//                        double latitude = location.getLatitude();
-//                        double longitude = location.getLongitude();
-//
-//                        // Filters landmarks based on the user's selected interests
-//                        for (int i=0; i<mUser.getInterests().size(); i++) {
-//                            String url = "https://maps.googleapis.com/maps/api/place/nearbysearch/json?location=" + latitude + "%2C" + longitude + "&radius=50&type=" + mUser.getInterests().get(i) + "&key=" + BuildConfig.MAPS_API_KEY;
-//                            AsyncHttpClient client = new AsyncHttpClient();
-//                            client.get(url, new JsonHttpResponseHandler() {
-//                                @Override
-//                                public void onSuccess(int statusCode, Headers headers, JSON json) {
-//                                    JSONObject jsonObject = json.jsonObject;
-//
-//                                    try {
-//                                        JSONArray jsonArray = jsonObject.getJSONArray("results");
-//                                        for (int j = 0; j < jsonArray.length(); j++) {
-//
-//                                            JSONObject locationObject = jsonArray.getJSONObject(j);
-//                                            String placeId = locationObject.getString(KEY_PLACE_ID);
-//
-//                                            if (mUser.getNotVisitedPlaceIds().contains(placeId)){
-//                                                for (Location location: mUser.getNotVisited()){
-//                                                    if (location.getPlaceId().equals(placeId)){
-//
-//                                                        try {
-//                                                            // Remove the visited landmark from the list of not visited landmarks
-//                                                            removeFromNotVisited(location);
-//
-//                                                            // Updated mUser
-//                                                            updateLandmarks();
-//
-//                                                            // Recreate the Home fragment so that the visited landmark no longer appears on the screen
-//                                                            Fragment defaultFragment = new HomeFragment();
-//                                                            defaultFragment.setArguments(mBundle);
-//                                                            mFragmentManager.beginTransaction().replace(R.id.flContainer, defaultFragment).commit();
-//
-//                                                        } catch (JSONException ex) {
-//                                                            ex.printStackTrace();
-//                                                        }
-//                                                    }
-//                                                }
-//                                            }
-//                                        }
-//
-//                                    } catch (JSONException e) {
-//                                        e.printStackTrace();
-//                                    }
-//                                }
-//                                @Override
-//                                public void onFailure(int statusCode, Headers headers, String response, Throwable throwable) {
-//                                    Log.d(MAIN_ACTIVITY_TAG, "onFailure: " + response);
-//                                }
-//                            });
-//                        }
-//
-//                        // Generate list of recommended landmarks
-//                        Set<String> locationsAdded = new HashSet<>();
-//                        ArrayList<String> mUserInterests = mUser.getInterests();
-//                        for (int i=0; i<mUserInterests.size(); i++){
-//                            String url = "https://maps.googleapis.com/maps/api/place/nearbysearch/json?location=" + latitude +  "%2C" + longitude + "&radius=1500&type=" + mUserInterests.get(i) + "&key=" + BuildConfig.MAPS_API_KEY;
-//                            AsyncHttpClient client = new AsyncHttpClient();
-//                            client.get(url, new JsonHttpResponseHandler() {
-//                                @Override
-//                                public void onSuccess(int statusCode, Headers headers, JSON json) {
-//                                    try {
-//                                        JSONObject jsonObject = json.jsonObject;
-//                                        JSONArray jsonArray = jsonObject.getJSONArray("results");
-//                                        for (int j = 0; j < jsonArray.length(); j++) {
-//                                            JSONObject locationObject = jsonArray.getJSONObject(j);
-//                                            String placeId = locationObject.getString(KEY_PLACE_ID);
-//                                            // Rank locations based on other user's recommendations
-//                                            ParseQuery<ParseObject> placeIdQuery = ParseQuery.getQuery("Location");
-//                                            placeIdQuery.whereEqualTo(KEY_PLACE_ID, placeId);
-//                                            int finalJ = j;
-//                                            placeIdQuery.getFirstInBackground(new GetCallback<ParseObject>() {
-//                                                @Override
-//                                                public void done(ParseObject object, ParseException e) {
-//                                                    if (object != null){
-//                                                        Location existingLocation = (Location) object;
-//                                                        int totalVisited = existingLocation.getVisitedCount();
-//                                                        double averageRating = existingLocation.getTotalRating()/totalVisited;
-//                                                        if (Double.isNaN(averageRating)){
-//                                                            averageRating = 0;
-//                                                        }
-//                                                        double rank = (totalVisited * 0.5) + (averageRating * 0.5);
-//                                                        try {
-////                                                            Log.d("Location name", existingLocation.getName());
-////                                                            Log.d("Location rating", String.valueOf(existingLocation.getTotalRating()));
-////                                                            Log.d("Location visited count", String.valueOf(existingLocation.getVisitedCount()));
-//                                                            // Avoid duplicate location entries
-//                                                            if (locationsAdded.isEmpty()){
-//                                                                locationsAdded.add(locationObject.getString(KEY_PLACE_ID));
-//                                                                if (!Double.isNaN(rank)){
-//                                                                    locationRanking.put(existingLocation, rank);
-//                                                                }
-//                                                            }
-//                                                            else {
-//                                                                if (!locationsAdded.contains(locationObject.getString(KEY_PLACE_ID))){
-//                                                                    locationsAdded.add(locationObject.getString(KEY_PLACE_ID));
-//                                                                    if (!Double.isNaN(rank)){
-//                                                                        locationRanking.put(existingLocation, rank);
-//                                                                    }
-//                                                                }
-//                                                            }
-//                                                        } catch (JSONException jsonException) {
-//                                                            jsonException.printStackTrace();
-//                                                        }
-//
-//                                                    }
-//
-//                                                    if (finalJ == jsonArray.length()-1){
-//                                                        try {
-//                                                            Log.d(MAIN_ACTIVITY_TAG, "addToRecommended called!");
-//                                                            addRecommended(locationRanking);
-//                                                        } catch (JSONException ex) {
-//                                                            ex.printStackTrace();
-//                                                        }
-//                                                    }
-//                                                }
-//                                            });
-//                                        }
-//                                    } catch (JSONException e) {
-//                                        e.printStackTrace();
-//                                    }
-//                                }
-//
-//                                @Override
-//                                public void onFailure(int statusCode, Headers headers, String response, Throwable throwable) {
-//                                    Log.d(MAIN_ACTIVITY_TAG, "onFailure: " + response);
-//                                }
-//                            });
-//                        }
-//                    }
-//                }
-//            });
-//        }
+        if (!(getIntent().hasExtra("Just Registered"))) {
+            // Get the user's location
+            fusedLocationClient = LocationServices.getFusedLocationProviderClient(MainActivity.this);
+            fusedLocationClient.getLastLocation().addOnSuccessListener( new OnSuccessListener<>() {
+                @Override
+                public void onSuccess(android.location.Location location) {
+                    // Got last known location; in some rare situations this can be null
+                    // Check if the current location matches any locations that are in the user's list to visit
+                    if (location != null) {
+                        // Logic to handle location object
+                        double latitude = location.getLatitude();
+                        double longitude = location.getLongitude();
+
+                        // Filters landmarks based on the user's selected interests
+                        for (int i=0; i<mUser.getInterests().size(); i++) {
+                            String url = "https://maps.googleapis.com/maps/api/place/nearbysearch/json?location=" + latitude + "%2C" + longitude + "&radius=50&type=" + mUser.getInterests().get(i) + "&key=" + BuildConfig.MAPS_API_KEY;
+                            AsyncHttpClient client = new AsyncHttpClient();
+                            client.get(url, new JsonHttpResponseHandler() {
+                                @Override
+                                public void onSuccess(int statusCode, Headers headers, JSON json) {
+                                    JSONObject jsonObject = json.jsonObject;
+
+                                    try {
+                                        JSONArray jsonArray = jsonObject.getJSONArray("results");
+                                        for (int j = 0; j < jsonArray.length(); j++) {
+
+                                            JSONObject locationObject = jsonArray.getJSONObject(j);
+                                            String placeId = locationObject.getString(KEY_PLACE_ID);
+
+                                            if (mUser.getNotVisitedPlaceIds().contains(placeId)){
+                                                for (Location location: mUser.getNotVisited()){
+                                                    if (location.getPlaceId().equals(placeId)){
+
+                                                        try {
+                                                            // Remove the visited landmark from the list of not visited landmarks
+                                                            removeFromNotVisited(location);
+
+                                                            // Updated mUser
+                                                            updateLandmarks();
+
+                                                            // Recreate the Home fragment so that the visited landmark no longer appears on the screen
+                                                            Fragment defaultFragment = new HomeFragment();
+                                                            defaultFragment.setArguments(mBundle);
+                                                            mFragmentManager.beginTransaction().replace(R.id.flContainer, defaultFragment).commit();
+
+                                                        } catch (JSONException ex) {
+                                                            ex.printStackTrace();
+                                                        }
+                                                    }
+                                                }
+                                            }
+                                        }
+
+                                    } catch (JSONException e) {
+                                        e.printStackTrace();
+                                    }
+                                }
+                                @Override
+                                public void onFailure(int statusCode, Headers headers, String response, Throwable throwable) {
+                                    Log.d(MAIN_ACTIVITY_TAG, "onFailure: " + response);
+                                }
+                            });
+                        }
+
+                        // Generate list of recommended landmarks
+                        Set<String> locationsAdded = new HashSet<>();
+                        ArrayList<String> mUserInterests = mUser.getInterests();
+                        for (int i=0; i<mUserInterests.size(); i++){
+                            String url = "https://maps.googleapis.com/maps/api/place/nearbysearch/json?location=" + latitude +  "%2C" + longitude + "&radius=1500&type=" + mUserInterests.get(i) + "&key=" + BuildConfig.MAPS_API_KEY;
+                            AsyncHttpClient client = new AsyncHttpClient();
+                            client.get(url, new JsonHttpResponseHandler() {
+                                @Override
+                                public void onSuccess(int statusCode, Headers headers, JSON json) {
+                                    try {
+                                        JSONObject jsonObject = json.jsonObject;
+                                        JSONArray jsonArray = jsonObject.getJSONArray("results");
+                                        for (int j = 0; j < jsonArray.length(); j++) {
+                                            JSONObject locationObject = jsonArray.getJSONObject(j);
+                                            String placeId = locationObject.getString(KEY_PLACE_ID);
+                                            // Rank locations based on other user's recommendations
+                                            ParseQuery<ParseObject> placeIdQuery = ParseQuery.getQuery("Location");
+                                            placeIdQuery.whereEqualTo(KEY_PLACE_ID, placeId);
+                                            int finalJ = j;
+                                            placeIdQuery.getFirstInBackground(new GetCallback<ParseObject>() {
+                                                @Override
+                                                public void done(ParseObject object, com.parse.ParseException e) {
+                                                    if (object != null){
+                                                        Location existingLocation = (Location) object;
+                                                        int totalVisited = existingLocation.getVisitedCount();
+                                                        double averageRating = existingLocation.getTotalRating()/totalVisited;
+                                                        if (Double.isNaN(averageRating)){
+                                                            averageRating = 0;
+                                                        }
+                                                        double rank = (totalVisited * 0.5) + (averageRating * 0.5);
+                                                        try {
+//                                                            Log.d("Location name", existingLocation.getName());
+//                                                            Log.d("Location rating", String.valueOf(existingLocation.getTotalRating()));
+//                                                            Log.d("Location visited count", String.valueOf(existingLocation.getVisitedCount()));
+                                                            // Avoid duplicate location entries
+                                                            if (locationsAdded.isEmpty()){
+                                                                locationsAdded.add(locationObject.getString(KEY_PLACE_ID));
+                                                                if (!Double.isNaN(rank)){
+                                                                    locationRanking.put(existingLocation, rank);
+                                                                }
+                                                            }
+                                                            else {
+                                                                if (!locationsAdded.contains(locationObject.getString(KEY_PLACE_ID))){
+                                                                    locationsAdded.add(locationObject.getString(KEY_PLACE_ID));
+                                                                    if (!Double.isNaN(rank)){
+                                                                        locationRanking.put(existingLocation, rank);
+                                                                    }
+                                                                }
+                                                            }
+                                                        } catch (JSONException jsonException) {
+                                                            jsonException.printStackTrace();
+                                                        }
+
+                                                    }
+
+                                                    if (finalJ == jsonArray.length()-1){
+                                                        try {
+                                                            Log.d(MAIN_ACTIVITY_TAG, "addToRecommended called!");
+                                                            addRecommended(locationRanking);
+                                                        } catch (JSONException ex) {
+                                                            ex.printStackTrace();
+                                                        }
+                                                    }
+                                                }
+                                            });
+                                        }
+                                    } catch (JSONException e) {
+                                        e.printStackTrace();
+                                    }
+                                }
+
+                                @Override
+                                public void onFailure(int statusCode, Headers headers, String response, Throwable throwable) {
+                                    Log.d(MAIN_ACTIVITY_TAG, "onFailure: " + response);
+                                }
+                            });
+                        }
+                    }
+                }
+            });
+        }
 
         // Access stored user information when the Main activity is opened and pass the data to the
         // Fragments via Bundle
