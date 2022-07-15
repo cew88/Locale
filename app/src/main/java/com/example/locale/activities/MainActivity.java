@@ -539,17 +539,27 @@ public class MainActivity extends AppCompatActivity implements HomeLandmarksAdap
         // Iterate through the visited landmarks and check when the user last visited a location
         try {
             ArrayList<JSONObject> visitedLandmarks = mUser.getVisited();
+            Date latestDate = null;
             for (JSONObject jsonObject : visitedLandmarks){
-
                 // Create a new date format in the correct pattern
                 SimpleDateFormat dateFormat = new SimpleDateFormat("EEE MMM dd HH:mm:ss Z yyyy");
                 // Convert the date from a String to a Date object
                 Date dateVisited = dateFormat.parse(jsonObject.getString("date_visited"));
 
-                long diff = currentTime.getDay() - dateVisited.getDay();
-                if (diff > 2){
-                    createNotification("It's been a while...", "Find someplace new to visit and get your adventure on!");
+                if (latestDate == null){
+                    latestDate = dateVisited;
                 }
+                else {
+                    if (dateVisited.compareTo(latestDate) > 0){
+                        latestDate = dateVisited;
+                    }
+                }
+            }
+
+            long diff = currentTime.getDay() - latestDate.getDay();
+            // If it has been two days since the last location was added as visited
+            if (diff > 2){
+                createNotification("It's been a while...", "Find someplace new to visit and get your adventure on!");
             }
 
             // If the user has not visited a landmark yet
