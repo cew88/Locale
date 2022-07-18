@@ -65,12 +65,14 @@ public class PostAdapter extends RecyclerView.Adapter<PostAdapter.ViewHolder>{
         }
 
         public void bind(Post post) {
+            // Find IDs
             TextView firstLastName = itemView.findViewById(R.id.tvFirstLastNamePost);
             TextView username = itemView.findViewById(R.id.tvUsernamePost);
             TextView visitedLocation = itemView.findViewById(R.id.tvVisitedLocationPost);
             ImageView uploadedImage = itemView.findViewById(R.id.ivUploadedImagePost);
             TextView review = itemView.findViewById(R.id.tvReviewPost);
 
+            // Set text and image views
             firstLastName.setText(post.getFirstName() + " " + post.getLastName());
             username.setText(post.getUsername());
             visitedLocation.setText(post.getUsername() + " visited " + post.getPlaceName() + "!");

@@ -12,7 +12,6 @@ import android.app.NotificationManager;
 import android.app.PendingIntent;
 import android.content.Context;
 import android.content.Intent;
-import android.icu.util.LocaleData;
 import android.os.Bundle;
 import android.util.Log;
 import android.view.MenuItem;
@@ -101,9 +100,34 @@ public class MainActivity extends AppCompatActivity implements HomeLandmarksAdap
     protected void onResume() {
         super.onResume();
 
-        // Access user data from the Room Database
         final User.UserDao userDao = ((LocaleApplication)getApplicationContext()).getUserDatabase().userDao();
+        OnLocationsLoaded onLocationsLoaded = new OnLocationsLoaded() {
+            @Override
+            public void updateNotVisited(String notVisitedString) {
+                Log.d(LOGIN_ACTIVITY_TAG, "Not Visited Loaded");
+                userDao.updateNotVisited(notVisitedString);
+            }
+
+            @Override
+            public void updateVisited(String visitedString) {
+                Log.d(LOGIN_ACTIVITY_TAG, "Visited Loaded");
+                userDao.updateVisited(visitedString);
+            }
+        };
+
+        // Access user data from the Room Database
         mUser = userDao.getByUsername(mCurrentUser.getUsername());
+
+//        if (mUser == null){
+//            try {
+//                Log.d("here", "here");
+//                User updatedUser = new User(ParseUser.getCurrentUser(), onLocationsLoaded);
+//                userDao.updateUser(updatedUser);
+//            } catch (JSONException | InterruptedException e) {
+//                e.printStackTrace();
+//            }
+//
+//        }
 
         // Clear previous recommendations
         mUser.setRecommendedString("");
@@ -208,9 +232,6 @@ public class MainActivity extends AppCompatActivity implements HomeLandmarksAdap
                                                         }
                                                         double rank = (totalVisited * 0.5) + (averageRating * 0.5);
                                                         try {
-//                                                            Log.d("Location name", existingLocation.getName());
-//                                                            Log.d("Location rating", String.valueOf(existingLocation.getTotalRating()));
-//                                                            Log.d("Location visited count", String.valueOf(existingLocation.getVisitedCount()));
                                                             // Avoid duplicate location entries
                                                             if (locationsAdded.isEmpty()){
                                                                 locationsAdded.add(locationObject.getString(KEY_PLACE_ID));
@@ -278,7 +299,7 @@ public class MainActivity extends AppCompatActivity implements HomeLandmarksAdap
                     case R.id.action_explore:
                         fragment = new PostFragment();
                         break;
-                        case R.id.action_map:
+                    case R.id.action_map:
                         fragment = new MapsFragment();
                         fragment.setArguments(mBundle);
                         break;
@@ -293,6 +314,53 @@ public class MainActivity extends AppCompatActivity implements HomeLandmarksAdap
                 return true;
             }
         });
+
+
+
+    }
+
+    @Override
+    protected void onStop() {
+        super.onStop();
+
+        Date currentTime = Calendar.getInstance().getTime();
+
+        // Iterate through the visited landmarks and check when the user last visited a location
+        try {
+            ArrayList<JSONObject> visitedLandmarks = mUser.getVisited();
+            Date latestDate = null;
+            for (JSONObject jsonObject : visitedLandmarks){
+                // Create a new date format in the correct pattern
+                SimpleDateFormat dateFormat = new SimpleDateFormat("EEE MMM dd HH:mm:ss Z yyyy");
+                // Convert the date from a String to a Date object
+                Date dateVisited = dateFormat.parse(jsonObject.getString("date_visited"));
+
+                if (latestDate == null){
+                    latestDate = dateVisited;
+                }
+                else {
+                    if (dateVisited.compareTo(latestDate) > 0){
+                        latestDate = dateVisited;
+                    }
+                }
+            }
+
+            if (latestDate != null){
+                long diff = currentTime.getDay() - latestDate.getDay();
+                // If it has been two days since the last location was added as visited
+                if (diff > 2){
+                    createNotification("It's been a while...", "Find someplace new to visit and get your adventure on!");
+                }
+
+                // If the user has not visited a landmark yet
+                if (visitedLandmarks.isEmpty()){
+                    int locationIndex = (int) (Math.random() * mUser.getNotVisited().size());
+                    createNotification("Looking for adventure?", "Check out " + mUser.getNotVisited().get(locationIndex).getName() + "!");
+                }
+            }
+        } catch (JSONException | ParseException e) {
+            e.printStackTrace();
+        }
     }
 
     // Query Parse for updated user data in response to marking a location visited in the Landmark adapter
@@ -317,11 +385,6 @@ public class MainActivity extends AppCompatActivity implements HomeLandmarksAdap
                             userDao.updateVisited(visitedString);
                         }
 
-                        @Override
-                        public void updateAll(String allString) {
-                            Log.d("MainActivity", "All Loaded");
-                            userDao.updateAll(allString);
-                        }
                     };
                     mUser = new User(ParseUser.getCurrentUser(), onLocationsLoaded);
                     userDao.insertUser(mUser);
@@ -419,16 +482,16 @@ public class MainActivity extends AppCompatActivity implements HomeLandmarksAdap
                 if (locationRanking.get(dictKey) == maxValue){
 
                     // Check to make sure that the recommended location is not already included with the user's landmarks
-                    boolean inAll;
+                    boolean inVisited;
                     boolean inNotVisited;
                     boolean inRecommended;
 
-                    String allString = mUser.getAllString();
+                    String visitedString = mUser.getVisitedString();
                     String notVisitedString = mUser.getNotVisitedString();
                     String recommendedString = mUser.getRecommendedString();
 
-                    if (allString != null){ inAll = allString.contains(dictKey.getPlaceId());}
-                    else { inAll = false; }
+                    if (visitedString != null){ inVisited = visitedString.contains(dictKey.getPlaceId());}
+                    else { inVisited = false; }
 
                     if (notVisitedString != null) { inNotVisited = notVisitedString.contains(dictKey.getPlaceId()); }
                     else { inNotVisited = false; }
@@ -436,17 +499,8 @@ public class MainActivity extends AppCompatActivity implements HomeLandmarksAdap
                     if (recommendedString != null) { inRecommended = recommendedString.contains(dictKey.getPlaceId()); }
                     else { inRecommended = false; }
 
-
-//                    boolean inAll = mUser.getAllString().contains(dictKey.getPlaceId());
-//                    boolean inNotVisited = mUser.getNotVisitedString().contains(dictKey.getPlaceId());
-//                    boolean inRecommended = mUser.getRecommendedString().contains(dictKey.getPlaceId());
-
-//                    Log.d("Location is already in all", String.valueOf(inAll));
-//                    Log.d("Location is already in notVisited", String.valueOf(inNotVisited));
-//                    Log.d("Location is already in recommended", String.valueOf(inRecommended));
-
                     // Check to make sure that the recommended location is not already included with the user's landmarks
-                    if (!(inAll || inNotVisited || inRecommended)){
+                    if (!(inVisited || inNotVisited || inRecommended)){
                         recLoc.add(dictKey);
 
                         mCurrentUser.add(KEY_RECOMMENDED_LANDMARKS, dictKey);
@@ -512,70 +566,6 @@ public class MainActivity extends AppCompatActivity implements HomeLandmarksAdap
         User.UserDao userDao = ((LocaleApplication)getApplicationContext()).getUserDatabase().userDao();
         userDao.updateUser(mUser);
         mBundle.putParcelable("User", mUser);
-    }
-
-    @Override
-    public void updateAll(Location location) throws JSONException {
-        ArrayList<Location> updatedAll = new ArrayList<>();
-        for (Location recommendedLocation : mUser.getNotVisited()){
-            updatedAll.add(recommendedLocation);
-        }
-        updatedAll.add(location);
-
-        // Overwrite what is currently saved under the user's all landmarks
-        mCurrentUser.put(KEY_ALL_LANDMARKS, updatedAll);
-        mCurrentUser.saveInBackground();
-
-        // Update the Room local database
-        String allLandmarks = Converters.fromLocationArrayList(updatedAll);
-        mUser.setAllString(allLandmarks);
-        User.UserDao userDao = ((LocaleApplication)getApplicationContext()).getUserDatabase().userDao();
-        userDao.updateUser(mUser);
-        mBundle.putParcelable("User", mUser);
-    }
-
-    @Override
-    protected void onStop() {
-        super.onStop();
-
-        Date currentTime = Calendar.getInstance().getTime();
-
-        // Iterate through the visited landmarks and check when the user last visited a location
-        try {
-            ArrayList<JSONObject> visitedLandmarks = mUser.getVisited();
-            Date latestDate = null;
-            for (JSONObject jsonObject : visitedLandmarks){
-                // Create a new date format in the correct pattern
-                SimpleDateFormat dateFormat = new SimpleDateFormat("EEE MMM dd HH:mm:ss Z yyyy");
-                // Convert the date from a String to a Date object
-                Date dateVisited = dateFormat.parse(jsonObject.getString("date_visited"));
-
-                if (latestDate == null){
-                    latestDate = dateVisited;
-                }
-                else {
-                    if (dateVisited.compareTo(latestDate) > 0){
-                        latestDate = dateVisited;
-                    }
-                }
-            }
-
-            if (latestDate != null){
-                long diff = currentTime.getDay() - latestDate.getDay();
-                // If it has been two days since the last location was added as visited
-                if (diff > 2){
-                    createNotification("It's been a while...", "Find someplace new to visit and get your adventure on!");
-                }
-
-                // If the user has not visited a landmark yet
-                if (visitedLandmarks.isEmpty()){
-                    int locationIndex = (int) (Math.random() * mUser.getNotVisited().size());
-                    createNotification("Looking for adventure?", "Check out " + mUser.getNotVisited().get(locationIndex).getName() + "!");
-                }
-            }
-        } catch (JSONException | ParseException e) {
-            e.printStackTrace();
-        }
     }
 
     private void createNotification(String title, String body){

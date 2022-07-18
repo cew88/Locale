@@ -44,7 +44,6 @@ public class RecommendedLandmarksAdapter extends RecyclerView.Adapter<Recommende
     public interface OnRecommendedSelectedListener {
         public void updateRecommended(Location location) throws JSONException;
         public void updateNotVisited(Location location) throws JSONException;
-        public void updateAll(Location location) throws JSONException;
     }
 
     // Pass in the context and the list of landmarks
@@ -163,7 +162,6 @@ public class RecommendedLandmarksAdapter extends RecyclerView.Adapter<Recommende
                         try {
                             mOnRecommendedSelectedListener.updateRecommended(landmark);
                             mOnRecommendedSelectedListener.updateNotVisited(landmark);
-                            mOnRecommendedSelectedListener.updateAll(landmark);
                         } catch (JSONException e) {
                             e.printStackTrace();
                         }
@@ -173,8 +171,6 @@ public class RecommendedLandmarksAdapter extends RecyclerView.Adapter<Recommende
                     }
                 }
             });
-
-
         }
     }
 

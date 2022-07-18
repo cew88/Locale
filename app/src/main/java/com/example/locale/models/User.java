@@ -73,8 +73,6 @@ public class User implements Parcelable{
     @ColumnInfo
     private String mNotVisitedString;
 
-    @ColumnInfo
-    private String mAllString;
 
     @ColumnInfo
     private String mRecommendedString;
@@ -139,32 +137,6 @@ public class User implements Parcelable{
         setVisitedString(String.valueOf(visitedLandmarks));
         mOnLocationsLoaded.updateVisited(String.valueOf(visitedLandmarks));
 
-        // Iterate through the JSON Array of all landmarks returned by Parse and add to an ArrayList
-        ArrayList<Location> mAll = new ArrayList<>();
-        JSONArray allLandmarks = user.getJSONArray(KEY_ALL_LANDMARKS);
-        for (int l=0; l<allLandmarks.length(); l++){
-            JSONObject jsonObject = (JSONObject) notVisitedLandmarks.get(l);
-            String objectId = jsonObject.getString(KEY_OBJECT_ID);
-
-            ParseQuery<ParseObject> query = ParseQuery.getQuery("Location");
-            query.whereEqualTo(KEY_OBJECT_ID, objectId);
-            query.getFirstInBackground(new GetCallback<>() {
-                public void done(ParseObject object, ParseException e) {
-                    if (e == null) {
-                        mAll.add((Location) object);
-                        if (mAll.size() == allLandmarks.length()){
-                            try {
-                                String allString = Converters.fromLocationArrayList(mAll);
-                                setAllString(allString);
-                                mOnLocationsLoaded.updateAll(allString);
-                            } catch (JSONException ex) {
-                                ex.printStackTrace();
-                            }
-                        }
-                    }
-                }
-            });
-        }
         this.mUserPace = user.getInt(KEY_PACE);
 
         // Iterate through the JSON Array of recommended landmarks returned by Parse and add to an ArrayList
@@ -205,7 +177,6 @@ public class User implements Parcelable{
         mInterestsString = in.readString();
         mVisitedString = in.readString();
         mNotVisitedString = in.readString();
-        mAllString = in.readString();
         mRecommendedString = in.readString();
     }
 
@@ -236,7 +207,6 @@ public class User implements Parcelable{
         dest.writeDouble(mLongitude);
         dest.writeString(mInterestsString);
         dest.writeString(mNotVisitedString);
-        dest.writeString(mAllString);
         dest.writeInt(mUserPace);
     }
 
@@ -350,21 +320,6 @@ public class User implements Parcelable{
         return new HashMap<>();
     }
 
-    public String getAllString() {
-        return this.mAllString;
-    }
-
-    public void setAllString(String all){
-        this.mAllString = all;
-    }
-
-    public ArrayList<Location> getAll() throws JSONException {
-        if (getAllString() != null) {
-            return Converters.fromStringtoLocationArrayList(getAllString());
-        }
-        return new ArrayList<>();
-    }
-
     public int getUserPace() {
         return this.mUserPace;
     }
@@ -401,9 +356,6 @@ public class User implements Parcelable{
 
         @Query("UPDATE user SET mVisitedString = :visited")
         void updateVisited(String visited);
-
-        @Query("UPDATE user SET mAllString = :all")
-        void updateAll(String all);
 
         @Update
         void updateUser(User user);

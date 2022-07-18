@@ -23,10 +23,14 @@ import androidx.appcompat.app.AppCompatActivity;
 
 import com.example.locale.R;
 import com.example.locale.applications.LocaleApplication;
+import com.example.locale.interfaces.OnLocationsLoaded;
 import com.example.locale.models.User;
 import com.parse.LogInCallback;
 import com.parse.ParseException;
 import com.parse.ParseUser;
+
+import org.json.JSONException;
+import org.parceler.Parcels;
 
 public class LoginActivity extends AppCompatActivity {
     private TextView mUsername;
@@ -35,6 +39,7 @@ public class LoginActivity extends AppCompatActivity {
     private TextView mForgetPassword;
     private TextView mCreateAccount;
     private ParseUser mCurrentUser = ParseUser.getCurrentUser();
+    private User mUser;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -45,32 +50,60 @@ public class LoginActivity extends AppCompatActivity {
         ActionBar actionBar = getSupportActionBar();
         actionBar.hide();
 
+        final User.UserDao userDao = ((LocaleApplication)getApplicationContext()).getUserDatabase().userDao();
+        OnLocationsLoaded onLocationsLoaded = new OnLocationsLoaded() {
+            @Override
+            public void updateNotVisited(String notVisitedString) {
+                Log.d(LOGIN_ACTIVITY_TAG, "Not Visited Loaded");
+                userDao.updateNotVisited(notVisitedString);
+                navigateToMainActivity();
+            }
+
+            @Override
+            public void updateVisited(String visitedString) {
+                Log.d(LOGIN_ACTIVITY_TAG, "Visited Loaded");
+                userDao.updateVisited(visitedString);
+            }
+        };
+
         // If the user is already logged in, skip the log in screen and navigate to the main activity
         if (mCurrentUser != null){
             // Access user data from the Room Database
-            // final User.UserDao userDao = ((DatabaseApplication)getApplicationContext()).getUserDatabase().userDao();
-            // User mUser = userDao.getByUsername(mCurrentUser.getUsername());
+            mUser = userDao.getByUsername(mCurrentUser.getUsername());
 
-            navigateToMainActivity();
+            // Create a new user with data from Parse
+            try {
+                User user = new User(ParseUser.getCurrentUser(), onLocationsLoaded);
+                // If the user is not stored locally but somehow logged in
+                // Insert the user into the local database
+                if (mUser == null){
+                    userDao.insertUser(user);
+                }
+                // If the user is stored locally, update what is in the local database with what is
+                // stored in Parse
+                else {
+                    userDao.updateUser(user);
+                }
+            } catch (JSONException | InterruptedException e) {
+                e.printStackTrace();
+            }
         }
 
         // Launch pop up checking if the user has been logged in
         ActivityResultLauncher<String[]> locationPermissionRequest =
-            registerForActivityResult(new ActivityResultContracts
-                            .RequestMultiplePermissions(), result -> {
-                        Boolean fineLocationGranted = result.getOrDefault(
-                                Manifest.permission.ACCESS_FINE_LOCATION, false);
-                        Boolean coarseLocationGranted = result.getOrDefault(
-                                Manifest.permission.ACCESS_COARSE_LOCATION,false);
-                        if (fineLocationGranted != null && fineLocationGranted) {
-                            // Precise location access granted.
-                        } else if (coarseLocationGranted != null && coarseLocationGranted) {
-                            // Only approximate location access granted.
-                        } else {
-                            // No location access granted.
-                        }
-                    }
-            );
+            registerForActivityResult(new ActivityResultContracts.RequestMultiplePermissions(), result -> {
+                Boolean fineLocationGranted = result.getOrDefault(
+                        Manifest.permission.ACCESS_FINE_LOCATION, false);
+                Boolean coarseLocationGranted = result.getOrDefault(
+                        Manifest.permission.ACCESS_COARSE_LOCATION,false);
+                if (fineLocationGranted != null && fineLocationGranted) {
+                    // Precise location access granted.
+                } else if (coarseLocationGranted != null && coarseLocationGranted) {
+                    // Only approximate location access granted.
+                } else {
+                    // No location access granted.
+                }
+            });
 
         // Before you perform the actual permission request, check whether your app
         // already has the permissions, and whether your app needs to show a permission
@@ -117,34 +150,15 @@ public class LoginActivity extends AppCompatActivity {
 
                         // If the user is null but exists in Parse, create a new user entry in the local database
                         if (mUser == null) {
-                            Toast.makeText(LoginActivity.this, "User not found locally", Toast.LENGTH_SHORT).show();
-//                            try {
-//                                OnLocationsLoaded onLocationsLoaded = new OnLocationsLoaded() {
-//                                    @Override
-//                                    public void updateNotVisited(String notVisitedString) {
-//                                        Log.d(LOGIN_ACTIVITY_TAG, "Not Visited Loaded");
-//                                        userDao.updateNotVisited(notVisitedString);
-//                                    }
-//
-//                                    @Override
-//                                    public void updateVisited(String visitedString) {
-//                                        Log.d(LOGIN_ACTIVITY_TAG, "Visited Loaded");
-//                                        userDao.updateVisited(visitedString);
-//                                    }
-//
-//                                    @Override
-//                                    public void updateAll(String allString) {
-//                                        Log.d(LOGIN_ACTIVITY_TAG, "All Loaded");
-//                                        userDao.updateAll(allString);
-//                                    }
-//                                };
-//                                User newUser = new User(ParseUser.getCurrentUser(), onLocationsLoaded);
-//                                userDao.insertUser(newUser);
-//                            } catch (JSONException | InterruptedException exception) {
-//                                exception.printStackTrace();
-//                            }
+                            //Toast.makeText(LoginActivity.this, "User not found locally", Toast.LENGTH_SHORT).show();
+                            try {
+                                User newUser = new User(ParseUser.getCurrentUser(), onLocationsLoaded);
+                                userDao.insertUser(newUser);
+                            } catch (JSONException | InterruptedException exception) {
+                                exception.printStackTrace();
+                            }
                         }
-                         navigateToMainActivity();
+
                         // Toast.makeText(LoginActivity.this, "Login Successful!", Toast.LENGTH_SHORT).show();
                     }
                 });
@@ -154,6 +168,7 @@ public class LoginActivity extends AppCompatActivity {
 
     private void navigateToMainActivity() {
         Intent intent = new Intent(LoginActivity.this, MainActivity.class);
+        intent.putExtra("User", Parcels.wrap(mUser));
         startActivity(intent);
         overridePendingTransition(android.R.anim.fade_in, android.R.anim.fade_out);
         finish();

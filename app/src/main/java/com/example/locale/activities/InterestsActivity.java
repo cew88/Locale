@@ -286,7 +286,6 @@ public class InterestsActivity extends AppCompatActivity implements View.OnClick
                         public void done(ParseObject object, ParseException e) {
                             if (e == null) {
                                 Log.d(INTERESTS_ACTIVITY_TAG, "Object exists!");
-                                currentUser.add(KEY_ALL_LANDMARKS, object);
                                 currentUser.add(KEY_NOT_VISITED_LANDMARKS, object);
                                 currentUser.saveInBackground();
                             } else {
@@ -402,24 +401,18 @@ public class InterestsActivity extends AppCompatActivity implements View.OnClick
                         public void updateNotVisited(String notVisitedString) {
                             Log.d(INTERESTS_ACTIVITY_TAG, "Not Visited Loaded");
                             userDao.updateNotVisited(notVisitedString);
-                        }
-
-                        @Override
-                        public void updateVisited(String visitedString) {
-                            Log.d(INTERESTS_ACTIVITY_TAG, "Visited Loaded");
-                            userDao.updateVisited(visitedString);
-                        }
-
-                        @Override
-                        public void updateAll(String allString) {
-                            Log.d(INTERESTS_ACTIVITY_TAG, "All Loaded");
-                            userDao.updateAll(allString);
 
                             Intent intent = new Intent(InterestsActivity.this, MainActivity.class);
                             intent.putExtra("Just Registered", true);
                             startActivity(intent);
                             overridePendingTransition(android.R.anim.fade_in, android.R.anim.fade_out);
                             finish();
+                        }
+
+                        @Override
+                        public void updateVisited(String visitedString) {
+                            Log.d(INTERESTS_ACTIVITY_TAG, "Visited Loaded");
+                            userDao.updateVisited(visitedString);
                         }
                     };
                     User newUser = new User(ParseUser.getCurrentUser(), onLocationsLoaded);
