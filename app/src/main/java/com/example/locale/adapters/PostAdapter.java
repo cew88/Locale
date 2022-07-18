@@ -74,20 +74,23 @@ public class PostAdapter extends RecyclerView.Adapter<PostAdapter.ViewHolder>{
 
             // Set text and image views
             firstLastName.setText(post.getFirstName() + " " + post.getLastName());
-            username.setText(post.getUsername());
-            visitedLocation.setText(post.getUsername() + " visited " + post.getPlaceName() + "!");
+            username.setText("@" + post.getUsername());
+            visitedLocation.setText(post.getFirstName() + " visited " + post.getPlaceName() + "!");
             review.setText(post.getReview());
 
             String byteArrayString = post.getPhoto();
-            byte[] byteArray = byteArrayString.getBytes();
 
-            if (byteArray.length != 0){
-                byte[] bitmapData = Base64.getDecoder().decode(byteArray);
-                Bitmap bitmap = BitmapFactory.decodeByteArray(bitmapData, 0, bitmapData.length);
+            // If the post has no photo, do not set one
+            if (byteArrayString != null){
+                byte[] byteArray = byteArrayString.getBytes();
+                if (byteArray.length != 0){
+                    byte[] bitmapData = Base64.getDecoder().decode(byteArray);
+                    Bitmap bitmap = BitmapFactory.decodeByteArray(bitmapData, 0, bitmapData.length);
 
-                RequestOptions requestOptions = new RequestOptions();
-                requestOptions = requestOptions.transforms(new CenterCrop(), new RoundedCorners(10));
-                Glide.with(mContext).asBitmap().load(bitmap).apply(requestOptions.override(600, 300)).into(uploadedImage);
+                    RequestOptions requestOptions = new RequestOptions();
+                    requestOptions = requestOptions.transforms(new CenterCrop(), new RoundedCorners(10));
+                    Glide.with(mContext).asBitmap().load(bitmap).apply(requestOptions.override(600, 300)).into(uploadedImage);
+                }
             }
         }
     }
