@@ -8,6 +8,10 @@ import com.parse.ParseObject;
 @ParseClassName("Post")
 public class Post extends ParseObject {
 
+    public String getObjectId(){
+        return getString(KEY_OBJECT_ID);
+    }
+
     public String getUsername() {
         return getString(KEY_USERNAME);
     }

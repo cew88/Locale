@@ -174,7 +174,6 @@ public class RecommendedLandmarksAdapter extends RecyclerView.Adapter<Recommende
         }
     }
 
-    // is first incorporated into a JSON Object to store the date when the location was visited
     public void clear() {
         mLandmarks.clear();
         notifyDataSetChanged();

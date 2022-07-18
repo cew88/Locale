@@ -1,5 +1,6 @@
 package com.example.locale.fragments;
 
+import static com.example.locale.models.Constants.KEY_OBJECT_ID;
 import static com.example.locale.models.Constants.POSTS_FRAGMENT_TAG;
 
 import android.os.Bundle;
@@ -9,6 +10,7 @@ import androidx.annotation.Nullable;
 import androidx.fragment.app.Fragment;
 import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
+import androidx.swiperefreshlayout.widget.SwipeRefreshLayout;
 
 import android.util.Log;
 import android.view.LayoutInflater;
@@ -23,11 +25,12 @@ import com.parse.FindCallback;
 import com.parse.ParseException;
 import com.parse.ParseQuery;
 
+import java.lang.reflect.Array;
 import java.util.ArrayList;
 import java.util.List;
 
 public class PostFragment extends Fragment {
-    private User mUser;
+    private SwipeRefreshLayout swipeContainer;
     private RecyclerView mRvPosts;
     private ArrayList<Post> mPosts;
     private PostAdapter mPostAdapter;
@@ -52,6 +55,16 @@ public class PostFragment extends Fragment {
     @Override
     public void onViewCreated(@NonNull View view, @Nullable Bundle savedInstanceState) {
         super.onViewCreated(view, savedInstanceState);
+
+        // Find swipe container view
+        swipeContainer = (SwipeRefreshLayout) view.findViewById(R.id.swipeContainer);
+        // Set up refresh listener which triggers new data loading
+        swipeContainer.setOnRefreshListener(new SwipeRefreshLayout.OnRefreshListener() {
+            @Override
+            public void onRefresh() {
+                queryPosts();
+            }
+        });
 
         // Initialize the list of posts and adapter
         mPosts = new ArrayList<>();
@@ -82,9 +95,13 @@ public class PostFragment extends Fragment {
                     return;
                 }
 
-                // Save received posts to list and notify adapter of new data
+                // Remove all posts that are currently in the adapter
+                mPostAdapter.clear();
                 mPosts.addAll(posts);
                 mPostAdapter.notifyDataSetChanged();
+
+                // Signal that the refresh has been completed
+                swipeContainer.setRefreshing(false);
             }
         });
     }
