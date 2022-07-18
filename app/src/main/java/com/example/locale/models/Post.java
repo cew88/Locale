@@ -16,6 +16,22 @@ public class Post extends ParseObject {
         put(KEY_USERNAME, username);
     }
 
+    public String getFirstName() {
+        return getString(KEY_FIRST_NAME);
+    }
+
+    public void setFirstName(String firstName){
+        put(KEY_FIRST_NAME, firstName);
+    }
+
+    public String getLastName() {
+        return getString(KEY_LAST_NAME);
+    }
+
+    public void setLastName(String lastName){
+        put (KEY_LAST_NAME, lastName);
+    }
+
     public String getPhoto(){
         return getString(KEY_PHOTO);
     }

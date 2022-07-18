@@ -9,6 +9,12 @@
         app:showAsAction="always" />
 
     <item
+        android:id="@+id/action_explore"
+        android:icon="@drawable/world"
+        android:title="Explore"
+        app:showAsAction="always"/>
+
+    <item
         android:id="@+id/action_map"
         android:icon="@drawable/map"
         android:title="Map"

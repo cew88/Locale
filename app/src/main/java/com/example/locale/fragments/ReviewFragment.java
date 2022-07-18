@@ -142,6 +142,8 @@ public class ReviewFragment extends DialogFragment {
                             newPost.setUsername(mUser.getUserName());
                             newPost.setPlaceId(mPlaceId);
                             newPost.setPlaceName(mPlaceName);
+                            newPost.setFirstName(mUser.getFirstName());
+                            newPost.setLastName(mUser.getLastName());
 
                             try {
                                 mAddPhotoListener.addPhoto(mObjectId, mPlaceId, mPlaceName, mByteArray);

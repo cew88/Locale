@@ -34,6 +34,7 @@ import com.example.locale.applications.LocaleApplication;
 import com.example.locale.fragments.HomeFragment;
 import com.example.locale.fragments.LocationVisitedFragment;
 import com.example.locale.fragments.MapsFragment;
+import com.example.locale.fragments.PostFragment;
 import com.example.locale.fragments.ProfileFragment;
 import com.example.locale.fragments.ReviewFragment;
 import com.example.locale.interfaces.OnLocationsLoaded;
@@ -274,7 +275,10 @@ public class MainActivity extends AppCompatActivity implements HomeLandmarksAdap
                         fragment = new HomeFragment();
                         fragment.setArguments(mBundle);
                         break;
-                    case R.id.action_map:
+                    case R.id.action_explore:
+                        fragment = new PostFragment();
+                        break;
+                        case R.id.action_map:
                         fragment = new MapsFragment();
                         fragment.setArguments(mBundle);
                         break;
@@ -556,18 +560,19 @@ public class MainActivity extends AppCompatActivity implements HomeLandmarksAdap
                 }
             }
 
-            long diff = currentTime.getDay() - latestDate.getDay();
-            // If it has been two days since the last location was added as visited
-            if (diff > 2){
-                createNotification("It's been a while...", "Find someplace new to visit and get your adventure on!");
-            }
+            if (latestDate != null){
+                long diff = currentTime.getDay() - latestDate.getDay();
+                // If it has been two days since the last location was added as visited
+                if (diff > 2){
+                    createNotification("It's been a while...", "Find someplace new to visit and get your adventure on!");
+                }
 
-            // If the user has not visited a landmark yet
-            if (visitedLandmarks.isEmpty()){
-                int locationIndex = (int) (Math.random() * mUser.getNotVisited().size());
-                createNotification("Looking for adventure?", "Check out " + mUser.getNotVisited().get(locationIndex).getName() + "!");
+                // If the user has not visited a landmark yet
+                if (visitedLandmarks.isEmpty()){
+                    int locationIndex = (int) (Math.random() * mUser.getNotVisited().size());
+                    createNotification("Looking for adventure?", "Check out " + mUser.getNotVisited().get(locationIndex).getName() + "!");
+                }
             }
-
         } catch (JSONException | ParseException e) {
             e.printStackTrace();
         }

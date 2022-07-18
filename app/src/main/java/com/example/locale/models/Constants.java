@@ -9,6 +9,7 @@ public class Constants {
     public static final String HOME_FRAGMENT_TAG = "Home Fragment";
     public static final String MAPS_FRAGMENT_TAG = "Maps Fragment";
     public static final String PROFILE_FRAGMENT_TAG = "Profile Fragment";
+    public static final String POSTS_FRAGMENT_TAG = "Posts";
 
     // Set constants for accessing Google API data that are different than Parse
     public static final String KEY_NAME_GOOGLE = "name";
