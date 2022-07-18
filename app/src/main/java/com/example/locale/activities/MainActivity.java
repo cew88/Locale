@@ -57,6 +57,8 @@ import org.json.JSONObject;
 import java.io.UnsupportedEncodingException;
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
+import java.time.Instant;
+import java.time.temporal.ChronoUnit;
 import java.util.ArrayList;
 import java.util.Base64;
 import java.util.Calendar;
@@ -346,16 +348,16 @@ public class MainActivity extends AppCompatActivity implements HomeLandmarksAdap
             }
 
             if (latestDate != null){
-                long diff = currentTime.getDay() - latestDate.getDay();
-                // If it has been two days since the last location was added as visited
-                if (diff > 2){
-                    createNotification("It's been a while...", "Find someplace new to visit and get your adventure on!");
-                }
+                Instant now = Instant.now();
+                Instant yesterday = now.minus(1, ChronoUnit.DAYS);
+                long diff = currentTime.getTime() - latestDate.getTime();
 
-                // If the user has not visited a landmark yet
-                if (visitedLandmarks.isEmpty()){
-                    int locationIndex = (int) (Math.random() * mUser.getNotVisited().size());
-                    createNotification("Looking for adventure?", "Check out " + mUser.getNotVisited().get(locationIndex).getName() + "!");
+                // If it has been two days since the last location was added as visited or if the user has not visited a landmark yet
+                if (diff >=  172800000| visitedLandmarks.isEmpty()){
+                    String[] notificationPrompts = {"It's been a while...", "Explore someplace new!", "Get your adventure on!", "Looking for adventure?" , "Looking for some place new?"};
+                    int promptIndex = new Random().nextInt(notificationPrompts.length);
+                    int locationIndex = new Random().nextInt(mUser.getNotVisited().size());
+                    createNotification(notificationPrompts[promptIndex], "Check out " + mUser.getNotVisited().get(locationIndex).getName() + "!");
                 }
             }
         } catch (JSONException | ParseException e) {
