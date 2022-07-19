@@ -78,6 +78,9 @@ public class MainActivity extends AppCompatActivity implements HomeLandmarksAdap
     ParseUser mCurrentUser = ParseUser.getCurrentUser();
     User mUser;
 
+    public static boolean showOfflineBanner = true;
+    public static boolean showOfflineBannerPosts = true;
+
     Bundle mBundle;
     private BottomNavigationView bottomNavigationView;
 

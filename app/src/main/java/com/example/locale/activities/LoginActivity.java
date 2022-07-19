@@ -175,7 +175,6 @@ public class LoginActivity extends AppCompatActivity {
                                 }
                             }
                             else {
-                                Log.d("here", "" + mUser);
                                 navigateToMainActivity();
                             }
                             Toast.makeText(LoginActivity.this, "Login Successful!", Toast.LENGTH_SHORT).show();
@@ -212,7 +211,6 @@ public class LoginActivity extends AppCompatActivity {
 
     private void navigateToMainActivity() {
         Intent intent = new Intent(LoginActivity.this, MainActivity.class);
-        Log.d("here", "" +mUser);
         intent.putExtra("User", Parcels.wrap(mUser));
         startActivity(intent);
         overridePendingTransition(android.R.anim.fade_in, android.R.anim.fade_out);

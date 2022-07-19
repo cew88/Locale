@@ -44,38 +44,41 @@ import java.util.HashMap;
 @Entity
 public class User implements Parcelable{
     @ColumnInfo
-    private String mFirstName;
+    String mFirstName;
 
     @ColumnInfo
-    private String mLastName;
+    String mLastName;
 
     @ColumnInfo @PrimaryKey @NonNull
-    private String mUserName = "";
+    String mUserName = "";
 
     @ColumnInfo
-    private String mEmail;
+    String mPassword;
 
     @ColumnInfo
-    private double mLatitude;
+    String mEmail;
 
     @ColumnInfo
-    private double mLongitude;
+    double mLatitude;
 
     @ColumnInfo
-    private int mUserPace;
+    double mLongitude;
 
     @ColumnInfo
-    private String mInterestsString;
+    int mUserPace;
 
     @ColumnInfo
-    private String mVisitedString;
+    String mInterestsString;
 
     @ColumnInfo
-    private String mNotVisitedString;
+    String mVisitedString;
+
+    @ColumnInfo
+    String mNotVisitedString;
 
 
     @ColumnInfo
-    private String mRecommendedString;
+    String mRecommendedString;
 
     public User(){}
 

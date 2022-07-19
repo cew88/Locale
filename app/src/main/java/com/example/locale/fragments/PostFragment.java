@@ -1,5 +1,7 @@
 package com.example.locale.fragments;
 
+import static com.example.locale.activities.LoginActivity.connectedToNetwork;
+import static com.example.locale.activities.MainActivity.showOfflineBannerPosts;
 import static com.example.locale.models.Constants.KEY_OBJECT_ID;
 import static com.example.locale.models.Constants.POSTS_FRAGMENT_TAG;
 
@@ -7,6 +9,7 @@ import android.os.Bundle;
 
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
+import androidx.constraintlayout.widget.ConstraintLayout;
 import androidx.fragment.app.Fragment;
 import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
@@ -16,6 +19,7 @@ import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.TextView;
 
 import com.example.locale.R;
 import com.example.locale.adapters.PostAdapter;
@@ -34,6 +38,10 @@ public class PostFragment extends Fragment {
     private RecyclerView mRvPosts;
     private ArrayList<Post> mPosts;
     private PostAdapter mPostAdapter;
+
+    private ConstraintLayout mOfflineBanner;
+    private TextView mDismiss;
+
 
     public PostFragment() {
         // Required empty public constructor
@@ -56,26 +64,35 @@ public class PostFragment extends Fragment {
     public void onViewCreated(@NonNull View view, @Nullable Bundle savedInstanceState) {
         super.onViewCreated(view, savedInstanceState);
 
-        // Find swipe container view
-        swipeContainer = (SwipeRefreshLayout) view.findViewById(R.id.swipeContainer);
-        // Set up refresh listener which triggers new data loading
-        swipeContainer.setOnRefreshListener(new SwipeRefreshLayout.OnRefreshListener() {
-            @Override
-            public void onRefresh() {
-                queryPosts();
-            }
-        });
+        if (connectedToNetwork){
+            // Find swipe container view
+            swipeContainer = (SwipeRefreshLayout) view.findViewById(R.id.swipeContainer);
+            // Set up refresh listener which triggers new data loading
+            swipeContainer.setOnRefreshListener(new SwipeRefreshLayout.OnRefreshListener() {
+                @Override
+                public void onRefresh() {
+                    queryPosts();
+                }
+            });
 
-        // Initialize the list of posts and adapter
-        mPosts = new ArrayList<>();
-        mPostAdapter = new PostAdapter(getContext(), mPosts);
+            // Initialize the list of posts and adapter
+            mPosts = new ArrayList<>();
+            mPostAdapter = new PostAdapter(getContext(), mPosts);
 
-        // Recycler view set up: layout manager and the adapter
-        mRvPosts = view.findViewById(R.id.rvPosts);
-        LinearLayoutManager linearLayoutManager = new LinearLayoutManager(getContext());
-        mRvPosts.setLayoutManager(linearLayoutManager);
-        mRvPosts.setAdapter(mPostAdapter);
-        queryPosts();
+            // Recycler view set up: layout manager and the adapter
+            mRvPosts = view.findViewById(R.id.rvPosts);
+            LinearLayoutManager linearLayoutManager = new LinearLayoutManager(getContext());
+            mRvPosts.setLayoutManager(linearLayoutManager);
+            mRvPosts.setAdapter(mPostAdapter);
+            queryPosts();
+        }
+
+        // Find views
+        mOfflineBanner = view.findViewById(R.id.clOfflinePosts);
+
+        if (!connectedToNetwork && showOfflineBannerPosts){
+            mOfflineBanner.setVisibility(View.VISIBLE);
+        }
     }
 
     private void queryPosts() {

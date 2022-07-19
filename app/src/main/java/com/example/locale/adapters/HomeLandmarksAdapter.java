@@ -134,9 +134,6 @@ public class HomeLandmarksAdapter extends RecyclerView.Adapter<HomeLandmarksAdap
                     }
                     final PhotoMetadata photoMetadata = metadata.get(0);
 
-                    // Get the attribution text
-                    final String attributions = photoMetadata.getAttributions();
-
                     // Create a FetchPhotoRequest
                     final FetchPhotoRequest photoRequest = FetchPhotoRequest.builder(photoMetadata)
                             .setMaxWidth(itemView.getMeasuredWidth())

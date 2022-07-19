@@ -5,11 +5,10 @@ visited yet.
 
 package com.example.locale.fragments;
 
-import static com.example.locale.models.Constants.KEY_OBJECT_ID;
-import static com.example.locale.models.Constants.KEY_PLACE_ID;
+import static com.example.locale.activities.LoginActivity.connectedToNetwork;
+import static com.example.locale.activities.MainActivity.showOfflineBanner;
 
 import android.os.Bundle;
-import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -17,25 +16,18 @@ import android.widget.TextView;
 
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
+import androidx.constraintlayout.widget.ConstraintLayout;
 import androidx.fragment.app.Fragment;
 import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
 
+import com.example.locale.R;
 import com.example.locale.adapters.HomeLandmarksAdapter;
 import com.example.locale.adapters.RecommendedLandmarksAdapter;
-import com.example.locale.models.Converters;
 import com.example.locale.models.Location;
-import com.example.locale.R;
 import com.example.locale.models.User;
-import com.parse.GetCallback;
-import com.parse.ParseException;
-import com.parse.ParseObject;
-import com.parse.ParseQuery;
-import com.parse.ParseUser;
 
-import org.json.JSONArray;
 import org.json.JSONException;
-import org.json.JSONObject;
 
 import java.util.ArrayList;
 
@@ -48,6 +40,8 @@ public class HomeFragment extends Fragment {
     private HomeLandmarksAdapter mAdapter;
     private RecommendedLandmarksAdapter mRecommendedAdapter;
     private User mUser;
+    private ConstraintLayout mOfflineBanner;
+    private TextView mDismiss;
 
     // Required empty public constructor
     public HomeFragment() {}
@@ -69,6 +63,20 @@ public class HomeFragment extends Fragment {
     @Override
     public void onViewCreated(@NonNull View view, @Nullable Bundle savedInstanceState) {
         super.onViewCreated(view, savedInstanceState);
+
+        mOfflineBanner = view.findViewById(R.id.clOfflineBanner);
+        mDismiss = view.findViewById(R.id.tvDismiss);
+        if (!connectedToNetwork && showOfflineBanner){
+            mOfflineBanner.setVisibility(View.VISIBLE);
+        }
+
+        mDismiss.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                mOfflineBanner.setVisibility(View.GONE);
+                showOfflineBanner = false;
+            }
+        });
 
         // Initialize the list of landmarks and adapter
         mLandmarks = new ArrayList<>();

@@ -5,6 +5,8 @@ a button for users to log out of the app.
 
 package com.example.locale.fragments;
 
+import static com.example.locale.activities.LoginActivity.connectedToNetwork;
+import static com.example.locale.activities.MainActivity.showOfflineBannerPosts;
 import static com.example.locale.models.Constants.KEY_DATE_VISITED;
 import static com.example.locale.models.Constants.PROFILE_FRAGMENT_TAG;
 
@@ -20,6 +22,7 @@ import android.widget.TextView;
 
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
+import androidx.constraintlayout.widget.ConstraintLayout;
 import androidx.fragment.app.Fragment;
 import androidx.fragment.app.FragmentManager;
 import androidx.recyclerview.widget.LinearLayoutManager;
@@ -33,6 +36,7 @@ import com.parse.ParseUser;
 
 import org.json.JSONException;
 import org.json.JSONObject;
+import org.w3c.dom.Text;
 
 import java.text.ParseException;
 import java.util.ArrayList;
@@ -79,6 +83,7 @@ public class ProfileFragment extends Fragment {
         mTvUsername = view.findViewById(R.id.tvUsername);
         mPlacesVisitedCount = view.findViewById(R.id.tvPlacesVisitedCount);
         mInterests = view.findViewById(R.id.tvInterestsList);
+
 
         // Set the user timeline list
         ArrayList<String> uniqueDates = new ArrayList<>();
