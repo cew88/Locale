@@ -53,6 +53,7 @@ import com.parse.ParseUser;
 import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
+import org.parceler.Parcels;
 
 import java.io.UnsupportedEncodingException;
 import java.text.ParseException;
@@ -102,34 +103,10 @@ public class MainActivity extends AppCompatActivity implements HomeLandmarksAdap
     protected void onResume() {
         super.onResume();
 
-        final User.UserDao userDao = ((LocaleApplication)getApplicationContext()).getUserDatabase().userDao();
-        OnLocationsLoaded onLocationsLoaded = new OnLocationsLoaded() {
-            @Override
-            public void updateNotVisited(String notVisitedString) {
-                Log.d(LOGIN_ACTIVITY_TAG, "Not Visited Loaded");
-                userDao.updateNotVisited(notVisitedString);
-            }
-
-            @Override
-            public void updateVisited(String visitedString) {
-                Log.d(LOGIN_ACTIVITY_TAG, "Visited Loaded");
-                userDao.updateVisited(visitedString);
-            }
-        };
-
         // Access user data from the Room Database
-        mUser = userDao.getByUsername(mCurrentUser.getUsername());
-
-//        if (mUser == null){
-//            try {
-//                Log.d("here", "here");
-//                User updatedUser = new User(ParseUser.getCurrentUser(), onLocationsLoaded);
-//                userDao.updateUser(updatedUser);
-//            } catch (JSONException | InterruptedException e) {
-//                e.printStackTrace();
-//            }
-//
-//        }
+        final User.UserDao userDao = ((LocaleApplication)getApplicationContext()).getUserDatabase().userDao();
+        User loggedInUser = (User) Parcels.unwrap(getIntent().getParcelableExtra("User"));
+        mUser = userDao.getByUsername(loggedInUser.getUserName());
 
         // Clear previous recommendations
         mUser.setRecommendedString("");
@@ -139,7 +116,7 @@ public class MainActivity extends AppCompatActivity implements HomeLandmarksAdap
         // has created their account. If there is no extra or the user did not just create their account
         // check the user's location against not visited landmarks
 
-        if (!(getIntent().hasExtra("Just Registered"))) {
+        if (LoginActivity.connectedToNetwork && !(getIntent().hasExtra("Just Registered"))) {
             // Get the user's location
             fusedLocationClient = LocationServices.getFusedLocationProviderClient(MainActivity.this);
             fusedLocationClient.getLastLocation().addOnSuccessListener( new OnSuccessListener<>() {

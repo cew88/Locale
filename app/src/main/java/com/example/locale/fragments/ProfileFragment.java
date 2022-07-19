@@ -6,9 +6,11 @@ a button for users to log out of the app.
 package com.example.locale.fragments;
 
 import static com.example.locale.models.Constants.KEY_DATE_VISITED;
+import static com.example.locale.models.Constants.PROFILE_FRAGMENT_TAG;
 
 import android.content.Intent;
 import android.os.Bundle;
+import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -103,19 +105,19 @@ public class ProfileFragment extends Fragment {
             e.printStackTrace();
         }
 
-
         // Set views
         // TO DO: CHANGE PROFILE IMAGE
-        mIvProfileImage.setImageResource(R.drawable.bank);
+        mIvProfileImage.setImageResource(R.drawable.user);
         mTvName.setText(mUser.getFirstName() + " " + mUser.getLastName());
         mTvUsername.setText(mUser.getUserName());
 
-        String interestsList = mUser.getInterests().get(0).replaceAll("_", " ");
-        for (int i=1; i<mUser.getInterests().size(); i++){
-            interestsList += ", " + mUser.getInterests().get(i).replaceAll("_", " ");;
+        if (mUser.getInterests() == null){
+            String interestsList = mUser.getInterests().get(0).replaceAll("_", " ");
+            for (int i=1; i<mUser.getInterests().size(); i++){
+                interestsList += ", " + mUser.getInterests().get(i).replaceAll("_", " ");;
+            }
+            mInterests.setText(interestsList);
         }
-
-        mInterests.setText(interestsList);
 
         mBtnLogout = view.findViewById(R.id.btnLogout);
         mBtnLogout.setOnClickListener(new View.OnClickListener() {
@@ -123,7 +125,8 @@ public class ProfileFragment extends Fragment {
             public void onClick(View v) {
                 ParseUser.logOut();
                 // The following line of code should be null
-                // ParseUser currentUser = ParseUser.getCurrentUser();
+                 ParseUser currentUser = ParseUser.getCurrentUser();
+                Log.d(PROFILE_FRAGMENT_TAG, "Current user should be null: " + currentUser);
                 Intent i = new Intent(getActivity().getApplicationContext(), LoginActivity.class);
                 startActivity(i);
                 getActivity().overridePendingTransition(android.R.anim.fade_in, android.R.anim.fade_out);

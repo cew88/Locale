@@ -8,7 +8,10 @@ package com.example.locale.activities;
 import static com.example.locale.models.Constants.*;
 
 import android.Manifest;
+import android.content.Context;
 import android.content.Intent;
+import android.net.ConnectivityManager;
+import android.net.NetworkInfo;
 import android.os.Bundle;
 import android.util.Log;
 import android.view.View;
@@ -18,6 +21,7 @@ import android.widget.Toast;
 
 import androidx.activity.result.ActivityResultLauncher;
 import androidx.activity.result.contract.ActivityResultContracts;
+import androidx.annotation.LongDef;
 import androidx.appcompat.app.ActionBar;
 import androidx.appcompat.app.AppCompatActivity;
 
@@ -33,12 +37,13 @@ import org.json.JSONException;
 import org.parceler.Parcels;
 
 public class LoginActivity extends AppCompatActivity {
+    public static boolean connectedToNetwork;
     private TextView mUsername;
     private TextView mPassword;
     private Button mLoginBtn;
     private TextView mForgetPassword;
     private TextView mCreateAccount;
-    private ParseUser mCurrentUser = ParseUser.getCurrentUser();
+    private ParseUser mCurrentUser;
     private User mUser;
 
     @Override
@@ -66,29 +71,6 @@ public class LoginActivity extends AppCompatActivity {
             }
         };
 
-        // If the user is already logged in, skip the log in screen and navigate to the main activity
-        if (mCurrentUser != null){
-            // Access user data from the Room Database
-            mUser = userDao.getByUsername(mCurrentUser.getUsername());
-
-            // Create a new user with data from Parse
-            try {
-                User user = new User(ParseUser.getCurrentUser(), onLocationsLoaded);
-                // If the user is not stored locally but somehow logged in
-                // Insert the user into the local database
-                if (mUser == null){
-                    userDao.insertUser(user);
-                }
-                // If the user is stored locally, update what is in the local database with what is
-                // stored in Parse
-                else {
-                    userDao.updateUser(user);
-                }
-            } catch (JSONException | InterruptedException e) {
-                e.printStackTrace();
-            }
-        }
-
         // Launch pop up checking if the user has been logged in
         ActivityResultLauncher<String[]> locationPermissionRequest =
             registerForActivityResult(new ActivityResultContracts.RequestMultiplePermissions(), result -> {
@@ -98,10 +80,13 @@ public class LoginActivity extends AppCompatActivity {
                         Manifest.permission.ACCESS_COARSE_LOCATION,false);
                 if (fineLocationGranted != null && fineLocationGranted) {
                     // Precise location access granted.
+                    Log.d(LOGIN_ACTIVITY_TAG, "Precise location access granted");
                 } else if (coarseLocationGranted != null && coarseLocationGranted) {
                     // Only approximate location access granted.
+                    Log.d(LOGIN_ACTIVITY_TAG, "Approximate location access granted");
                 } else {
                     // No location access granted.
+                    Log.d(LOGIN_ACTIVITY_TAG, "No location access granted");
                 }
             });
 
@@ -113,6 +98,7 @@ public class LoginActivity extends AppCompatActivity {
                 Manifest.permission.ACCESS_COARSE_LOCATION
         });
 
+        mCurrentUser = ParseUser.getCurrentUser();
         mUsername = findViewById(R.id.etUsernameLogin);
         mPassword = findViewById(R.id.etPasswordLogin);
 
@@ -126,48 +112,107 @@ public class LoginActivity extends AppCompatActivity {
             }
         });
 
-        // Handle what happens when the login button is clicked
         mLoginBtn = findViewById(R.id.btnLogin);
-        mLoginBtn.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                String username = mUsername.getText().toString();
-                String password = mPassword.getText().toString();
-                Log.d(LOGIN_ACTIVITY_TAG, "Attempting to log in user: " + username);
 
-                ParseUser.logInInBackground(username, password, new LogInCallback() {
-                    @Override
-                    public void done(ParseUser user, ParseException e) {
-                        if (e != null) {
-                            Log.e(LOGIN_ACTIVITY_TAG, "Error with logging in user", e);
-                            Toast.makeText(LoginActivity.this, "Invalid username/password", Toast.LENGTH_SHORT).show();
-                            return;
-                        }
+        // Check if the app is connected to the internet or not
+        ConnectivityManager connectivityManager = (ConnectivityManager)getSystemService(Context.CONNECTIVITY_SERVICE);
+        if(connectivityManager.getNetworkInfo(ConnectivityManager.TYPE_MOBILE).getState() == NetworkInfo.State.CONNECTED ||
+                connectivityManager.getNetworkInfo(ConnectivityManager.TYPE_WIFI).getState() == NetworkInfo.State.CONNECTED) {
+            //The app is connected
+            connectedToNetwork = true;
 
-                        // Access user data from the Room Database
-                        final User.UserDao userDao = ((LocaleApplication)getApplicationContext()).getUserDatabase().userDao();
-                        User mUser = userDao.getByUsername(user.getUsername());
+            // If the user is already logged in, skip the log in screen and navigate to the main activity
+            if (mCurrentUser != null){
+                // Access user data from the Room Database
+                mUser = userDao.getByUsername(mCurrentUser.getUsername());
 
-                        // If the user is null but exists in Parse, create a new user entry in the local database
-                        if (mUser == null) {
-                            //Toast.makeText(LoginActivity.this, "User not found locally", Toast.LENGTH_SHORT).show();
-                            try {
-                                User newUser = new User(ParseUser.getCurrentUser(), onLocationsLoaded);
-                                userDao.insertUser(newUser);
-                            } catch (JSONException | InterruptedException exception) {
-                                exception.printStackTrace();
-                            }
-                        }
-
-                        // Toast.makeText(LoginActivity.this, "Login Successful!", Toast.LENGTH_SHORT).show();
+                // Create a new user with data from Parse
+                try {
+                    User user = new User(ParseUser.getCurrentUser(), onLocationsLoaded);
+                    // If the user is not stored locally but somehow logged in
+                    // Insert the user into the local database
+                    if (mUser == null){
+                        userDao.insertUser(user);
                     }
-                });
+                    // If the user is stored locally, update what is in the local database with what is
+                    // stored in Parse
+                    else {
+                        userDao.updateUser(user);
+                    }
+                } catch (JSONException | InterruptedException e) {
+                    e.printStackTrace();
+                }
             }
-        });
+
+            // Handle what happens when the login button is clicked
+            mLoginBtn.setOnClickListener(new View.OnClickListener() {
+                @Override
+                public void onClick(View v) {
+                    String username = mUsername.getText().toString();
+                    String password = mPassword.getText().toString();
+                    Log.d(LOGIN_ACTIVITY_TAG, "Attempting to log in user: " + username);
+
+                    ParseUser.logInInBackground(username, password, new LogInCallback() {
+                        @Override
+                        public void done(ParseUser user, ParseException e) {
+                            if (e != null) {
+                                Log.e(LOGIN_ACTIVITY_TAG, "Error with logging in user", e);
+                                Toast.makeText(LoginActivity.this, "Invalid username/password", Toast.LENGTH_SHORT).show();
+                                return;
+                            }
+
+                            // Access user data from the Room Database
+                            mUser = userDao.getByUsername(user.getUsername());
+
+                            // If the user is null but exists in Parse, create a new user entry in the local database
+                            if (mUser == null) {
+                                //Toast.makeText(LoginActivity.this, "User not found locally", Toast.LENGTH_SHORT).show();
+                                try {
+                                    User newUser = new User(ParseUser.getCurrentUser(), onLocationsLoaded);
+                                    userDao.insertUser(newUser);
+                                } catch (JSONException | InterruptedException exception) {
+                                    exception.printStackTrace();
+                                }
+                            }
+                            else {
+                                Log.d("here", "" + mUser);
+                                navigateToMainActivity();
+                            }
+                            Toast.makeText(LoginActivity.this, "Login Successful!", Toast.LENGTH_SHORT).show();
+                        }
+                    });
+                }
+            });
+        }
+
+        // The user is offline
+        else {
+            connectedToNetwork = false;
+            mLoginBtn.setOnClickListener(new View.OnClickListener() {
+                @Override
+                public void onClick(View v) {
+                    String username = mUsername.getText().toString();
+                    String password = mPassword.getText().toString();
+                    Log.d(LOGIN_ACTIVITY_TAG, "Attempting to log in user: " + username);
+
+                    // Access user data from the Room Database
+                    mUser = userDao.getByUsername(username);
+
+                    if (mUser == null) {
+                        Toast.makeText(LoginActivity.this, "User not found locally", Toast.LENGTH_SHORT).show();
+                    }
+                    // TO DO: also check if the user passwords match up
+                    else {
+                        navigateToMainActivity();
+                    }
+                }
+            });
+        }
     }
 
     private void navigateToMainActivity() {
         Intent intent = new Intent(LoginActivity.this, MainActivity.class);
+        Log.d("here", "" +mUser);
         intent.putExtra("User", Parcels.wrap(mUser));
         startActivity(intent);
         overridePendingTransition(android.R.anim.fade_in, android.R.anim.fade_out);

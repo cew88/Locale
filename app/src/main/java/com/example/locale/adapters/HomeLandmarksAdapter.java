@@ -5,6 +5,7 @@ locations as visited.
 
 package com.example.locale.adapters;
 
+import static com.example.locale.activities.LoginActivity.connectedToNetwork;
 import static com.example.locale.models.Constants.HOME_FRAGMENT_TAG;
 
 import android.content.Context;
@@ -110,75 +111,77 @@ public class HomeLandmarksAdapter extends RecyclerView.Adapter<HomeLandmarksAdap
             // Define a Place ID
             final String placeId = landmark.getPlaceId();
 
-            // Specify fields
-            // Requests for photos must always have the PHOTO_METADATAS field
-            final List<Place.Field> fields = Collections.singletonList(Place.Field.PHOTO_METADATAS);
+            if (connectedToNetwork){
+                // Specify fields
+                // Requests for photos must always have the PHOTO_METADATAS field
+                final List<Place.Field> fields = Collections.singletonList(Place.Field.PHOTO_METADATAS);
 
-            // Get a Place object (this example uses fetchPlace(), but you can also use findCurrentPlace())
-            final FetchPlaceRequest placeRequest = FetchPlaceRequest.newInstance(placeId, fields);
+                // Get a Place object (this example uses fetchPlace(), but you can also use findCurrentPlace())
+                final FetchPlaceRequest placeRequest = FetchPlaceRequest.newInstance(placeId, fields);
 
-            Places.initialize(mContext, BuildConfig.MAPS_API_KEY);
-            PlacesClient placesClient = Places.createClient(mContext);
+                Places.initialize(mContext, BuildConfig.MAPS_API_KEY);
+                PlacesClient placesClient = Places.createClient(mContext);
 
-            placesClient.fetchPlace(placeRequest).addOnSuccessListener((response) -> {
-                final Place place = response.getPlace();
+                placesClient.fetchPlace(placeRequest).addOnSuccessListener((response) -> {
+                    final Place place = response.getPlace();
 
-                // Get the photo metadata
-                final List<PhotoMetadata> metadata = place.getPhotoMetadatas();
-                if (metadata == null || metadata.isEmpty()) {
-                    Log.w(HOME_FRAGMENT_TAG, "No photo metadata.");
-                    ivLandmarkImage.setVisibility(View.GONE);
-                    return;
-                }
-                final PhotoMetadata photoMetadata = metadata.get(0);
-
-                // Get the attribution text
-                final String attributions = photoMetadata.getAttributions();
-
-                // Create a FetchPhotoRequest
-                final FetchPhotoRequest photoRequest = FetchPhotoRequest.builder(photoMetadata)
-                        .setMaxWidth(itemView.getMeasuredWidth())
-                        .build();
-                placesClient.fetchPhoto(photoRequest).addOnSuccessListener((fetchPhotoResponse) -> {
-                    ivLandmarkImage.setVisibility(View.VISIBLE);
-                    Bitmap bitmap = fetchPhotoResponse.getBitmap();
-                    RequestOptions requestOptions = new RequestOptions();
-                    requestOptions = requestOptions.transforms(new CenterCrop(), new GranularRoundedCorners(30, 30, 0, 0));
-                    Glide.with(mContext).asBitmap().load(bitmap).apply(requestOptions.override(itemView.getMeasuredWidth(), 400)).into(ivLandmarkImage);
-                }).addOnFailureListener((exception) -> {
-                    if (exception instanceof ApiException) {
-                        final ApiException apiException = (ApiException) exception;
-                        Log.e(HOME_FRAGMENT_TAG, "Place not found: " + exception.getMessage());
+                    // Get the photo metadata
+                    final List<PhotoMetadata> metadata = place.getPhotoMetadatas();
+                    if (metadata == null || metadata.isEmpty()) {
+                        Log.w(HOME_FRAGMENT_TAG, "No photo metadata.");
                         ivLandmarkImage.setVisibility(View.GONE);
-                        final int statusCode = apiException.getStatusCode();
+                        return;
+                    }
+                    final PhotoMetadata photoMetadata = metadata.get(0);
+
+                    // Get the attribution text
+                    final String attributions = photoMetadata.getAttributions();
+
+                    // Create a FetchPhotoRequest
+                    final FetchPhotoRequest photoRequest = FetchPhotoRequest.builder(photoMetadata)
+                            .setMaxWidth(itemView.getMeasuredWidth())
+                            .build();
+                    placesClient.fetchPhoto(photoRequest).addOnSuccessListener((fetchPhotoResponse) -> {
+                        ivLandmarkImage.setVisibility(View.VISIBLE);
+                        Bitmap bitmap = fetchPhotoResponse.getBitmap();
+                        RequestOptions requestOptions = new RequestOptions();
+                        requestOptions = requestOptions.transforms(new CenterCrop(), new GranularRoundedCorners(30, 30, 0, 0));
+                        Glide.with(mContext).asBitmap().load(bitmap).apply(requestOptions.override(itemView.getMeasuredWidth(), 400)).into(ivLandmarkImage);
+                    }).addOnFailureListener((exception) -> {
+                        if (exception instanceof ApiException) {
+                            final ApiException apiException = (ApiException) exception;
+                            Log.e(HOME_FRAGMENT_TAG, "Place not found: " + exception.getMessage());
+                            ivLandmarkImage.setVisibility(View.GONE);
+                            final int statusCode = apiException.getStatusCode();
+                        }
+                    });
+                });
+
+                itemView.setOnLongClickListener(new View.OnLongClickListener() {
+                    @Override
+                    public boolean onLongClick(View v) {
+                        // Toast.makeText(v.getContext(), "Location long clicked!", Toast.LENGTH_SHORT).show();
+
+                        // Remove the landmark that was just marked as visited from the array of not visited locations
+                        mLandmarks.remove(landmark);
+                        notifyDataSetChanged();
+
+                        if (mContext instanceof OnLocationVisitedListener) {
+                            mLocationVisitedListener = (OnLocationVisitedListener) mContext;
+                            try {
+                                mLocationVisitedListener.removeFromNotVisited(landmark);
+                                mLocationVisitedListener.updateLandmarks();
+                            } catch (JSONException e) {
+                                e.printStackTrace();
+                            }
+                        }
+                        else {
+                            throw new ClassCastException(mContext.toString());
+                        }
+                        return true;
                     }
                 });
-            });
-
-            itemView.setOnLongClickListener(new View.OnLongClickListener() {
-                @Override
-                public boolean onLongClick(View v) {
-                    // Toast.makeText(v.getContext(), "Location long clicked!", Toast.LENGTH_SHORT).show();
-
-                    // Remove the landmark that was just marked as visited from the array of not visited locations
-                    mLandmarks.remove(landmark);
-                    notifyDataSetChanged();
-
-                    if (mContext instanceof OnLocationVisitedListener) {
-                        mLocationVisitedListener = (OnLocationVisitedListener) mContext;
-                        try {
-                            mLocationVisitedListener.removeFromNotVisited(landmark);
-                            mLocationVisitedListener.updateLandmarks();
-                        } catch (JSONException e) {
-                            e.printStackTrace();
-                        }
-                    }
-                    else {
-                        throw new ClassCastException(mContext.toString());
-                    }
-                    return true;
-                }
-            });
+            }
         }
     }
 
