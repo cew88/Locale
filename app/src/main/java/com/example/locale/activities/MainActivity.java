@@ -15,6 +15,7 @@ import android.content.Intent;
 import android.os.Bundle;
 import android.util.Log;
 import android.view.MenuItem;
+import android.widget.Toast;
 
 import androidx.annotation.NonNull;
 import androidx.appcompat.app.ActionBar;
@@ -46,9 +47,11 @@ import com.google.android.gms.location.LocationServices;
 import com.google.android.gms.tasks.OnSuccessListener;
 import com.google.android.material.bottomnavigation.BottomNavigationView;
 import com.parse.GetCallback;
+import com.parse.ParseGeoPoint;
 import com.parse.ParseObject;
 import com.parse.ParseQuery;
 import com.parse.ParseUser;
+import com.parse.SaveCallback;
 
 import org.json.JSONArray;
 import org.json.JSONException;
@@ -202,9 +205,13 @@ public class MainActivity extends AppCompatActivity implements HomeLandmarksAdap
                                             ParseQuery<ParseObject> placeIdQuery = ParseQuery.getQuery("Location");
                                             placeIdQuery.whereEqualTo(KEY_PLACE_ID, placeId);
                                             int finalJ = j;
+
                                             placeIdQuery.getFirstInBackground(new GetCallback<ParseObject>() {
                                                 @Override
                                                 public void done(ParseObject object, com.parse.ParseException e) {
+
+                                                    // If the location is stored in the Parse database already
+                                                    // Check get ranking information from the Parse database
                                                     if (object != null){
                                                         Location existingLocation = (Location) object;
                                                         int totalVisited = existingLocation.getVisitedCount();
@@ -233,6 +240,48 @@ public class MainActivity extends AppCompatActivity implements HomeLandmarksAdap
                                                             jsonException.printStackTrace();
                                                         }
 
+                                                    }
+
+                                                    // Also recommend new locations for users to visit
+                                                    if(e == null) {
+                                                        Log.d(INTERESTS_ACTIVITY_TAG,"Object exists!");
+                                                    }
+                                                    else {
+                                                        if (e.getCode() == com.parse.ParseException.OBJECT_NOT_FOUND) {
+                                                            Log.d(MAIN_ACTIVITY_TAG, "Object does not exist");
+                                                            // Create a new location object
+                                                            Location newLocation = new Location();
+                                                            try {
+                                                                newLocation.setName(locationObject.getString(KEY_NAME_GOOGLE));
+                                                                newLocation.setPlaceId(locationObject.getString(KEY_PLACE_ID));
+                                                                newLocation.setTypes(locationObject.getJSONArray(KEY_TYPES));
+                                                                newLocation.setVicinity(locationObject.getString(KEY_VICINITY));
+                                                                JSONObject coordinates = locationObject.getJSONObject(KEY_GEOMETRY).getJSONObject(KEY_LOCATION);
+                                                                double lat = coordinates.getDouble(KEY_LAT);
+                                                                double lng = coordinates.getDouble(KEY_LNG);
+                                                                newLocation.setCoordinates(new ParseGeoPoint(lat, lng));
+                                                                newLocation.setVisitedCount(0);
+                                                                newLocation.setTotalRating(0);
+
+                                                                newLocation.saveInBackground(new SaveCallback() {
+                                                                    @Override
+                                                                    public void done(com.parse.ParseException e) {
+                                                                        if (e == null) {
+                                                                            locationRanking.put(newLocation, 0.0);
+                                                                            Log.i(MAIN_ACTIVITY_TAG, "Location save was successful!");
+                                                                        } else {
+                                                                            Log.e(MAIN_ACTIVITY_TAG, "Error while saving!", e);
+                                                                        }
+                                                                    }
+                                                                });
+
+                                                            } catch (JSONException ex) {
+                                                                ex.printStackTrace();
+                                                            }
+
+                                                        } else {
+                                                            Log.d(MAIN_ACTIVITY_TAG, "Error: " + e.getCode());
+                                                        }
                                                     }
 
                                                     if (finalJ == jsonArray.length()-1){
@@ -296,9 +345,6 @@ public class MainActivity extends AppCompatActivity implements HomeLandmarksAdap
                 return true;
             }
         });
-
-
-
     }
 
     @Override
@@ -450,7 +496,7 @@ public class MainActivity extends AppCompatActivity implements HomeLandmarksAdap
 
     public void addRecommended(HashMap<Location, Double> locationRanking) throws JSONException {
         Log.d(MAIN_ACTIVITY_TAG, "Adding recommended locations");
-
+        Log.d("here", "" + String.valueOf(locationRanking));
         ArrayList<Location> recLoc =  new ArrayList<>();
         // If there are locations near the current location that have a ranking
         if (!locationRanking.isEmpty()){
@@ -460,7 +506,7 @@ public class MainActivity extends AppCompatActivity implements HomeLandmarksAdap
 //            Log.d("Maximum value", String.valueOf(maxValue));
             // Iterate through the mapping and find the locations with the highest rankings
             for (Location dictKey : locationRanking.keySet()){
-//                Log.d("Recommended Location", dictKey.getName());
+                Log.d("Recommended Location", dictKey.getName());
                 if (locationRanking.get(dictKey) == maxValue){
 
                     // Check to make sure that the recommended location is not already included with the user's landmarks
