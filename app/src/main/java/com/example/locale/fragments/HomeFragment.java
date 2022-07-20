@@ -104,7 +104,6 @@ public class HomeFragment extends Fragment {
         mRvRecommendedLandmarks.setLayoutManager(linearLayoutManagerR);
 
         mRvRecommendedLandmarks.setAdapter(mRecommendedAdapter);
-
         mRecommendedDescription = view.findViewById(R.id.tvRecommendedLandmark);
 
         try {
@@ -121,6 +120,12 @@ public class HomeFragment extends Fragment {
             e.printStackTrace();
         }
 
+        View parent = (View) view.getParent();
+        int height = parent.getWidth() - mRvRecommendedLandmarks.getHeight();
+
+        ConstraintLayout.LayoutParams params = (ConstraintLayout.LayoutParams) mRvLandmarks.getLayoutParams();
+        params.height = height;
+        mRvLandmarks.setLayoutParams(params);
 
     }
 }
