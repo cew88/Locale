@@ -98,7 +98,7 @@ public class RecommendedLandmarksAdapter extends RecyclerView.Adapter<Recommende
             tvLandmarkName.setText(landmark.getName());
             tvVicinity.setText(landmark.getVicinity());
 
-            // Get photo from place ID and display the photo; code below proviedd by Google documentation
+            // Get photo from place ID and display the photo; code below provided by Google documentation
 
             // Define a Place ID
             final String placeId = landmark.getPlaceId();
@@ -162,6 +162,7 @@ public class RecommendedLandmarksAdapter extends RecyclerView.Adapter<Recommende
                         try {
                             mOnRecommendedSelectedListener.updateRecommended(landmark);
                             mOnRecommendedSelectedListener.updateNotVisited(landmark);
+
                         } catch (JSONException e) {
                             e.printStackTrace();
                         }

@@ -116,7 +116,7 @@ public class ProfileFragment extends Fragment {
         mTvName.setText(mUser.getFirstName() + " " + mUser.getLastName());
         mTvUsername.setText(mUser.getUserName());
 
-        if (mUser.getInterests() == null){
+        if (mUser.getInterests() != null){
             String interestsList = mUser.getInterests().get(0).replaceAll("_", " ");
             for (int i=1; i<mUser.getInterests().size(); i++){
                 interestsList += ", " + mUser.getInterests().get(i).replaceAll("_", " ");;

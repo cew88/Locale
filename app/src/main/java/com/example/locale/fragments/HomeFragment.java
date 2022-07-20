@@ -9,9 +9,11 @@ import static com.example.locale.activities.LoginActivity.connectedToNetwork;
 import static com.example.locale.activities.MainActivity.showOfflineBanner;
 
 import android.os.Bundle;
+import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.view.ViewTreeObserver;
 import android.widget.TextView;
 
 import androidx.annotation.NonNull;
@@ -64,20 +66,6 @@ public class HomeFragment extends Fragment {
     public void onViewCreated(@NonNull View view, @Nullable Bundle savedInstanceState) {
         super.onViewCreated(view, savedInstanceState);
 
-        mOfflineBanner = view.findViewById(R.id.clOfflineBanner);
-        mDismiss = view.findViewById(R.id.tvDismiss);
-        if (!connectedToNetwork && showOfflineBanner){
-            mOfflineBanner.setVisibility(View.VISIBLE);
-        }
-
-        mDismiss.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                mOfflineBanner.setVisibility(View.GONE);
-                showOfflineBanner = false;
-            }
-        });
-
         // Initialize the list of landmarks and adapter
         mLandmarks = new ArrayList<>();
         mAdapter = new HomeLandmarksAdapter(getContext(), mLandmarks);
@@ -108,24 +96,80 @@ public class HomeFragment extends Fragment {
 
         try {
             if (!(mUser.getRecommended().isEmpty())) {
-               try {
-                   mRecommendedDescription.setVisibility(View.VISIBLE);
-                   mRvRecommendedLandmarks.setVisibility(View.VISIBLE);
-                   mRecommended.addAll(mUser.getRecommended());
-               } catch (JSONException e) {
-                   e.printStackTrace();
+               mRecommendedDescription.setVisibility(View.VISIBLE);
+               mRvRecommendedLandmarks.setVisibility(View.VISIBLE);
+               mRecommended.addAll(mUser.getRecommended());
+
+               // Adjust the size of mRvLandmarks if there are recommended landmarks displayed on the screen
+               View parent = (View) view.getParent();
+               ViewTreeObserver viewTreeObserver = mRvRecommendedLandmarks.getViewTreeObserver();
+               if (viewTreeObserver.isAlive()) {
+                   viewTreeObserver.addOnGlobalLayoutListener(new ViewTreeObserver.OnGlobalLayoutListener() {
+                       @Override
+                       public void onGlobalLayout() {
+
+                           int height = parent.getHeight() - mRvRecommendedLandmarks.getHeight() - 175;
+                           ConstraintLayout.LayoutParams params = (ConstraintLayout.LayoutParams) mRvLandmarks.getLayoutParams();
+                           params.height = height;
+                           mRvLandmarks.setLayoutParams(params);
+                       }
+                   });
                }
-           }
+            }
         } catch (JSONException e) {
             e.printStackTrace();
         }
 
+        // Reset the height of mRvLandmarks so that the recycler view starts below the text
         View parent = (View) view.getParent();
-        int height = parent.getWidth() - mRvRecommendedLandmarks.getHeight();
-
         ConstraintLayout.LayoutParams params = (ConstraintLayout.LayoutParams) mRvLandmarks.getLayoutParams();
-        params.height = height;
+        params.height = parent.getHeight() - 80;
         mRvLandmarks.setLayoutParams(params);
 
+        // Set the height of mRvLandmarks when the offline banner is shown and when the offline banner
+        // is dismissed
+        mOfflineBanner = view.findViewById(R.id.clOfflineBanner);
+        mDismiss = view.findViewById(R.id.tvDismiss);
+        if (!connectedToNetwork && showOfflineBanner){
+            mOfflineBanner.setVisibility(View.VISIBLE);
+
+            // Adjust the size of mRvLandmarks if there are recommended landmarks displayed on the screen
+            ViewTreeObserver viewTreeObserver = mOfflineBanner.getViewTreeObserver();
+            if (viewTreeObserver.isAlive()){
+                viewTreeObserver.addOnGlobalLayoutListener(new ViewTreeObserver.OnGlobalLayoutListener() {
+                    @Override
+                    public void onGlobalLayout() {
+
+                        int height = parent.getHeight() - mOfflineBanner.getHeight() - 110;
+                        ConstraintLayout.LayoutParams params = (ConstraintLayout.LayoutParams) mRvLandmarks.getLayoutParams();
+                        params.height = height;
+                        mRvLandmarks.setLayoutParams(params);
+                    }
+                });
+            }
+        }
+
+        mDismiss.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                mOfflineBanner.setVisibility(View.GONE);
+                showOfflineBanner = false;
+
+                ViewTreeObserver viewTreeObserver = mOfflineBanner.getViewTreeObserver();
+                if (viewTreeObserver.isAlive()){
+                    viewTreeObserver.addOnGlobalLayoutListener(new ViewTreeObserver.OnGlobalLayoutListener() {
+                        @Override
+                        public void onGlobalLayout() {
+
+                            int height = parent.getHeight() + mOfflineBanner.getHeight() - 320;
+                            ConstraintLayout.LayoutParams params = (ConstraintLayout.LayoutParams) mRvLandmarks.getLayoutParams();
+                            params.height = height;
+                            mRvLandmarks.setLayoutParams(params);
+                        }
+                    });
+                }
+            }
+        });
     }
+
 }

@@ -209,7 +209,6 @@ public class MainActivity extends AppCompatActivity implements HomeLandmarksAdap
                                             placeIdQuery.getFirstInBackground(new GetCallback<ParseObject>() {
                                                 @Override
                                                 public void done(ParseObject object, com.parse.ParseException e) {
-
                                                     // If the location is stored in the Parse database already
                                                     // Check get ranking information from the Parse database
                                                     if (object != null){
