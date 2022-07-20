@@ -1,6 +1,6 @@
 /*
-Class represents the Parse User. Saving the Parse User's information in a Java Object reduces the
-number of queries made to the Parse database.
+Creates a User model representing the Parse User. Saving the Parse User's information in a Java
+Object reduces the number of queries made to the Parse database.
 */
 
 package com.example.locale.models;

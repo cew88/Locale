@@ -1,3 +1,8 @@
+/*
+Creates class to store methods to convert to and from Strings. Many items in the Room database are
+stored as Strings.
+ */
+
 package com.example.locale.models;
 
 import static com.example.locale.models.Constants.*;

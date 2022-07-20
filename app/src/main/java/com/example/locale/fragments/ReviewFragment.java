@@ -1,3 +1,8 @@
+/*
+Creates a fragment for a pop-up dialog which allows users to leave a review for a landmark and
+upload a photo.
+ */
+
 package com.example.locale.fragments;
 
 import static com.example.locale.models.Constants.*;

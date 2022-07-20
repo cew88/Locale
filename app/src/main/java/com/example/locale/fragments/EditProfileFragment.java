@@ -1,3 +1,7 @@
+/*
+Creates a fragment to allow users to edit their profile.x
+ */
+
 package com.example.locale.fragments;
 
 import android.os.Bundle;

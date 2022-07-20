@@ -1,3 +1,9 @@
+/*
+Creates a fragment for a pop-up dialog which notifies users that they have visited a location
+(either by long-clicking a location or physically being within a certain radius of one of their "to
+visit" locations.
+ */
+
 package com.example.locale.fragments;
 
 import static com.example.locale.models.Constants.KEY_OBJECT_ID;

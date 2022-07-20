@@ -1,3 +1,7 @@
+/*
+Creates a Post model to store objectId, username, first/last name, photo, review, place ID, place name.
+ */
+
 package com.example.locale.models;
 
 import static com.example.locale.models.Constants.*;

@@ -1,5 +1,9 @@
-package com.example.locale.models;
+/*
+Creates a Location model to store name, place ID, types, vicinity, coordinates, photos,
+how many people have visited a location, and the total rating.
+ */
 
+package com.example.locale.models;
 
 import static com.example.locale.models.Constants.*;
 import com.parse.ParseClassName;

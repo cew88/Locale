@@ -1,3 +1,8 @@
+/*
+Creates a Room database to store information locally on the device. This decreases the number of
+requests to the Parse database and allow users to access app information offline.
+ */
+
 package com.example.locale.models;
 
 import androidx.room.RoomDatabase;
