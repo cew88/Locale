@@ -1,9 +1,3 @@
-/*
-Creates the item views for each landmark listed as "visited" for a specific date. Displays the photo
-the user uploaded when marking the location as "visited."
- */
-
-
 package com.example.locale.adapters;
 
 import android.content.Context;

@@ -1,9 +1,3 @@
-/*
-Creates the item views for each recommended landmark. Handles adding the recommended landmark to the
-user's landmarks "to visit."
- */
-
-
 package com.example.locale.adapters;
 
 import static com.example.locale.models.Constants.HOME_FRAGMENT_TAG;

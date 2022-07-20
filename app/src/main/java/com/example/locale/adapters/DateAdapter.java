@@ -1,10 +1,3 @@
-/*
-Creates the item views for each date that a user visited a location. Each item view contains a
-recycler view to allow users to scroll through the locations they visited on a certain day (if they
-visited more than one location in a day)
- */
-
-
 package com.example.locale.adapters;
 
 import static com.example.locale.models.Constants.KEY_DATE_VISITED;
