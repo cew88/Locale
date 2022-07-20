@@ -112,6 +112,12 @@ public class HomeFragment extends Fragment {
                    mRecommendedDescription.setVisibility(View.VISIBLE);
                    mRvRecommendedLandmarks.setVisibility(View.VISIBLE);
                    mRecommended.addAll(mUser.getRecommended());
+
+                   View parent = (View) view.getParent();
+                   int height = parent.getWidth() - mRvRecommendedLandmarks.getHeight();
+                   ConstraintLayout.LayoutParams params = (ConstraintLayout.LayoutParams) mRvLandmarks.getLayoutParams();
+                   params.height = height;
+                   mRvLandmarks.setLayoutParams(params);
                } catch (JSONException e) {
                    e.printStackTrace();
                }
@@ -120,12 +126,6 @@ public class HomeFragment extends Fragment {
             e.printStackTrace();
         }
 
-        View parent = (View) view.getParent();
-        int height = parent.getWidth() - mRvRecommendedLandmarks.getHeight();
-
-        ConstraintLayout.LayoutParams params = (ConstraintLayout.LayoutParams) mRvLandmarks.getLayoutParams();
-        params.height = height;
-        mRvLandmarks.setLayoutParams(params);
 
     }
 }

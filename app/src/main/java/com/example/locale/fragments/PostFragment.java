@@ -1,3 +1,9 @@
+/*
+Creates a Posts fragment to display all user activity. Posts show the image that the user uploaded
+as well as the review the user left for the location.
+ */
+
+
 package com.example.locale.fragments;
 
 import static com.example.locale.activities.LoginActivity.connectedToNetwork;
