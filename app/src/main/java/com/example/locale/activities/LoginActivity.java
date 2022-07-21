@@ -71,7 +71,7 @@ public class LoginActivity extends AppCompatActivity {
             }
         };
 
-        // Launch pop up checking if the user has been logged in
+        // Launch pop up checking if the user has given location permissions
         ActivityResultLauncher<String[]> locationPermissionRequest =
             registerForActivityResult(new ActivityResultContracts.RequestMultiplePermissions(), result -> {
                 Boolean fineLocationGranted = result.getOrDefault(
@@ -98,9 +98,8 @@ public class LoginActivity extends AppCompatActivity {
                 Manifest.permission.ACCESS_COARSE_LOCATION
         });
 
+        // Get the currently used logged in user
         mCurrentUser = ParseUser.getCurrentUser();
-        mUsername = findViewById(R.id.etUsernameLogin);
-        mPassword = findViewById(R.id.etPasswordLogin);
 
         // Handle what happens when the text prompting users to create an account is clicked
         mCreateAccount = findViewById(R.id.tvNoAccount);
@@ -112,6 +111,9 @@ public class LoginActivity extends AppCompatActivity {
             }
         });
 
+        // Find views in the fragment
+        mUsername = findViewById(R.id.etUsernameLogin);
+        mPassword = findViewById(R.id.etPasswordLogin);
         mLoginBtn = findViewById(R.id.btnLogin);
 
         // Check if the app is connected to the internet or not
@@ -200,7 +202,6 @@ public class LoginActivity extends AppCompatActivity {
                     if (mUser == null) {
                         Toast.makeText(LoginActivity.this, "User not found locally", Toast.LENGTH_SHORT).show();
                     }
-                    // TO DO: also check if the user passwords match up
                     else {
                         navigateToMainActivity();
                     }
