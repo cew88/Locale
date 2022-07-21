@@ -5,8 +5,6 @@ a button for users to log out of the app.
 
 package com.example.locale.fragments;
 
-import static com.example.locale.activities.LoginActivity.connectedToNetwork;
-import static com.example.locale.activities.MainActivity.showOfflineBannerPosts;
 import static com.example.locale.models.Constants.KEY_DATE_VISITED;
 import static com.example.locale.models.Constants.PROFILE_FRAGMENT_TAG;
 
@@ -22,7 +20,6 @@ import android.widget.TextView;
 
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
-import androidx.constraintlayout.widget.ConstraintLayout;
 import androidx.fragment.app.Fragment;
 import androidx.fragment.app.FragmentManager;
 import androidx.recyclerview.widget.LinearLayoutManager;
@@ -36,7 +33,6 @@ import com.parse.ParseUser;
 
 import org.json.JSONException;
 import org.json.JSONObject;
-import org.w3c.dom.Text;
 
 import java.text.ParseException;
 import java.util.ArrayList;
@@ -111,7 +107,6 @@ public class ProfileFragment extends Fragment {
         }
 
         // Set views
-        // TO DO: CHANGE PROFILE IMAGE
         mIvProfileImage.setImageResource(R.drawable.user);
         mTvName.setText(mUser.getFirstName() + " " + mUser.getLastName());
         mTvUsername.setText(mUser.getUserName());
@@ -140,9 +135,9 @@ public class ProfileFragment extends Fragment {
 
         mBtnEditProfile = view.findViewById(R.id.btnEditProfile);
         mBtnEditProfile.setOnClickListener(new View.OnClickListener(){
-
             @Override
             public void onClick(View v) {
+                // Open edit profile fragment
                 Bundle bundle = new Bundle();
                 bundle.putParcelable("User", mUser);
                 FragmentManager mFragmentManager = getParentFragmentManager();

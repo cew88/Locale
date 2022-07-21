@@ -20,6 +20,7 @@ import androidx.recyclerview.widget.RecyclerView;
 import androidx.recyclerview.widget.SnapHelper;
 
 import com.example.locale.adapters.MapLandmarksAdapter;
+import com.example.locale.interfaces.OnLocationClickedListener;
 import com.example.locale.models.Location;
 import com.example.locale.R;
 import com.example.locale.models.User;
@@ -36,7 +37,7 @@ import org.json.JSONException;
 
 import java.util.ArrayList;
 
-public class MapsFragment extends Fragment implements MapLandmarksAdapter.OnLocationClickedListener {
+public class MapsFragment extends Fragment implements OnLocationClickedListener {
     User mUser;
     ArrayList<Location> mNotVisitedLandmarks;
     RecyclerView mRvLandmarks;
@@ -106,6 +107,7 @@ public class MapsFragment extends Fragment implements MapLandmarksAdapter.OnLoca
 
     @Override
     public void zoomInOnMarkers(double latitude, double longitude) {
+        // Set marker location
         markerLocation = new LatLng(latitude, longitude);
 
         // Construct a CameraPosition focusing on the marker location and animate the camera to that position.

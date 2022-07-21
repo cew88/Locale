@@ -9,7 +9,6 @@ import static com.example.locale.activities.LoginActivity.connectedToNetwork;
 import static com.example.locale.activities.MainActivity.showOfflineBanner;
 
 import android.os.Bundle;
-import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;

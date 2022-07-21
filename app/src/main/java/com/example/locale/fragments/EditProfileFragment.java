@@ -22,9 +22,7 @@ public class EditProfileFragment extends Fragment {
     private TextView mFirstName;
     private TextView mLastName;
     private TextView mEmail;
-
     private User mUser;
-
 
     public EditProfileFragment() {
         // Required empty public constructor
@@ -49,16 +47,14 @@ public class EditProfileFragment extends Fragment {
     public void onViewCreated(@NonNull View view, @Nullable Bundle savedInstanceState) {
         super.onViewCreated(view, savedInstanceState);
 
+        // Find views
         mFirstName = view.findViewById(R.id.etFirstNameEditProf);
-        mFirstName.setText(mUser.getFirstName());
-
         mLastName = view.findViewById(R.id.etLastNameEditProf);
-        mLastName.setText(mUser.getLastName());
-
         mEmail = view.findViewById(R.id.etEmailEditProf);
+
+        // Set views
+        mFirstName.setText(mUser.getFirstName());
+        mLastName.setText(mUser.getLastName());
         mEmail.setText(mUser.getEmail());
-
-
-
     }
 }

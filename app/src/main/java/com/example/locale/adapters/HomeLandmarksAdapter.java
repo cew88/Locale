@@ -26,6 +26,7 @@ import com.bumptech.glide.load.resource.bitmap.GranularRoundedCorners;
 import com.bumptech.glide.request.RequestOptions;
 import com.example.locale.BuildConfig;
 import com.example.locale.R;
+import com.example.locale.interfaces.OnLocationVisitedListener;
 import com.example.locale.models.Location;
 import com.google.android.gms.common.api.ApiException;
 import com.google.android.libraries.places.api.Places;
@@ -47,13 +48,6 @@ public class HomeLandmarksAdapter extends RecyclerView.Adapter<HomeLandmarksAdap
     private Context mContext;
     private ArrayList<Location> mLandmarks;
     private OnLocationVisitedListener mLocationVisitedListener;
-
-    // Define an interface to notify the Main Activity that an update to the user information in the
-    // Parse database has been made
-    public interface OnLocationVisitedListener {
-        public void updateLandmarks();
-        public void removeFromNotVisited(Location location) throws JSONException;
-    }
 
     // Pass in the context and the list of landmarks
     public HomeLandmarksAdapter(Context context, ArrayList<Location> landmarks) {
@@ -180,16 +174,6 @@ public class HomeLandmarksAdapter extends RecyclerView.Adapter<HomeLandmarksAdap
                 });
             }
         }
-    }
-
-    public void clear() {
-        mLandmarks.clear();
-        notifyDataSetChanged();
-    }
-
-    public void addAll(List<Location> locationList) {
-        mLandmarks.addAll(locationList);
-        notifyDataSetChanged();
     }
 }
 

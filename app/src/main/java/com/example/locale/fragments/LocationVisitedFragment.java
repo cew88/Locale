@@ -57,12 +57,16 @@ public class LocationVisitedFragment extends DialogFragment {
     public void onViewCreated(@NonNull View view, @Nullable Bundle savedInstanceState) {
         super.onViewCreated(view, savedInstanceState);
 
+        // Find views
         mContinueBtn = view.findViewById(R.id.btnContinue);
+
+        // Set views
         mContinueBtn.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
                 dismiss();
 
+                // Open the review fragment
                 ReviewFragment reviewFragment = new ReviewFragment();
                 Bundle locationBundle = new Bundle();
                 locationBundle.putParcelable("User", mUser);

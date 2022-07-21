@@ -1,11 +1,8 @@
 package com.example.locale.adapters;
 
-import static com.example.locale.models.Constants.KEY_PHOTO;
-
 import android.content.Context;
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
-import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -17,7 +14,6 @@ import androidx.recyclerview.widget.RecyclerView;
 
 import com.bumptech.glide.Glide;
 import com.bumptech.glide.load.resource.bitmap.CenterCrop;
-import com.bumptech.glide.load.resource.bitmap.GranularRoundedCorners;
 import com.bumptech.glide.load.resource.bitmap.RoundedCorners;
 import com.bumptech.glide.request.RequestOptions;
 import com.example.locale.R;
@@ -35,6 +31,7 @@ public class PostAdapter extends RecyclerView.Adapter<PostAdapter.ViewHolder>{
     private TextView mTvUsername;
     private TextView mTvVisitedLocationName;
     private TextView mTvReview;
+    private ImageView mIvUploadedImage;
 
     public PostAdapter(Context context, ArrayList<Post> posts){
         this.mContext = context;
@@ -66,18 +63,19 @@ public class PostAdapter extends RecyclerView.Adapter<PostAdapter.ViewHolder>{
 
         public void bind(Post post) {
             // Find IDs
-            TextView firstLastName = itemView.findViewById(R.id.tvFirstLastNamePost);
-            TextView username = itemView.findViewById(R.id.tvUsernamePost);
-            TextView visitedLocation = itemView.findViewById(R.id.tvVisitedLocationPost);
-            ImageView uploadedImage = itemView.findViewById(R.id.ivUploadedImagePost);
-            TextView review = itemView.findViewById(R.id.tvReviewPost);
+            mTvFirstNameLastName = itemView.findViewById(R.id.tvFirstLastNamePost);
+            mTvUsername = itemView.findViewById(R.id.tvUsernamePost);
+            mTvVisitedLocationName = itemView.findViewById(R.id.tvVisitedLocationPost);
+            mIvUploadedImage = itemView.findViewById(R.id.ivUploadedImagePost);
+            mTvReview= itemView.findViewById(R.id.tvReviewPost);
 
             // Set text and image views
-            firstLastName.setText(post.getFirstName() + " " + post.getLastName());
-            username.setText("@" + post.getUsername());
-            visitedLocation.setText(post.getFirstName() + " visited " + post.getPlaceName() + "!");
-            review.setText(post.getReview());
+            mTvFirstNameLastName.setText(post.getFirstName() + " " + post.getLastName());
+            mTvUsername.setText("@" + post.getUsername());
+            mTvVisitedLocationName.setText(post.getFirstName() + " visited " + post.getPlaceName() + "!");
+            mTvReview.setText(post.getReview());
 
+            // Get photo byte array string
             String byteArrayString = post.getPhoto();
 
             // If the post has no photo, do not set one
@@ -89,7 +87,7 @@ public class PostAdapter extends RecyclerView.Adapter<PostAdapter.ViewHolder>{
 
                     RequestOptions requestOptions = new RequestOptions();
                     requestOptions = requestOptions.transforms(new CenterCrop(), new RoundedCorners(10));
-                    Glide.with(mContext).asBitmap().load(bitmap).apply(requestOptions.override(600, 300)).into(uploadedImage);
+                    Glide.with(mContext).asBitmap().load(bitmap).apply(requestOptions.override(600, 300)).into(mIvUploadedImage);
                 }
             }
         }

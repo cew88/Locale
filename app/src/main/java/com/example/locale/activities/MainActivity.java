@@ -37,7 +37,10 @@ import com.example.locale.fragments.MapsFragment;
 import com.example.locale.fragments.PostFragment;
 import com.example.locale.fragments.ProfileFragment;
 import com.example.locale.fragments.ReviewFragment;
+import com.example.locale.interfaces.AddPhoto;
+import com.example.locale.interfaces.OnLocationVisitedListener;
 import com.example.locale.interfaces.OnLocationsLoaded;
+import com.example.locale.interfaces.OnRecommendedSelectedListener;
 import com.example.locale.models.Converters;
 import com.example.locale.models.Location;
 import com.example.locale.models.Post;
@@ -75,7 +78,7 @@ import java.util.Set;
 
 import okhttp3.Headers;
 
-public class MainActivity extends AppCompatActivity implements HomeLandmarksAdapter.OnLocationVisitedListener, ReviewFragment.AddPhoto, RecommendedLandmarksAdapter.OnRecommendedSelectedListener {
+public class MainActivity extends AppCompatActivity implements OnLocationVisitedListener, AddPhoto, OnRecommendedSelectedListener {
     final FragmentManager mFragmentManager = getSupportFragmentManager();
     // Get the user that is currently logged in
     ParseUser mCurrentUser = ParseUser.getCurrentUser();

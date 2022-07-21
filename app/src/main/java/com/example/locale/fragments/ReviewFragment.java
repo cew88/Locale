@@ -13,24 +13,21 @@ import android.graphics.Bitmap;
 import android.net.Uri;
 import android.os.Bundle;
 import android.provider.MediaStore;
-import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.Button;
-import android.widget.EditText;
 import android.widget.ImageView;
 import android.widget.LinearLayout;
 import android.widget.RatingBar;
 import android.widget.TextView;
-import android.widget.Toast;
 
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.fragment.app.DialogFragment;
 
 import com.example.locale.R;
-import com.example.locale.models.Converters;
+import com.example.locale.interfaces.AddPhoto;
 import com.example.locale.models.Location;
 import com.example.locale.models.Post;
 import com.example.locale.models.User;
@@ -38,7 +35,6 @@ import com.parse.GetCallback;
 import com.parse.ParseException;
 import com.parse.ParseObject;
 import com.parse.ParseQuery;
-import com.parse.ParseUser;
 
 import org.json.JSONException;
 
@@ -48,6 +44,8 @@ import java.io.UnsupportedEncodingException;
 import java.util.Base64;
 
 public class ReviewFragment extends DialogFragment {
+    private final int GALLERY_REQUEST_CODE = 1000;
+
     private View vUpload;
     private User mUser;
     private String mPlaceName;
@@ -59,13 +57,9 @@ public class ReviewFragment extends DialogFragment {
     private ImageView mIvImage;
     private Button mBtnSubmit;
     private LinearLayout mLlUpload;
-    private final int GALLERY_REQUEST_CODE = 1000;
     private AddPhoto mAddPhotoListener;
     private byte[] mByteArray;
 
-    public interface AddPhoto {
-        public void addPhoto(String object_id, String place_id, String place_name, byte[] bytes) throws JSONException, UnsupportedEncodingException;
-    }
 
     public ReviewFragment() {
         // Required empty public constructor
@@ -185,7 +179,7 @@ public class ReviewFragment extends DialogFragment {
     @Override
     public void onActivityResult(int requestCode, int resultCode, @Nullable Intent data) {
         super.onActivityResult(requestCode, resultCode, data);
-
+        // If the returned code is okay, proceed with setting the image
         if (resultCode == getActivity().RESULT_OK){
             if (requestCode == GALLERY_REQUEST_CODE){
                 Uri imageUri = data.getData();

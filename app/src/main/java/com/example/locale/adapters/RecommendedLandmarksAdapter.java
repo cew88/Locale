@@ -1,7 +1,6 @@
 package com.example.locale.adapters;
 
 import static com.example.locale.models.Constants.HOME_FRAGMENT_TAG;
-
 import android.content.Context;
 import android.graphics.Bitmap;
 import android.util.Log;
@@ -10,16 +9,15 @@ import android.view.View;
 import android.view.ViewGroup;
 import android.widget.ImageView;
 import android.widget.TextView;
-
 import androidx.annotation.NonNull;
 import androidx.recyclerview.widget.RecyclerView;
-
 import com.bumptech.glide.Glide;
 import com.bumptech.glide.load.resource.bitmap.CenterCrop;
 import com.bumptech.glide.load.resource.bitmap.GranularRoundedCorners;
 import com.bumptech.glide.request.RequestOptions;
 import com.example.locale.BuildConfig;
 import com.example.locale.R;
+import com.example.locale.interfaces.OnRecommendedSelectedListener;
 import com.example.locale.models.Location;
 import com.google.android.gms.common.api.ApiException;
 import com.google.android.libraries.places.api.Places;
@@ -39,12 +37,6 @@ public class RecommendedLandmarksAdapter extends RecyclerView.Adapter<Recommende
     private Context mContext;
     private ArrayList<Location> mLandmarks;
     private OnRecommendedSelectedListener mOnRecommendedSelectedListener;
-
-    // Create interface to check when a recommended location is added
-    public interface OnRecommendedSelectedListener {
-        public void updateRecommended(Location location) throws JSONException;
-        public void updateNotVisited(Location location) throws JSONException;
-    }
 
     // Pass in the context and the list of landmarks
     public RecommendedLandmarksAdapter(Context context, ArrayList<Location> landmarks) {
@@ -155,9 +147,7 @@ public class RecommendedLandmarksAdapter extends RecyclerView.Adapter<Recommende
                     mLandmarks.remove(landmark);
                     notifyDataSetChanged();
 
-//                    ivAdd.setImageResource(R.drawable.check);
-
-                    if (mContext instanceof RecommendedLandmarksAdapter.OnRecommendedSelectedListener) {
+                    if (mContext instanceof OnRecommendedSelectedListener) {
                         mOnRecommendedSelectedListener = (OnRecommendedSelectedListener) mContext;
                         try {
                             mOnRecommendedSelectedListener.updateRecommended(landmark);
@@ -173,16 +163,6 @@ public class RecommendedLandmarksAdapter extends RecyclerView.Adapter<Recommende
                 }
             });
         }
-    }
-
-    public void clear() {
-        mLandmarks.clear();
-        notifyDataSetChanged();
-    }
-
-    public void addAll(List<Location> locationList) {
-        mLandmarks.addAll(locationList);
-        notifyDataSetChanged();
     }
 }
 
