@@ -362,6 +362,7 @@ public class MainActivity extends AppCompatActivity implements HomeLandmarksAdap
         }
     }
 
+    // The following is called when the app is closed
     @Override
     protected void onStop() {
         super.onStop();
@@ -392,19 +393,22 @@ public class MainActivity extends AppCompatActivity implements HomeLandmarksAdap
                 String[] notificationPrompts = {"It's been a while...", "Explore someplace new!", "Get your adventure on!", "Looking for adventure?" , "Looking for some place new?"};
                 // Randomly select a notification title prompt
                 int promptIndex = new Random().nextInt(notificationPrompts.length);
+
                 // Randomly select a location from the list of user's landmarks to visit
-                int locationIndex = new Random().nextInt(mUser.getNotVisited().size());
+                ArrayList<Location> notVisited = mUser.getNotVisited();
+                if (!notVisited.isEmpty()){
+                    int locationIndex = new Random().nextInt(notVisited.size());
+                    // If the user has not yet visited a location, send a notification
+                    if (visitedLandmarks.isEmpty()){
+                        createNotification(notificationPrompts[promptIndex], "Check out " + notVisited.get(locationIndex).getName() + "!");
+                    }
+                    // If it has been two days since the last location was added as visited
+                    else if (latestDate != null){
+                        long diff = currentTime.getTime() - latestDate.getTime();
 
-                // If the user has not yet visited a location, send a notification
-                if (visitedLandmarks.isEmpty()){
-                    createNotification(notificationPrompts[promptIndex], "Check out " + mUser.getNotVisited().get(locationIndex).getName() + "!");
-                }
-                // If it has been two days since the last location was added as visited
-                else if (latestDate != null){
-                    long diff = currentTime.getTime() - latestDate.getTime();
-
-                    if (diff >=  172800000) {
-                        createNotification(notificationPrompts[promptIndex], "Check out " + mUser.getNotVisited().get(locationIndex).getName() + "!");
+                        if (diff >=  172800000) {
+                            createNotification(notificationPrompts[promptIndex], "Check out " + mUser.getNotVisited().get(locationIndex).getName() + "!");
+                        }
                     }
                 }
             } catch (JSONException | ParseException e) {

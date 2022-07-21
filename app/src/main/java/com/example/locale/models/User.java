@@ -76,7 +76,6 @@ public class User implements Parcelable{
     @ColumnInfo
     String mNotVisitedString;
 
-
     @ColumnInfo
     String mRecommendedString;
 
@@ -208,9 +207,10 @@ public class User implements Parcelable{
         dest.writeString(mEmail);
         dest.writeDouble(mLatitude);
         dest.writeDouble(mLongitude);
+        dest.writeInt(mUserPace);
         dest.writeString(mInterestsString);
         dest.writeString(mNotVisitedString);
-        dest.writeInt(mUserPace);
+        dest.writeString(mRecommendedString);
     }
 
     public String getFirstName() {

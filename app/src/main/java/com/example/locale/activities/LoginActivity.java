@@ -203,6 +203,7 @@ public class LoginActivity extends AppCompatActivity {
                         Toast.makeText(LoginActivity.this, "User not found locally", Toast.LENGTH_SHORT).show();
                     }
                     else {
+                        Log.d("here", mUser.getNotVisitedString());
                         navigateToMainActivity();
                     }
                 }

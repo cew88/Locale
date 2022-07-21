@@ -42,6 +42,7 @@ import com.parse.SaveCallback;
 import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
+import org.parceler.Parcels;
 
 import java.util.ArrayList;
 import java.util.HashMap;
@@ -95,6 +96,7 @@ public class InterestsActivity extends AppCompatActivity implements View.OnClick
     private FlexboxLayout mFlexboxLayout;
     private double mLatitude;
     private double mLongitude;
+    private User mUser;
 
     private ParseUser currentUser = ParseUser.getCurrentUser();
 
@@ -139,17 +141,35 @@ public class InterestsActivity extends AppCompatActivity implements View.OnClick
                     queryAPI(mLatitude, mLongitude);
                 }
 
-                // Create a handler to delay the start of the Main Activity
-                // Prevents navigating to the Home Fragment when the locations have not been stored
-                // to the Parse database yet
-                Handler handler = new Handler();
-                handler.postDelayed(new Runnable() {
+                // Get the DAO
+                final User.UserDao userDao = ((LocaleApplication) getApplicationContext()).getUserDatabase().userDao();
+                ((LocaleApplication) getApplicationContext()).getUserDatabase().runInTransaction(new Runnable() {
                     @Override
                     public void run() {
-                        navigateToMainActivity();
-                    }
-                }, 1000);
+                        try {
+                            OnLocationsLoaded onLocationsLoaded = new OnLocationsLoaded() {
+                                @Override
+                                public void updateNotVisited(String notVisitedString) {
+                                    Log.d(INTERESTS_ACTIVITY_TAG, "Not Visited Loaded");
+                                    userDao.updateNotVisited(notVisitedString);
+                                    navigateToMainActivity();
+                                }
 
+                                @Override
+                                public void updateVisited(String visitedString) {
+                                    Log.d(INTERESTS_ACTIVITY_TAG, "Visited Loaded");
+                                    userDao.updateVisited(visitedString);
+                                }
+                            };
+                            mUser = new User(ParseUser.getCurrentUser(), onLocationsLoaded);
+                            userDao.insertUser(mUser);
+
+
+                        } catch (JSONException | InterruptedException e) {
+                            e.printStackTrace();
+                        }
+                    }
+                });
             }
         });
 
@@ -390,37 +410,11 @@ public class InterestsActivity extends AppCompatActivity implements View.OnClick
 
     // Start new intent to navigate to the main activity
     private void navigateToMainActivity() {
-        // Get the DAO
-        final User.UserDao userDao = ((LocaleApplication) getApplicationContext()).getUserDatabase().userDao();
-        ((LocaleApplication) getApplicationContext()).getUserDatabase().runInTransaction(new Runnable() {
-            @Override
-            public void run() {
-                try {
-                    OnLocationsLoaded onLocationsLoaded = new OnLocationsLoaded() {
-                        @Override
-                        public void updateNotVisited(String notVisitedString) {
-                            Log.d(INTERESTS_ACTIVITY_TAG, "Not Visited Loaded");
-                            userDao.updateNotVisited(notVisitedString);
-
-                            Intent intent = new Intent(InterestsActivity.this, MainActivity.class);
-                            intent.putExtra("Just Registered", true);
-                            startActivity(intent);
-                            overridePendingTransition(android.R.anim.fade_in, android.R.anim.fade_out);
-                            finish();
-                        }
-
-                        @Override
-                        public void updateVisited(String visitedString) {
-                            Log.d(INTERESTS_ACTIVITY_TAG, "Visited Loaded");
-                            userDao.updateVisited(visitedString);
-                        }
-                    };
-                    User newUser = new User(ParseUser.getCurrentUser(), onLocationsLoaded);
-                    userDao.insertUser(newUser);
-                } catch (JSONException | InterruptedException e) {
-                    e.printStackTrace();
-                }
-            }
-        });
+        Intent intent = new Intent(InterestsActivity.this, MainActivity.class);
+        intent.putExtra("Just Registered", true);
+        intent.putExtra("User", Parcels.wrap(mUser));
+        startActivity(intent);
+        overridePendingTransition(android.R.anim.fade_in, android.R.anim.fade_out);
+        finish();
     }
 }

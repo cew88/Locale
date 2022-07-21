@@ -59,7 +59,7 @@ public class Constants {
     public static final String KEY_ART_GALLERY = "art_gallery";
     public static final String KEY_BAKERY = "bakery";
     public static final String KEY_CAFE = "cafe";
-    public static final String KEY_MOVIE_THEATER= "move_theater";
+    public static final String KEY_MOVIE_THEATER= "movie_theater";
     public static final String KEY_MUSEUM = "museum";
     public static final String KEY_NIGHT_CLUB = "night_club";
     public static final String KEY_PARK= "park";
