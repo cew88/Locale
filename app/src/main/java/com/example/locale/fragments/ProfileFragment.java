@@ -40,7 +40,6 @@ import java.util.ArrayList;
 public class ProfileFragment extends Fragment {
     private ImageView mIvProfileImage;
     private Button mBtnLogout;
-    private Button mBtnEditProfile;
     private TextView mTvName;
     private TextView mTvUsername;
 
@@ -79,7 +78,6 @@ public class ProfileFragment extends Fragment {
         mTvUsername = view.findViewById(R.id.tvUsername);
         mPlacesVisitedCount = view.findViewById(R.id.tvPlacesVisitedCount);
         mInterests = view.findViewById(R.id.tvInterestsList);
-
 
         // Set the user timeline list
         ArrayList<String> uniqueDates = new ArrayList<>();
@@ -130,20 +128,6 @@ public class ProfileFragment extends Fragment {
                 Intent i = new Intent(getActivity().getApplicationContext(), LoginActivity.class);
                 startActivity(i);
                 getActivity().overridePendingTransition(android.R.anim.fade_in, android.R.anim.fade_out);
-            }
-        });
-
-        mBtnEditProfile = view.findViewById(R.id.btnEditProfile);
-        mBtnEditProfile.setOnClickListener(new View.OnClickListener(){
-            @Override
-            public void onClick(View v) {
-                // Open edit profile fragment
-                Bundle bundle = new Bundle();
-                bundle.putParcelable("User", mUser);
-                FragmentManager mFragmentManager = getParentFragmentManager();
-                Fragment fragment = new EditProfileFragment();
-                fragment.setArguments(bundle);
-                mFragmentManager.beginTransaction().replace(R.id.flContainer, fragment).commit();
             }
         });
     }
