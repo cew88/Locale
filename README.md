@@ -36,14 +36,90 @@ Going someplace new? Locale is a travel app to allow individuals new to an area 
 
 ### 2. Screen Archetypes
 
-* Login 
-* Register - User signs up or logs into their account
+* Login: User signs into their account
+* Register: User creates their account
    * Upon Download/Reopening of the application, the user is prompted to log in to gain access to their profile information
 * Home Screen
     * Allows users to view recommended landmarks and their list of locations to visit
-* Posts Screen
+* Interests Screen
+    * Allows users to customize their interests and how many locations are shown
+* Discover Screen
     * Allows uers to view activity of other users
 * Map Screen
     * Allows users to view pins of where locations are on a map
 * Profile Screen 
    * Allows user to view their previously visited locations
+
+
+### 3. Navigation
+
+**Tab Navigation** (Tab to Screen)
+
+* Home
+* Map
+* Profile
+
+Optional:
+* Discover (User posts)
+
+**Flow Navigation** (Screen to Screen)
+* Forced Log-in -> Automatically logs in the user if possible; otherwise, users can log in/create a new account
+* Home -> Review location visited pop-up dialog
+* Profile -> Returns to log in page on logout button click
+
+## Wireframes
+<img src="" width=800><br>
+
+## Schema 
+### Models
+#### User
+
+   | Property      | Type     | Description |
+   | ------------- | -------- | ------------|
+   | objectId      | String   | unique id for the user (default field) |
+| username       | String   | unique username for the user (default field)|
+   | first_name        | String   |  first name of the user |
+   | last_name         | String   | last name of the user |
+   | password | String   | password for the user's account |
+   | location    | GeoPoint   | the location where the user created their account |
+   | not_visited_landmarks     | Array, each element is a pointer to a Location | stores all the user's locations to visit|
+   |visited_landmarks | Array, each element is a JSON Object | stores all the user's visited locations and information about each location (the date the location was visited, and a user uploaded photo) |
+   | interests     | Array of Strings| stores a list of user interests |
+   | pace | Integer | value of 5, 10, or 20 depending on how many locations the user wants to visit |
+   | createdAt     | DateTime | date when post is created (default field) |
+   | updatedAt     | DateTime | date when post is last updated (default field) |
+   
+#### Location
+
+   | Property      | Type     | Description |
+   | ------------- | -------- | ------------|
+   | objectId      | String   | unique id for the user (default field) |
+   | coordinates       | GeoPoint   |  the latitude and longitude coordinates for a location |
+   | place_name         | String   | name of the location |
+   | vicinity | String   | the location address |
+   | types    | Array   | stores the types of categories the location falls under |
+   | times_visited     | Integer | stores the number of times a location has been visited|
+   | total_rating | Double | stores the total rating of a location given by users |
+   | review     | Array of Strings| stores a list of reviews given by users |
+   | photos | Array of Strings | stores all user uploaded photos of a location |
+   | createdAt     | DateTime | date when post is created (default field) |
+   | updatedAt     | DateTime | date when post is last updated (default field) |
+   
+   
+   
+### Networking
+#### List of network requests by screen
+   - Home Feed Screen
+      - (Read/GET) Query logged in user object
+      - (Read/GET) Query all list of user's location to visit
+      - (Read/GET) Query nearby locations to the user's current location
+      - (Update/PUT) Update user's locations to visit when a recommended landmark is added to the list of locations to visit
+      - (Update/PUT) Update user's locations to visit and visited locations when a location is marked as visit
+      - (Create/POST) Create a post when users mark a location visited
+      - (Create/POST) Create a new post object
+   - Discover Screen
+      - (Read/GET) Query posts from Parse
+   - Maps Screen
+      - (Read/GET) Query user's locations to visit and display them as pins on a map
+   - Profile Screen
+      - (Read/GET) Query logged in user object
