@@ -8,7 +8,7 @@
         android:id="@+id/tvEditProfile"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:text="Edit Profile"
+        android:text="@string/edit_profile"
         android:textStyle="bold"
         android:layout_marginTop="20dp"
         app:layout_constraintStart_toStartOf="parent"
@@ -28,7 +28,7 @@
         android:id="@+id/tvChangeProfilePhoto"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:text="Change profile photo"
+        android:text="@string/change_profile_picture"
         app:layout_constraintTop_toBottomOf="@id/ivProfileImageEditProf"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintEnd_toEndOf="parent"/>
@@ -42,7 +42,7 @@
         android:layout_marginStart="20dp"
         android:layout_marginEnd="10dp"
         android:padding="10dp"
-        android:hint="First Name"
+        android:hint="@string/first_name"
         android:background="@drawable/border"
         app:layout_constraintTop_toBottomOf="@id/tvChangeProfilePhoto"
         app:layout_constraintStart_toStartOf="parent"
@@ -57,7 +57,7 @@
         android:layout_marginStart="10dp"
         android:layout_marginEnd="20dp"
         android:padding="10dp"
-        android:hint="Last Name"
+        android:hint="@string/last_name"
         android:background="@drawable/border"
         app:layout_constraintTop_toBottomOf="@id/tvChangeProfilePhoto"
         app:layout_constraintStart_toEndOf="@id/etFirstNameEditProf"
@@ -69,7 +69,7 @@
         android:layout_height="wrap_content"
         android:layout_margin="20dp"
         android:padding="10dp"
-        android:hint="Email"
+        android:hint="@string/email"
         android:background="@drawable/border"
         app:layout_constraintTop_toBottomOf="@id/etLastNameEditProf"
         app:layout_constraintStart_toStartOf="parent"
@@ -80,7 +80,7 @@
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:layout_margin="20dp"
-        android:text="Adjust your intensity"
+        android:text="@string/adjust_intensity"
         android:textStyle="bold"
         app:layout_constraintTop_toBottomOf="@id/etEmailEditProf"
         app:layout_constraintStart_toStartOf="parent"
@@ -113,7 +113,7 @@
             <TextView
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:text="Relaxed"/>
+                android:text="@string/relaxed"/>
         </LinearLayout>
 
         <LinearLayout
@@ -135,7 +135,7 @@
             <TextView
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:text="Moderate"/>
+                android:text="@string/moderate"/>
         </LinearLayout>
 
         <LinearLayout
@@ -157,7 +157,7 @@
             <TextView
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:text="Intense"/>
+                android:text="@string/intense"/>
         </LinearLayout>
 
     </LinearLayout>
@@ -167,7 +167,7 @@
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:layout_margin="20dp"
-        android:text="Adjust your interests"
+        android:text="@string/adjust_interests"
         android:textStyle="bold"
         app:layout_constraintTop_toBottomOf="@id/typeViewEditProf"
         app:layout_constraintStart_toStartOf="parent"
@@ -189,7 +189,7 @@
         android:id="@+id/btnSaveChanges"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:text="Save Changes"
+        android:text="@string/save_changes"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintTop_toBottomOf="@id/interestsViewEditProf"/>

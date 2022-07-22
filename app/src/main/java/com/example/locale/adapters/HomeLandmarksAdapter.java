@@ -42,7 +42,6 @@ import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
 
-
 public class HomeLandmarksAdapter extends RecyclerView.Adapter<HomeLandmarksAdapter.ViewHolder>{
 
     private Context mContext;
@@ -151,8 +150,6 @@ public class HomeLandmarksAdapter extends RecyclerView.Adapter<HomeLandmarksAdap
                 itemView.setOnLongClickListener(new View.OnLongClickListener() {
                     @Override
                     public boolean onLongClick(View v) {
-                        // Toast.makeText(v.getContext(), "Location long clicked!", Toast.LENGTH_SHORT).show();
-
                         // Remove the landmark that was just marked as visited from the array of not visited locations
                         mLandmarks.remove(landmark);
                         notifyDataSetChanged();

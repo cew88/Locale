@@ -11,7 +11,7 @@
         android:id="@+id/tvTypeofAdv"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:text="What kind of adventure are you seeking?"
+        android:text="@string/type_of_adv"
         android:textStyle="bold"
         android:layout_marginTop="20dp"
         app:layout_constraintStart_toStartOf="parent"
@@ -45,7 +45,7 @@
             <TextView
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:text="Relaxed"/>
+                android:text="@string/relaxed"/>
         </LinearLayout>
 
         <LinearLayout
@@ -67,7 +67,7 @@
             <TextView
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:text="Moderate"/>
+                android:text="@string/moderate"/>
         </LinearLayout>
 
         <LinearLayout
@@ -89,7 +89,7 @@
             <TextView
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:text="Intense"/>
+                android:text="@string/intense"/>
         </LinearLayout>
 
     </LinearLayout>
@@ -98,7 +98,7 @@
         android:id="@+id/tvEditInterests"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:text="Edit Interests"
+        android:text="@string/edit_interests"
         android:textStyle="bold"
         android:layout_marginTop="20dp"
         app:layout_constraintStart_toStartOf="parent"
@@ -109,7 +109,7 @@
         android:id="@+id/tvInterestsDescription"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:text="Select up to five locations that you'd like to visit."
+        android:text="@string/interests_description"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintTop_toBottomOf="@id/tvEditInterests"/>
@@ -130,7 +130,7 @@
         android:id="@+id/btnSubmit"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:text="Submit"
+        android:text="@string/submit"
         android:backgroundTint="@color/dusty_blue_light"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintEnd_toEndOf="parent"

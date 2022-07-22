@@ -1,8 +1,51 @@
 <resources>
     <string name="app_name">Locale</string>
-
     <string name="back4app_server_url">https://parseapi.back4app.com/</string>
     <string name="back4app_app_id">Mg8YJWhLrHldu92ZzwrP40gmr13ByZGqJ2nfcOhg</string>
     <string name="back4app_client_key">HmFlU6V1Nr9mqJqxwVrCD1nr4gdmklCFgpvqLzNf</string>
+
+    <string name="type_of_adv">What kind of adventure are you seeking?</string>
+    <string name="relaxed">Relaxed</string>
+    <string name="moderate">Moderate</string>
+    <string name="intense">Intense</string>
+    <string name="edit_interests">Edit Interests</string>
+    <string name="interests_description">Select up to five locations that you\'d like to visit.</string>
+    <string name="submit">Submit</string>
+    <string name="username">Username</string>
+    <string name="password">Password</string>
+    <string name="login">Login</string>
+    <string name="logout">Logout</string>
+    <string name="forgot_password">Forgot password?</string>
+    <string name="sign_up">Don\'t have an account? Sign up.</string>
+    <string name="first_name">First Name</string>
+    <string name="last_name">Last Name</string>
+    <string name="email">Email</string>
+    <string name="confirm_password">Confirm Password</string>
+    <string name="create_account">Create Account</string>
+    <string name="already_has_account">Already have an account? Log in.</string>
+    <string name="save_changes">Save Changes</string>
+    <string name="adjust_interests">Adjust your interests</string>
+    <string name="adjust_intensity">Adjust your intensity</string>
+    <string name="change_profile_picture">Change profile photo</string>
+    <string name="edit_profile">Edit Profile</string>
+    <string name="offline_limited_access">You\'re offline. Limited access.</string>
+    <string name="limited_access_description">You can still view your landmarks, but you won\'t be able to mark locations as visited or see posts and map markers.</string>
+    <string name="posts_limited_access_description">Please wait until you have a network connection to view posts.</string>
+    <string name="dismiss">DISMISS</string>
+    <string name="continue_str">Continue</string>
+    <string name="recommended_landmark">Recommended Landmark</string>
+    <string name="your_landmarks">Your Landmarks</string>
+    <string name="visited_description">Congratulations! Looks like you\'ve checked off another landmark from your list!</string>
+    <string name="looks_like_you_visited">Looks like you visited</string>
+    <string name="leave_review">Leave a review</string>
+    <string name="upload_image">Upload Image</string>
+    <string name="timeline">Timeline</string>
+    <string name="none">None</string>
+    <string name="interests">Interests: </string>
+    <string name="places_visited">Places Visited: </string>
+    <string name="choose_from_lib">Choose from your library</string>
+    <string name="date_visited">Date Visited</string>
+    <string name="location_name">Location Name</string>
+    <string name="vicinity">Vicinity</string>
 
 </resources>

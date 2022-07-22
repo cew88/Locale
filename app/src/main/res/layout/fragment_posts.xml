@@ -26,7 +26,7 @@
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:padding="5dp"
-            android:text="You're offline. Limited access."
+            android:text="@string/offline_limited_access"
             android:textStyle="bold"
             app:layout_constraintTop_toTopOf="parent"
             app:layout_constraintStart_toStartOf="parent"/>
@@ -36,23 +36,12 @@
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:padding="5dp"
-            android:text="Please wait until you have a network connection to view posts."
+            android:text="@string/posts_limited_access_description"
             app:layout_constraintTop_toBottomOf="@id/tvYoureOfflinePosts"
             app:layout_constraintStart_toStartOf="parent"
             app:layout_constraintEnd_toEndOf="parent"/>
 
     </androidx.constraintlayout.widget.ConstraintLayout>
-
-<!--    <TextView-->
-<!--        android:id="@+id/tvPostsDescription"-->
-<!--        android:layout_width="wrap_content"-->
-<!--        android:layout_height="wrap_content"-->
-<!--        android:text="Explore"-->
-<!--        android:textSize="20sp"-->
-<!--        android:textStyle="bold"-->
-<!--        android:layout_margin="20dp"-->
-<!--        app:layout_constraintTop_toBottomOf="@id/clOfflinePosts"-->
-<!--        app:layout_constraintStart_toStartOf="parent"/>-->
 
     <androidx.swiperefreshlayout.widget.SwipeRefreshLayout
         xmlns:android="http://schemas.android.com/apk/res/android"
@@ -61,7 +50,6 @@
         android:layout_height="match_parent"
         app:layout_constraintTop_toBottomOf="@id/clOfflinePosts"
         app:layout_constraintStart_toStartOf="parent">
-
 
     <androidx.recyclerview.widget.RecyclerView
             android:id="@+id/rvPosts"

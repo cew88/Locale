@@ -4,22 +4,17 @@ locations as visited.
  */
 
 package com.example.locale.adapters;
-
 import android.content.Context;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.TextView;
-
 import androidx.annotation.NonNull;
 import androidx.recyclerview.widget.RecyclerView;
-
 import com.example.locale.R;
 import com.example.locale.interfaces.OnLocationClickedListener;
 import com.example.locale.models.Location;
-
 import org.json.JSONException;
-
 import java.util.ArrayList;
 
 

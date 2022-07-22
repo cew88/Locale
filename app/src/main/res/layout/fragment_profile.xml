@@ -6,8 +6,6 @@
     android:layout_height="match_parent"
     tools:context=".activities.MainActivity">
 
-    <!-- TO DO: ADD MARGINS TO DIMENS.XML INSTEAD OF HARD CODING-->
-
     <ImageView
         android:id="@+id/ivProfileImage"
         android:layout_width="100dp"
@@ -34,7 +32,7 @@
         android:layout_height="wrap_content"
         android:layout_marginStart="20dp"
         android:layout_marginTop="10dp"
-        android:tooltipText="Username"
+        android:tooltipText="@string/username"
         app:layout_constraintTop_toBottomOf="@id/tvName"
         app:layout_constraintStart_toEndOf="@id/ivProfileImage"/>
 
@@ -43,7 +41,7 @@
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:textStyle="bold"
-        android:text="Places Visited: "
+        android:text="@string/places_visited"
         android:textSize="14sp"
         android:layout_marginTop="20dp"
         android:layout_marginStart="20dp"
@@ -64,7 +62,7 @@
         android:id="@+id/tvInterests"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:text="Interests: "
+        android:text="@string/interests"
         android:textSize="14sp"
         android:textStyle="bold"
         android:layout_marginStart="20dp"
@@ -76,7 +74,7 @@
         android:layout_width="0dp"
         android:layout_height="wrap_content"
         android:layout_marginEnd="20dp"
-        android:text="None"
+        android:text="@string/none"
         android:textSize="14sp"
         app:layout_constraintTop_toBottomOf="@id/tvPlacesVisitedCount"
         app:layout_constraintStart_toEndOf="@id/tvInterests"
@@ -98,7 +96,7 @@
             android:layout_width="0dp"
             android:layout_height="wrap_content"
             android:layout_weight="1"
-            android:text="Edit Profile"
+            android:text="@string/edit_profile"
             android:textAllCaps="false"
             android:layout_marginEnd="5dp"
             android:minHeight="20dp"/>
@@ -108,7 +106,7 @@
             android:layout_width="0dp"
             android:layout_height="wrap_content"
             android:layout_weight="1"
-            android:text="Logout"
+            android:text="@string/logout"
             android:textAllCaps="false"
             android:layout_marginStart="5dp"
             android:minHeight="20dp"/>
@@ -118,7 +116,7 @@
         android:id="@+id/tvYourTimeline"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:text="Timeline"
+        android:text="@string/timeline"
         android:textSize="14sp"
         android:textStyle="bold"
         android:layout_marginStart="20dp"
@@ -144,6 +142,5 @@
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintTop_toBottomOf="@id/vHorizontalLine"
         app:layout_constraintBottom_toBottomOf="parent"/>
-
 
 </androidx.constraintlayout.widget.ConstraintLayout>
