@@ -5,7 +5,9 @@ a button for users to log out of the app.
 
 package com.example.locale.fragments;
 
+import static com.example.locale.activities.LoginActivity.connectedToNetwork;
 import static com.example.locale.models.Constants.KEY_DATE_VISITED;
+import static com.example.locale.models.Constants.KEY_VISITED_LANDMARKS;
 import static com.example.locale.models.Constants.PROFILE_FRAGMENT_TAG;
 
 import android.content.Intent;
@@ -72,6 +74,11 @@ public class ProfileFragment extends Fragment {
     public void onViewCreated(@NonNull View view, @Nullable Bundle savedInstanceState) {
         super.onViewCreated(view, savedInstanceState);
 
+        // Retrieve visited locations if online
+        if (connectedToNetwork){
+            mUser.setVisitedString(String.valueOf(ParseUser.getCurrentUser().getJSONArray(KEY_VISITED_LANDMARKS)));
+        }
+
         // Find views
         mIvProfileImage = view.findViewById(R.id.ivProfileImage);
         mTvName = view.findViewById(R.id.tvName);
@@ -84,7 +91,6 @@ public class ProfileFragment extends Fragment {
 
         // Only run the following if the user has visited locations
         try {
-            // Log.d("Profile Fragment", String.valueOf(mUser.getVisited()));
             for (int i=0; i<mUser.getVisited().size(); i++){
                 JSONObject jsonObject = mUser.getVisited().get(i);
                 String dateString = jsonObject.getString(KEY_DATE_VISITED).substring(0, 10);
@@ -99,7 +105,7 @@ public class ProfileFragment extends Fragment {
             mRvDates.setLayoutManager(dateLinearLayoutManager);
             mRvDates.setAdapter(mDateAdapter);
 
-            mPlacesVisitedCount.setText(String.valueOf(mUser.getVisited().size()));
+            mPlacesVisitedCount.setText(" " + mUser.getVisited().size());
         } catch (JSONException | ParseException e) {
             e.printStackTrace();
         }
@@ -114,17 +120,20 @@ public class ProfileFragment extends Fragment {
             for (int i=1; i<mUser.getInterests().size(); i++){
                 interestsList += ", " + mUser.getInterests().get(i).replaceAll("_", " ");;
             }
-            mInterests.setText(interestsList);
+            mInterests.setText(" " + interestsList);
         }
 
         mBtnLogout = view.findViewById(R.id.btnLogout);
         mBtnLogout.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                ParseUser.logOut();
-                // The following line of code should be null
-                 ParseUser currentUser = ParseUser.getCurrentUser();
-                Log.d(PROFILE_FRAGMENT_TAG, "Current user should be null: " + currentUser);
+                if (connectedToNetwork){
+                    ParseUser.logOut();
+                    // The following line of code should be null
+                    ParseUser currentUser = ParseUser.getCurrentUser();
+                    Log.d(PROFILE_FRAGMENT_TAG,"Current user should be null: " + currentUser);
+                }
+
                 Intent i = new Intent(getActivity().getApplicationContext(), LoginActivity.class);
                 startActivity(i);
                 getActivity().overridePendingTransition(android.R.anim.fade_in, android.R.anim.fade_out);

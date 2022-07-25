@@ -139,7 +139,9 @@ public class LoginActivity extends AppCompatActivity {
                     // If the user is stored locally, update what is in the local database with what is
                     // stored in Parse
                     else {
-                        userDao.updateUser(user);
+                        mUser.setVisitedString(String.valueOf(mCurrentUser.getJSONArray(KEY_VISITED_LANDMARKS)));
+                        mUser.setNotVisitedString(String.valueOf(mCurrentUser.getJSONArray(KEY_NOT_VISITED_LANDMARKS)));
+                        userDao.updateUser(mUser);
                     }
                 } catch (JSONException | InterruptedException e) {
                     e.printStackTrace();
@@ -177,6 +179,9 @@ public class LoginActivity extends AppCompatActivity {
                                 }
                             }
                             else {
+                                mUser.setVisitedString(String.valueOf(mCurrentUser.getJSONArray(KEY_VISITED_LANDMARKS)));
+                                mUser.setNotVisitedString(String.valueOf(mCurrentUser.getJSONArray(KEY_NOT_VISITED_LANDMARKS)));
+                                userDao.updateUser(mUser);
                                 navigateToMainActivity();
                             }
                             Toast.makeText(LoginActivity.this, "Login Successful!", Toast.LENGTH_SHORT).show();
