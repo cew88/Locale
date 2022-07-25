@@ -1,8 +1,8 @@
 <resources>
     <string name="app_name">Locale</string>
     <string name="back4app_server_url">https://parseapi.back4app.com/</string>
-    <string name="back4app_app_id">Mg8YJWhLrHldu92ZzwrP40gmr13ByZGqJ2nfcOhg</string>
-    <string name="back4app_client_key">HmFlU6V1Nr9mqJqxwVrCD1nr4gdmklCFgpvqLzNf</string>
+    <string name="back4app_app_id">Ss38JykrVNIoYajjGxhdUk3hoepYUkyKGMPh5Hay</string>
+    <string name="back4app_client_key">yYixYDKhOFLCd8doHkjxnsCDAABQPze4xHl2dfsT</string>
 
     <string name="type_of_adv">What kind of adventure are you seeking?</string>
     <string name="relaxed">Relaxed</string>
@@ -47,5 +47,6 @@
     <string name="date_visited">Date Visited</string>
     <string name="location_name">Location Name</string>
     <string name="vicinity">Vicinity</string>
+    <string name="no_posts">No Posts Available</string>
 
 </resources>

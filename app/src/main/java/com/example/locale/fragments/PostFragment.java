@@ -40,7 +40,7 @@ public class PostFragment extends Fragment {
     private PostAdapter mPostAdapter;
 
     private ConstraintLayout mOfflineBanner;
-    private TextView mDismiss;
+    private TextView tvNoPosts;
 
 
     public PostFragment() {
@@ -89,6 +89,7 @@ public class PostFragment extends Fragment {
 
         // Find views
         mOfflineBanner = view.findViewById(R.id.clOfflinePosts);
+        tvNoPosts = view.findViewById(R.id.tvNoPosts);
 
         if (!connectedToNetwork && showOfflineBannerPosts){
             mOfflineBanner.setVisibility(View.VISIBLE);
@@ -107,18 +108,21 @@ public class PostFragment extends Fragment {
             @Override
             public void done(List<Post> posts, ParseException e) {
                 // Check for errors
-                if (e != null) {
+                if (posts == null || e != null) {
                     Log.e(POSTS_FRAGMENT_TAG, "Issue with getting posts", e);
+                    swipeContainer.setRefreshing(false);
+                    tvNoPosts.setVisibility(View.VISIBLE);
                     return;
                 }
+                else {
+                    // Remove all posts that are currently in the adapter
+                    mPostAdapter.clear();
+                    mPosts.addAll(posts);
+                    mPostAdapter.notifyDataSetChanged();
 
-                // Remove all posts that are currently in the adapter
-                mPostAdapter.clear();
-                mPosts.addAll(posts);
-                mPostAdapter.notifyDataSetChanged();
-
-                // Signal that the refresh has been completed
-                swipeContainer.setRefreshing(false);
+                    // Signal that the refresh has been completed
+                    swipeContainer.setRefreshing(false);
+                }
             }
         });
     }
