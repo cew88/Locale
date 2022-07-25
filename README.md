@@ -50,6 +50,7 @@ Going someplace new? Locale is a travel app to allow individuals new to an area 
 * Profile Screen 
    * Allows user to view their previously visited locations
 
+<img src="https://github.com/cew88/Locale/blob/master/app/Login.jpg?raw=true" width=200> <img src="https://github.com/cew88/Locale/blob/master/app/Register.jpg?raw=true" width=200> <img src="https://github.com/cew88/Locale/blob/master/app/Interests.jpg?raw=true" width=200> <img src="https://github.com/cew88/Locale/blob/master/app/HomeFragment.jpg?raw=true" width=200> <img src="https://github.com/cew88/Locale/blob/master/app/LocationVisited.jpg?raw=true" width=200> <img src="https://github.com/cew88/Locale/blob/master/app/Review.jpg?raw=true" width=200> <img src="https://github.com/cew88/Locale/blob/master/app/Map.jpg?raw=true" width=200> <img src="https://github.com/cew88/Locale/blob/master/app/MapZoom.jpg?raw=true" width=200> <img src="https://github.com/cew88/Locale/blob/master/app/Profile.jpg?raw=true" width=200> 
 
 ### 3. Navigation
 
@@ -66,9 +67,6 @@ Optional:
 * Forced Log-in -> Automatically logs in the user if possible; otherwise, users can log in/create a new account
 * Home -> Review location visited pop-up dialog
 * Profile -> Returns to log in page on logout button click
-
-## Wireframes
-<img src="" width=800><br>
 
 ## Schema 
 ### Models
