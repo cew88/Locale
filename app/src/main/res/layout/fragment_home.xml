@@ -86,23 +86,37 @@
         app:layout_constraintTop_toBottomOf="@id/rvRecommendedLandmarks"/>
 
     <com.google.android.material.textfield.TextInputLayout
-        android:id="@+id/dropdown_menu"
-        style="@style/Widget.MaterialComponents.TextInputLayout.OutlinedBox.ExposedDropdownMenu"
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:layout_margin="10dp"
-        app:layout_constraintLeft_toLeftOf="parent"
-        app:layout_constraintRight_toRightOf="parent"
+        android:id="@+id/dropdown_menu" style="@style/Widget.MaterialComponents.TextInputLayout.FilledBox.ExposedDropdownMenu"
+        android:layout_width="wrap_content"
+        android:layout_height="30dp"
+        android:background="@drawable/filter_dropdown"
+        app:boxBackgroundColor="@color/light_gray"
+        android:layout_marginHorizontal="10dp"
+        app:boxCornerRadiusBottomEnd="10dp"
+        app:boxCornerRadiusBottomStart="10dp"
+        app:boxCornerRadiusTopEnd="10dp"
+        app:boxCornerRadiusTopStart="10dp"
+        app:boxStrokeWidth="0dp"
+        app:boxStrokeWidthFocused="0dp"
+        app:endIconDrawable="@drawable/ic_baseline_arrow_drop_down"
+        app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toBottomOf="@id/tvHomeFragmentDescription">
 
         <AutoCompleteTextView
             android:id="@+id/autoCompleteTextView"
             android:layout_width="match_parent"
             android:layout_height="match_parent"
-            android:layout_weight="1"
+            android:background="@null"
+            android:dropDownSelector="@drawable/filter_dropdown"
+            android:ellipsize="end"
             android:inputType="none"
-            android:text="Filter by type of location" />
-
+            android:maxLines="1"
+            android:paddingTop="5dp"
+            android:paddingBottom="5dp"
+            android:singleLine="true"
+            android:text="Filter by Type"
+            android:textAlignment="center"
+            tools:ignore="LabelFor" />
     </com.google.android.material.textfield.TextInputLayout>
 
     <androidx.recyclerview.widget.RecyclerView
@@ -110,8 +124,8 @@
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:clipToPadding="false"
-        android:layout_marginTop="80dp"
-        android:paddingBottom="80dp"
+        android:layout_marginTop="40dp"
+        android:paddingBottom="120dp"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toBottomOf="@id/dropdown_menu"
