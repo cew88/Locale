@@ -32,6 +32,7 @@ import com.example.locale.models.User;
 import com.parse.LogInCallback;
 import com.parse.ParseException;
 import com.parse.ParseUser;
+import com.parse.RequestPasswordResetCallback;
 
 import org.json.JSONException;
 import org.parceler.Parcels;
@@ -115,6 +116,7 @@ public class LoginActivity extends AppCompatActivity {
         mUsername = findViewById(R.id.etUsernameLogin);
         mPassword = findViewById(R.id.etPasswordLogin);
         mLoginBtn = findViewById(R.id.btnLogin);
+        mForgetPassword = findViewById(R.id.tvForgetPassword);
 
         // Check if the app is connected to the internet or not
         ConnectivityManager connectivityManager = (ConnectivityManager)getSystemService(Context.CONNECTIVITY_SERVICE);
@@ -187,6 +189,14 @@ public class LoginActivity extends AppCompatActivity {
                             Toast.makeText(LoginActivity.this, "Login Successful!", Toast.LENGTH_SHORT).show();
                         }
                     });
+                }
+            });
+
+            mForgetPassword.setOnClickListener(new View.OnClickListener() {
+                @Override
+                public void onClick(View v) {
+                    Intent intent = new Intent(LoginActivity.this, ForgotPasswordActivity.class);
+                    startActivity(intent);
                 }
             });
         }

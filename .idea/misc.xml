@@ -27,6 +27,7 @@
         <entry key="app/src/main/res/drawable/dashed_border_background.xml" value="0.2175" />
         <entry key="app/src/main/res/drawable/rounded_background.xml" value="0.1655" />
         <entry key="app/src/main/res/drawable/selected_rounded_background.xml" value="0.1655" />
+        <entry key="app/src/main/res/layout/activity_forgot_password.xml" value="0.2484375" />
         <entry key="app/src/main/res/layout/activity_interests.xml" value="0.335" />
         <entry key="app/src/main/res/layout/activity_login.xml" value="0.17552083333333332" />
         <entry key="app/src/main/res/layout/activity_main.xml" value="0.17552083333333332" />
