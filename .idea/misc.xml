@@ -47,6 +47,7 @@
         <entry key="app/src/main/res/layout/fragment_upload_photos.xml" value="0.14479166666666668" />
         <entry key="app/src/main/res/layout/fragment_visited_page.xml" value="0.19479166666666667" />
         <entry key="app/src/main/res/layout/item_date.xml" value="0.18958333333333333" />
+        <entry key="app/src/main/res/layout/item_dropdown.xml" value="0.25364583333333335" />
         <entry key="app/src/main/res/layout/item_interest.xml" value="0.335" />
         <entry key="app/src/main/res/layout/item_landmark.xml" value="0.25" />
         <entry key="app/src/main/res/layout/item_post.xml" value="0.1" />

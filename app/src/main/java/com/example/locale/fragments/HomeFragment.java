@@ -7,12 +7,30 @@ package com.example.locale.fragments;
 
 import static com.example.locale.activities.LoginActivity.connectedToNetwork;
 import static com.example.locale.activities.MainActivity.showOfflineBanner;
+import static com.example.locale.models.Constants.KEY_AMUSEMENT_PARK;
+import static com.example.locale.models.Constants.KEY_AQUARIUM;
+import static com.example.locale.models.Constants.KEY_ART_GALLERY;
+import static com.example.locale.models.Constants.KEY_BAKERY;
+import static com.example.locale.models.Constants.KEY_CAFE;
+import static com.example.locale.models.Constants.KEY_MOVIE_THEATER;
+import static com.example.locale.models.Constants.KEY_MUSEUM;
+import static com.example.locale.models.Constants.KEY_NIGHT_CLUB;
+import static com.example.locale.models.Constants.KEY_PARK;
+import static com.example.locale.models.Constants.KEY_RESTAURANT;
+import static com.example.locale.models.Constants.KEY_SHOPPING_MALL;
+import static com.example.locale.models.Constants.KEY_SPA;
+import static com.example.locale.models.Constants.KEY_STADIUM;
+import static com.example.locale.models.Constants.KEY_TOURIST_ATTRACTION;
 
 import android.os.Bundle;
+import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.view.ViewTreeObserver;
+import android.widget.AdapterView;
+import android.widget.ArrayAdapter;
+import android.widget.AutoCompleteTextView;
 import android.widget.TextView;
 
 import androidx.annotation.NonNull;
@@ -28,21 +46,33 @@ import com.example.locale.adapters.RecommendedLandmarksAdapter;
 import com.example.locale.models.Location;
 import com.example.locale.models.User;
 
+import org.json.JSONArray;
 import org.json.JSONException;
 
+import java.lang.reflect.Array;
 import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
 
 public class HomeFragment extends Fragment {
     private RecyclerView mRvLandmarks;
     private RecyclerView mRvRecommendedLandmarks;
-    private TextView mRecommendedDescription;
+
     private ArrayList<Location> mLandmarks;
     private ArrayList<Location> mRecommended;
+
     private HomeLandmarksAdapter mAdapter;
     private RecommendedLandmarksAdapter mRecommendedAdapter;
+    private ArrayAdapter mDropdownAdapter;
+
     private User mUser;
     private ConstraintLayout mOfflineBanner;
     private TextView mDismiss;
+    private TextView mRecommendedDescription;
+    private AutoCompleteTextView mTvAutocomplete;
+
+    private String mTypeToFilterBy;
 
     // Required empty public constructor
     public HomeFragment() {}
@@ -65,7 +95,56 @@ public class HomeFragment extends Fragment {
     public void onViewCreated(@NonNull View view, @Nullable Bundle savedInstanceState) {
         super.onViewCreated(view, savedInstanceState);
 
-        // Initialize the list of landmarks and adapter
+        // Allow users to filter landmarks by their interests
+        Map<String, String> interestsMap = new HashMap<>() {
+            {
+                put("Amusement Park", KEY_AMUSEMENT_PARK);
+                put("Aquarium", KEY_AQUARIUM);
+                put("Art Gallery", KEY_ART_GALLERY);
+                put("Bakery", KEY_BAKERY);
+                put("Cafe", KEY_CAFE);
+                put("Movie Theater", KEY_MOVIE_THEATER);
+                put("Museum", KEY_MUSEUM);
+                put("Night Club", KEY_NIGHT_CLUB);
+                put("Park", KEY_PARK);
+                put("Restaurant", KEY_RESTAURANT);
+                put("Shopping Mall", KEY_SHOPPING_MALL);
+                put("Spa", KEY_SPA);
+                put("Stadium", KEY_STADIUM);
+                put("Tourist Attraction", KEY_TOURIST_ATTRACTION);
+            }
+        };
+
+        ArrayList<String> interests = new ArrayList<>();
+        for (String key : interestsMap.keySet()){
+            interests.add(key);
+        }
+
+        mDropdownAdapter = new ArrayAdapter<String>(getContext(), R.layout.item_dropdown, interests);
+        mTvAutocomplete = view.findViewById(R.id.autoCompleteTextView);
+        mTvAutocomplete.setAdapter(mDropdownAdapter);
+
+        mTvAutocomplete.setOnItemClickListener(new AdapterView.OnItemClickListener(){
+            @Override
+            public void onItemClick(AdapterView<?> parent, View view, int position, long id) {
+                mTypeToFilterBy = mTvAutocomplete.getText().toString();
+
+                try {
+                    mLandmarks.clear();
+                    for (Location landmark : mUser.getNotVisited()){
+                        JSONArray landmarkTypes = landmark.getTypes();
+                        if (String.valueOf(landmarkTypes).contains(interestsMap.get(mTypeToFilterBy))){
+                            mLandmarks.add(landmark);
+                        }
+                    }
+                    mAdapter.notifyDataSetChanged();
+                } catch (JSONException e) {
+                    e.printStackTrace();
+                }
+            }
+        });
+
+        // Initialize the list of not visited landmarks and adapter
         mLandmarks = new ArrayList<>();
         mAdapter = new HomeLandmarksAdapter(getContext(), mLandmarks);
 
@@ -76,12 +155,25 @@ public class HomeFragment extends Fragment {
         mRvLandmarks.setAdapter(mAdapter);
 
         try {
-            mLandmarks.addAll(mUser.getNotVisited());
+            if (mTypeToFilterBy == null){
+                mLandmarks.addAll(mUser.getNotVisited());
+            }
+            else {
+                for (Location landmark : mUser.getNotVisited()){
+                    JSONArray landmarkTypes = landmark.getTypes();
+
+                    if (String.valueOf(landmarkTypes).contains(mTypeToFilterBy)){
+                        mLandmarks.add(landmark);
+                    }
+                }
+
+            }
+
         } catch (JSONException e) {
             e.printStackTrace();
         }
 
-        // Initialize the list of landmarks and adapter
+        // Initialize the list of recommended landmarks and adapter
         mRecommended = new ArrayList<>();
         mRecommendedAdapter = new RecommendedLandmarksAdapter(getContext(), mRecommended);
 
