@@ -5,7 +5,7 @@ a button for users to log out of the app.
 
 package com.example.locale.fragments;
 
-import static com.example.locale.activities.LoginActivity.connectedToNetwork;
+import static com.example.locale.activities.LoginSplashActivity.connectedToNetwork;
 import static com.example.locale.models.Constants.KEY_DATE_VISITED;
 import static com.example.locale.models.Constants.KEY_VISITED_LANDMARKS;
 import static com.example.locale.models.Constants.PROFILE_FRAGMENT_TAG;

@@ -126,7 +126,7 @@ public class MainActivity extends AppCompatActivity implements OnLocationVisited
             // has created their account. If there is no extra or the user did not just create their account
             // check the user's location against not visited landmarks
 
-            if (LoginActivity.connectedToNetwork && !(getIntent().hasExtra("Just Registered"))) {
+            if (LoginSplashActivity.connectedToNetwork && !(getIntent().hasExtra("Just Registered"))) {
                 // Get the user's location
                 fusedLocationClient = LocationServices.getFusedLocationProviderClient(MainActivity.this);
                 fusedLocationClient.getLastLocation().addOnSuccessListener( new OnSuccessListener<>() {

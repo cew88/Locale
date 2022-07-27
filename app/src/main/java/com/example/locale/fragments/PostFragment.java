@@ -1,6 +1,6 @@
 package com.example.locale.fragments;
 
-import static com.example.locale.activities.LoginActivity.connectedToNetwork;
+import static com.example.locale.activities.LoginSplashActivity.connectedToNetwork;
 import static com.example.locale.activities.MainActivity.showOfflineBannerPosts;
 import static com.example.locale.models.Constants.KEY_OBJECT_ID;
 import static com.example.locale.models.Constants.POSTS_FRAGMENT_TAG;

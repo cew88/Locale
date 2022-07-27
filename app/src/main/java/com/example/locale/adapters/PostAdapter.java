@@ -73,7 +73,12 @@ public class PostAdapter extends RecyclerView.Adapter<PostAdapter.ViewHolder>{
             mTvFirstNameLastName.setText(post.getFirstName() + " " + post.getLastName());
             mTvUsername.setText("@" + post.getUsername());
             mTvVisitedLocationName.setText(post.getFirstName() + " visited " + post.getPlaceName() + "!");
-            mTvReview.setText(post.getReview());
+
+            String review = post.getReview();
+            if (!review.equals("\"\"")){
+                mTvReview.setText(post.getReview());
+            }
+
 
             // Get photo byte array string
             String byteArrayString = post.getPhoto();

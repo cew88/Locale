@@ -38,7 +38,6 @@ import org.json.JSONException;
 import org.parceler.Parcels;
 
 public class LoginActivity extends AppCompatActivity {
-    public static boolean connectedToNetwork;
     private TextView mUsername;
     private TextView mPassword;
     private Button mLoginBtn;
@@ -123,32 +122,7 @@ public class LoginActivity extends AppCompatActivity {
         if(connectivityManager.getNetworkInfo(ConnectivityManager.TYPE_MOBILE).getState() == NetworkInfo.State.CONNECTED ||
                 connectivityManager.getNetworkInfo(ConnectivityManager.TYPE_WIFI).getState() == NetworkInfo.State.CONNECTED) {
             //The app is connected
-            connectedToNetwork = true;
-
-            // If the user is already logged in, skip the log in screen and navigate to the main activity
-            if (mCurrentUser != null){
-                // Access user data from the Room Database
-                mUser = userDao.getByUsername(mCurrentUser.getUsername());
-
-                // Create a new user with data from Parse
-                try {
-                    User user = new User(ParseUser.getCurrentUser(), onLocationsLoaded);
-                    // If the user is not stored locally but somehow logged in
-                    // Insert the user into the local database
-                    if (mUser == null){
-                        userDao.insertUser(user);
-                    }
-                    // If the user is stored locally, update what is in the local database with what is
-                    // stored in Parse
-                    else {
-                        mUser.setVisitedString(String.valueOf(mCurrentUser.getJSONArray(KEY_VISITED_LANDMARKS)));
-                        mUser.setNotVisitedString(String.valueOf(mCurrentUser.getJSONArray(KEY_NOT_VISITED_LANDMARKS)));
-                        userDao.updateUser(mUser);
-                    }
-                } catch (JSONException | InterruptedException e) {
-                    e.printStackTrace();
-                }
-            }
+            LoginSplashActivity.connectedToNetwork = true;
 
             // Handle what happens when the login button is clicked
             mLoginBtn.setOnClickListener(new View.OnClickListener() {
@@ -181,9 +155,12 @@ public class LoginActivity extends AppCompatActivity {
                                 }
                             }
                             else {
-                                mUser.setVisitedString(String.valueOf(mCurrentUser.getJSONArray(KEY_VISITED_LANDMARKS)));
-                                mUser.setNotVisitedString(String.valueOf(mCurrentUser.getJSONArray(KEY_NOT_VISITED_LANDMARKS)));
-                                userDao.updateUser(mUser);
+                                mCurrentUser = ParseUser.getCurrentUser();
+                                if (mCurrentUser != null){
+                                    mUser.setVisitedString(String.valueOf(mCurrentUser.getJSONArray(KEY_VISITED_LANDMARKS)));
+                                    mUser.setNotVisitedString(String.valueOf(mCurrentUser.getJSONArray(KEY_NOT_VISITED_LANDMARKS)));
+                                    userDao.updateUser(mUser);
+                                }
                                 navigateToMainActivity();
                             }
                             Toast.makeText(LoginActivity.this, "Login Successful!", Toast.LENGTH_SHORT).show();
@@ -203,7 +180,7 @@ public class LoginActivity extends AppCompatActivity {
 
         // The user is offline
         else {
-            connectedToNetwork = false;
+            LoginSplashActivity.connectedToNetwork = false;
             mLoginBtn.setOnClickListener(new View.OnClickListener() {
                 @Override
                 public void onClick(View v) {

@@ -5,7 +5,7 @@ visited yet.
 
 package com.example.locale.fragments;
 
-import static com.example.locale.activities.LoginActivity.connectedToNetwork;
+import static com.example.locale.activities.LoginSplashActivity.connectedToNetwork;
 import static com.example.locale.activities.MainActivity.showOfflineBanner;
 import static com.example.locale.models.Constants.KEY_AMUSEMENT_PARK;
 import static com.example.locale.models.Constants.KEY_AQUARIUM;
@@ -41,6 +41,7 @@ import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
 
 import com.example.locale.R;
+import com.example.locale.activities.LoginSplashActivity;
 import com.example.locale.adapters.HomeLandmarksAdapter;
 import com.example.locale.adapters.RecommendedLandmarksAdapter;
 import com.example.locale.models.Location;

@@ -55,10 +55,12 @@ public class MapsFragment extends Fragment implements OnLocationClickedListener 
             googleMap.addMarker(new MarkerOptions().position(currentLocation).title("Current Location"));
             googleMap.moveCamera(CameraUpdateFactory.newLatLngZoom(currentLocation, 12.0f));
 
-            for (int i=0; i<mNotVisitedLandmarks.size(); i++){
-                Location loc = mNotVisitedLandmarks.get(i);
-                LatLng newMarkerLocation = new LatLng(loc.getCoordinates().getLatitude(), loc.getCoordinates().getLongitude());
-                googleMap.addMarker(new MarkerOptions().position(newMarkerLocation).title(loc.getString(KEY_PLACE_NAME)).icon(BitmapDescriptorFactory.defaultMarker(96)));
+            if (mNotVisitedLandmarks != null){
+                for (int i=0; i<mNotVisitedLandmarks.size(); i++){
+                    Location loc = mNotVisitedLandmarks.get(i);
+                    LatLng newMarkerLocation = new LatLng(loc.getCoordinates().getLatitude(), loc.getCoordinates().getLongitude());
+                    googleMap.addMarker(new MarkerOptions().position(newMarkerLocation).title(loc.getString(KEY_PLACE_NAME)).icon(BitmapDescriptorFactory.defaultMarker(96)));
+                }
             }
         }
     };
@@ -102,7 +104,10 @@ public class MapsFragment extends Fragment implements OnLocationClickedListener 
         mRvLandmarks.setLayoutManager(linearLayoutManager);
         mRvLandmarks.setAdapter(mAdapter);
 
-        mLandmarks.addAll(mNotVisitedLandmarks);
+        if (mNotVisitedLandmarks != null){
+            mLandmarks.addAll(mNotVisitedLandmarks);
+        }
+
     }
 
     @Override

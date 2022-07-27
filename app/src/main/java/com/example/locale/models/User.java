@@ -309,7 +309,7 @@ public class User implements Parcelable{
             ArrayList<JSONObject> visitedLandmarks = new ArrayList<>();
             JSONArray jsonArray = new JSONArray(getVisitedString());
             for (int i=0; i<jsonArray.length(); i++){
-                visitedLandmarks.add(new JSONObject((String) jsonArray.get(i)));
+                visitedLandmarks.add(new JSONObject(String.valueOf(jsonArray.get(i))));
             }
             return visitedLandmarks;
         }

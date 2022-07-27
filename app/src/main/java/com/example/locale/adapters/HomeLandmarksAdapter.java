@@ -5,7 +5,7 @@ locations as visited.
 
 package com.example.locale.adapters;
 
-import static com.example.locale.activities.LoginActivity.connectedToNetwork;
+import static com.example.locale.activities.LoginSplashActivity.connectedToNetwork;
 import static com.example.locale.models.Constants.HOME_FRAGMENT_TAG;
 
 import android.content.Context;

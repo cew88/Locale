@@ -54,35 +54,35 @@ import java.util.Set;
 import okhttp3.Headers;
 
 public class InterestsActivity extends AppCompatActivity implements View.OnClickListener{
-    private Map<String, ArrayList<Integer>> mInterests = new HashMap<String, ArrayList<Integer>>() {
+    private Map<String, ArrayList<Integer>> mInterests = new HashMap<>() {
         {
-            put(KEY_AMUSEMENT_PARK, new ArrayList<Integer>(
+            put(KEY_AMUSEMENT_PARK, new ArrayList<>(
                     List.of(R.drawable.ferris_wheel, R.id.amusement_park)));
-            put(KEY_AQUARIUM, new ArrayList<Integer>(
+            put(KEY_AQUARIUM, new ArrayList<>(
                     List.of(R.drawable.fish, R.id.aquarium)));
-            put(KEY_ART_GALLERY, new ArrayList<Integer>(
+            put(KEY_ART_GALLERY, new ArrayList<>(
                     List.of(R.drawable.palette, R.id.art_gallery)));
-            put(KEY_BAKERY, new ArrayList<Integer>(
+            put(KEY_BAKERY, new ArrayList<>(
                     List.of(R.drawable.croissant, R.id.bakery)));
-            put(KEY_CAFE, new ArrayList<Integer>(
+            put(KEY_CAFE, new ArrayList<>(
                     List.of(R.drawable.mug, R.id.cafe)));
-            put(KEY_MOVIE_THEATER, new ArrayList<Integer>(
+            put(KEY_MOVIE_THEATER, new ArrayList<>(
                     List.of(R.drawable.popcorn, R.id.movie_theater)));
-            put(KEY_MUSEUM, new ArrayList<Integer>(
+            put(KEY_MUSEUM, new ArrayList<>(
                     List.of(R.drawable.bank, R.id.museum)));
-            put(KEY_NIGHT_CLUB, new ArrayList<Integer>(
+            put(KEY_NIGHT_CLUB, new ArrayList<>(
                     List.of(R.drawable.glass_cheers, R.id.night_club)));
-            put(KEY_PARK, new ArrayList<Integer>(
+            put(KEY_PARK, new ArrayList<>(
                     List.of(R.drawable.tree, R.id.park)));
-            put(KEY_RESTAURANT, new ArrayList<Integer>(
+            put(KEY_RESTAURANT, new ArrayList<>(
                     List.of(R.drawable.food, R.id.restaurant)));
-            put(KEY_SHOPPING_MALL, new ArrayList<Integer>(
+            put(KEY_SHOPPING_MALL, new ArrayList<>(
                     List.of(R.drawable.shopping, R.id.shopping_mall)));
-            put(KEY_SPA, new ArrayList<Integer>(
+            put(KEY_SPA, new ArrayList<>(
                     List.of(R.drawable.makeup_brush, R.id.spa)));
-            put(KEY_STADIUM, new ArrayList<Integer>(
+            put(KEY_STADIUM, new ArrayList<>(
                     List.of(R.drawable.basketball, R.id.stadium)));
-            put(KEY_TOURIST_ATTRACTION, new ArrayList<Integer>(
+            put(KEY_TOURIST_ATTRACTION, new ArrayList<>(
                     List.of(R.drawable.tourism, R.id.tourist_attraction)));
         }
     };
@@ -109,8 +109,6 @@ public class InterestsActivity extends AppCompatActivity implements View.OnClick
         // Initialize the SDK
         Places.initialize(getApplicationContext(), BuildConfig.MAPS_API_KEY);
 
-        // TO DO: SET THE BACKGROUND TINT FOR ALREADY SELECTED INTERESTS IF THIS ACTIVITY IS REUSED
-        // ON THE PROFILE PAGE TO ALLOW USERS TO EDIT THEIR INTERESTS
         for (String name : mInterests.keySet()){
             createNewInterest(name);
         }
