@@ -423,14 +423,13 @@ public class MainActivity extends AppCompatActivity implements OnLocationVisited
     // The following function creates a push notification
     private void createNotification(String title, String body){
         int NOTIFICATION_ID = 3;
-        Intent notifyIntent = new Intent(this, MainActivity.class);
+        Intent notifyIntent = new Intent(this, LoginSplashActivity.class);
         // Unique requestID to differentiate between various notifications with same id
         int requestID = (int) System.currentTimeMillis();
         // Cancel old intent and create new one
-        int flags = PendingIntent.FLAG_CANCEL_CURRENT;
+        int flags = PendingIntent.FLAG_IMMUTABLE;
         // Create a pending intent to open the app on click
         PendingIntent pendingIntent = PendingIntent.getActivity(this, requestID, notifyIntent, flags);
-
         NotificationCompat.Builder mBuilder = new NotificationCompat.Builder(this, "notificationChannel")
                 .setSmallIcon(R.drawable.marker)
                 .setContentTitle(title)
